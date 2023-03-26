@@ -16,7 +16,7 @@ ifeq ($(config),debug)
   TARGET = $(TARGETDIR)/Relic.lib
   OBJDIR = ../build/Debug-windows/Relic
   DEFINES += -DGL_PLATFORM_WINDOWS -DGL_DEBUG
-  INCLUDES += -Isource -I../vendor/SDL2/include
+  INCLUDES += -Isource -I../vendor/SDL2/include -I../vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
@@ -43,7 +43,7 @@ ifeq ($(config),release)
   TARGET = $(TARGETDIR)/Relic.lib
   OBJDIR = ../build/Release-windows/Relic
   DEFINES += -DGL_PLATFORM_WINDOWS -DGL_RELEASE
-  INCLUDES += -Isource -I../vendor/SDL2/include
+  INCLUDES += -Isource -I../vendor/SDL2/include -I../vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -g
@@ -70,7 +70,7 @@ ifeq ($(config),dist)
   TARGET = $(TARGETDIR)/Relic.lib
   OBJDIR = ../build/Dist-windows/Relic
   DEFINES += -DGL_PLATFORM_WINDOWS -DGL_DIST
-  INCLUDES += -Isource -I../vendor/SDL2/include
+  INCLUDES += -Isource -I../vendor/SDL2/include -I../vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
@@ -94,6 +94,7 @@ endif
 OBJECTS := \
 	$(OBJDIR)/Application.o \
 	$(OBJDIR)/Vector2.o \
+	$(OBJDIR)/Log.o \
 
 RESOURCES := \
 
@@ -156,6 +157,9 @@ $(OBJDIR)/Application.o: source/Relic/Application.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Vector2.o: source/Relic/Entity/Vector2.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Log.o: source/Relic/Log.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 

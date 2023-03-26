@@ -10,7 +10,8 @@ project "Relic"
     {
         "source",
 
-        "../vendor/SDL2/include"
+        "../vendor/SDL2/include",
+        "../vendor/spdlog/include"
     }
 
     libdirs { "../vendor/SDL2/lib" }

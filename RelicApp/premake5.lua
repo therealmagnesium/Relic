@@ -12,6 +12,7 @@ project "RelicApp"
         "../Relic/source",
 
         "../vendor/SDL2/include",
+        "../vendor/spdlog/include"
     }
 
     links

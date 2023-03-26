@@ -16,7 +16,7 @@ ifeq ($(config),debug)
   TARGET = $(TARGETDIR)/RelicApp.exe
   OBJDIR = ../build/Debug-windows/RelicApp
   DEFINES += -DGL_PLATFORM_WINDOWS -DGL_DEBUG
-  INCLUDES += -Isource -I../Relic/source -I../vendor/SDL2/include
+  INCLUDES += -Isource -I../Relic/source -I../vendor/SDL2/include -I../vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
@@ -43,7 +43,7 @@ ifeq ($(config),release)
   TARGET = $(TARGETDIR)/RelicApp.exe
   OBJDIR = ../build/Release-windows/RelicApp
   DEFINES += -DGL_PLATFORM_WINDOWS -DGL_RELEASE
-  INCLUDES += -Isource -I../Relic/source -I../vendor/SDL2/include
+  INCLUDES += -Isource -I../Relic/source -I../vendor/SDL2/include -I../vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -g
@@ -70,7 +70,7 @@ ifeq ($(config),dist)
   TARGET = $(TARGETDIR)/RelicApp.exe
   OBJDIR = ../build/Dist-windows/RelicApp
   DEFINES += -DGL_PLATFORM_WINDOWS -DGL_DIST
-  INCLUDES += -Isource -I../Relic/source -I../vendor/SDL2/include
+  INCLUDES += -Isource -I../Relic/source -I../vendor/SDL2/include -I../vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
