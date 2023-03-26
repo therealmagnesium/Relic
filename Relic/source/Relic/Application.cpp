@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Log.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -41,7 +42,7 @@ namespace Relic
             printf("Failed to make renderer: %s\n", SDL_GetError());
             return;
         }
-
+        
         SDL_SetRenderDrawColor(m_renderer, 0x00, 0x22, 077, 0xFF);
     }
 
@@ -64,6 +65,9 @@ namespace Relic
             if (event.type == SDL_QUIT) Close();
 
             SDL_RenderClear(m_renderer);
+
+            OnUpdate();
+
             SDL_RenderPresent(m_renderer);
         }
     }

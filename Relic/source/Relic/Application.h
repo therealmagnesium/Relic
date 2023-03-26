@@ -21,6 +21,9 @@ namespace Relic
         Application(const ApplicationProperties& props = ApplicationProperties());
         virtual ~Application();
 
+        virtual void OnStart() = 0;
+        virtual void OnUpdate() = 0;
+
         void Run();
         void Close();
 

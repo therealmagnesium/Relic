@@ -4,20 +4,22 @@
 class Game : public Relic::Application
 {
 public:
-    Game()
+    void OnStart() override
     {
+        RL_INFO("Game has started successfully");
+
         Relic::Vector2 v1(100.f, 100.f);
         Relic::Vector2 v2(200.f, 200.f);
         Relic::Vector2 v3 = v1 + v2;
 
-        printf("v1: %f, %f\n", v1.x, v1.y);        
-        printf("v2: %f, %f\n", v2.x, v2.y);        
-        printf("v1 + v2: %f, %f\n", v3.x, v1.y);        
+        RL_TRACE("v1: {}, {}", v1.x, v1.y);        
+        RL_TRACE("v2: {}, {}", v2.x, v2.y);        
+        RL_TRACE("v1 + v2 = {}", v3.x);        
     }
 
-    ~Game()
+    void OnUpdate() override
     {
-
+        
     }
 
 private:
@@ -26,5 +28,7 @@ private:
 
 Relic::Application* Relic::CreateApplication()
 {
-    return new Game();
+    Game* game = new Game();
+    game->OnStart();
+    return game;
 }
