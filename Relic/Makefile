@@ -16,7 +16,7 @@ ifeq ($(config),debug)
   TARGET = $(TARGETDIR)/Relic.lib
   OBJDIR = ../build/Debug-windows/Relic
   DEFINES += -DGL_PLATFORM_WINDOWS -DGL_DEBUG
-  INCLUDES += -Isource -I../vendor/SDL2/include -I../vendor/spdlog/include
+  INCLUDES += -Isource -Ivendor/SDL2/include -Ivendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
@@ -24,7 +24,7 @@ ifeq ($(config),debug)
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
   LIBS += -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
   LDDEPS +=
-  ALL_LDFLAGS += $(LDFLAGS) -L../vendor/SDL2/lib -L/usr/lib64 -m64
+  ALL_LDFLAGS += $(LDFLAGS) -Lvendor/SDL2/lib -L/usr/lib64 -m64
   LINKCMD = $(AR) -rcs "$@" $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -43,7 +43,7 @@ ifeq ($(config),release)
   TARGET = $(TARGETDIR)/Relic.lib
   OBJDIR = ../build/Release-windows/Relic
   DEFINES += -DGL_PLATFORM_WINDOWS -DGL_RELEASE
-  INCLUDES += -Isource -I../vendor/SDL2/include -I../vendor/spdlog/include
+  INCLUDES += -Isource -Ivendor/SDL2/include -Ivendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -g
@@ -51,7 +51,7 @@ ifeq ($(config),release)
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
   LIBS += -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
   LDDEPS +=
-  ALL_LDFLAGS += $(LDFLAGS) -L../vendor/SDL2/lib -L/usr/lib64 -m64
+  ALL_LDFLAGS += $(LDFLAGS) -Lvendor/SDL2/lib -L/usr/lib64 -m64
   LINKCMD = $(AR) -rcs "$@" $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -70,7 +70,7 @@ ifeq ($(config),dist)
   TARGET = $(TARGETDIR)/Relic.lib
   OBJDIR = ../build/Dist-windows/Relic
   DEFINES += -DGL_PLATFORM_WINDOWS -DGL_DIST
-  INCLUDES += -Isource -I../vendor/SDL2/include -I../vendor/spdlog/include
+  INCLUDES += -Isource -Ivendor/SDL2/include -Ivendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
@@ -78,7 +78,7 @@ ifeq ($(config),dist)
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
   LIBS += -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
   LDDEPS +=
-  ALL_LDFLAGS += $(LDFLAGS) -L../vendor/SDL2/lib -L/usr/lib64 -m64 -s
+  ALL_LDFLAGS += $(LDFLAGS) -Lvendor/SDL2/lib -L/usr/lib64 -m64 -s
   LINKCMD = $(AR) -rcs "$@" $(OBJECTS)
   define PREBUILDCMDS
   endef

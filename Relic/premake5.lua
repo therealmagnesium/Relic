@@ -2,19 +2,23 @@ project "Relic"
     kind "StaticLib"
     language "C++"
     cppdialect "C++14"
-    staticruntime "on"
+    staticruntime "off"
 
-    files { "source/**.h", "source/**.cpp" }
+    files 
+    { 
+        "source/**.h", 
+        "source/**.cpp"
+    }
 
     includedirs
     {
         "source",
 
-        "../vendor/SDL2/include",
-        "../vendor/spdlog/include"
+        "vendor/SDL2/include",
+        "vendor/spdlog/include"
     }
 
-    libdirs { "../vendor/SDL2/lib" }
+    libdirs { "vendor/SDL2/lib" }
 
     links
     {

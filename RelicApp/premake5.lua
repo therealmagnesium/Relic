@@ -2,7 +2,7 @@ project "RelicApp"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++14"
-    staticruntime "on"
+    staticruntime "off"
 
     files { "source/**.h", "source/**.cpp" }
 
@@ -10,15 +10,13 @@ project "RelicApp"
     {
         "source",
         "../Relic/source",
-
-        "../vendor/SDL2/include",
-        "../vendor/spdlog/include"
+        "../Relic/vendor/spdlog/include",
+        "../Relic/SDL2/include"
     }
 
     links
     {
         "Relic",
-        "mingw32",
         "SDL2main",
         "SDL2",
         "SDL2_image"

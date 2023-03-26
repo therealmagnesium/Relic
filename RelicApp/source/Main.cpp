@@ -1,5 +1,4 @@
 #include <Relic.h>
-#include <SDL2/SDL.h>
 
 class Game : public Relic::Application
 {
