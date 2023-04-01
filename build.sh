@@ -1,6 +1,10 @@
 #!/bin/bash
 
-vendor/bin/"$1"/premake5 gmake
+if [ "$1" == "windows" ] || [ "$1" == "linux" ]; then
+    vendor/"$1"/premake5 gmake
+else
+    echo "Invalid argument"
+fi
 
 if [ "$2" == "debug" ]; then
     echo "Performing debug build..."
