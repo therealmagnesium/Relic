@@ -2,52 +2,52 @@ project "Relic"
     kind "StaticLib"
     language "C++"
     cppdialect "C++14"
-    staticruntime "off"
+    staticruntime "on"
 
+    targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("../build/" .. outputdir .. "/%{prj.name}")
+    
     files 
     { 
         "source/**.h", 
         "source/**.cpp"
     }
-
+    
     includedirs
     {
         "source",
 
-        "vendor/SDL2/include",
+        "vendor/sfml/include",
         "vendor/spdlog/include"
     }
 
-    libdirs { "vendor/SDL2/lib" }
+    libdirs { "vendor/sfml/lib" }
 
     links
     {
-        "mingw32",
-        "SDL2main",
-        "SDL2",
-        "SDL2_image"
+        "sfml-main",
+        "sfml-system",
+        "sfml-graphics",
+        "sfml-window"
     }
 
-    targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("../build/" .. outputdir .. "/%{prj.name}")
 
     filter "system:windows"
-    systemversion "latest"
-    defines { "GL_PLATFORM_WINDOWS" }
+        systemversion "latest"    
 
     filter "configurations:Debug"
-        defines { "GL_DEBUG" }
+        defines { "RL_DEBUG" }
         runtime "Debug"
         symbols "On"
 
     filter "configurations:Release"
-        defines { "GL_RELEASE" }
+        defines { "RL_RELEASE" }
         runtime "Release"
         optimize "On"
         symbols "On"
 
     filter "configurations:Dist"
-        defines { "GL_DIST" }
+        defines { "RL_DIST" }
         runtime "Release"
         optimize "On"
         symbols "Off"

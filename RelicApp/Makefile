@@ -15,16 +15,16 @@ ifeq ($(config),debug)
   TARGETDIR = ../bin/Debug-windows/RelicApp
   TARGET = $(TARGETDIR)/RelicApp.exe
   OBJDIR = ../build/Debug-windows/RelicApp
-  DEFINES += -DGL_PLATFORM_WINDOWS -DGL_DEBUG
-  INCLUDES += -Isource -I../Relic/source -I../Relic/vendor/spdlog/include -I../Relic/SDL2/include
+  DEFINES += -DRL_DEBUG
+  INCLUDES += -I../Relic/source -I../Relic/vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++14
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Debug-windows/Relic/Relic.lib -lSDL2main -lSDL2 -lSDL2_image
+  LIBS += ../bin/Debug-windows/Relic/Relic.lib -lsfml-system -lsfml-graphics -lsfml-window
   LDDEPS += ../bin/Debug-windows/Relic/Relic.lib
-  ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64
+  ALL_LDFLAGS += $(LDFLAGS) -L../Relic/vendor/sfml/lib -L/usr/lib64 -m64
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
@@ -42,16 +42,16 @@ ifeq ($(config),release)
   TARGETDIR = ../bin/Release-windows/RelicApp
   TARGET = $(TARGETDIR)/RelicApp.exe
   OBJDIR = ../build/Release-windows/RelicApp
-  DEFINES += -DGL_PLATFORM_WINDOWS -DGL_RELEASE
-  INCLUDES += -Isource -I../Relic/source -I../Relic/vendor/spdlog/include -I../Relic/SDL2/include
+  DEFINES += -DRL_RELEASE
+  INCLUDES += -I../Relic/source -I../Relic/vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -g
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -g -std=c++14
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Release-windows/Relic/Relic.lib -lSDL2main -lSDL2 -lSDL2_image
+  LIBS += ../bin/Release-windows/Relic/Relic.lib -lsfml-system -lsfml-graphics -lsfml-window
   LDDEPS += ../bin/Release-windows/Relic/Relic.lib
-  ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64
+  ALL_LDFLAGS += $(LDFLAGS) -L../Relic/vendor/sfml/lib -L/usr/lib64 -m64
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
@@ -69,16 +69,16 @@ ifeq ($(config),dist)
   TARGETDIR = ../bin/Dist-windows/RelicApp
   TARGET = $(TARGETDIR)/RelicApp.exe
   OBJDIR = ../build/Dist-windows/RelicApp
-  DEFINES += -DGL_PLATFORM_WINDOWS -DGL_DIST
-  INCLUDES += -Isource -I../Relic/source -I../Relic/vendor/spdlog/include -I../Relic/SDL2/include
+  DEFINES += -DRL_DIST
+  INCLUDES += -I../Relic/source -I../Relic/vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++14
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Dist-windows/Relic/Relic.lib -lSDL2main -lSDL2 -lSDL2_image
+  LIBS += ../bin/Dist-windows/Relic/Relic.lib -lsfml-system -lsfml-graphics -lsfml-window
   LDDEPS += ../bin/Dist-windows/Relic/Relic.lib
-  ALL_LDFLAGS += $(LDFLAGS) -L/usr/lib64 -m64 -mwindows -s
+  ALL_LDFLAGS += $(LDFLAGS) -L../Relic/vendor/sfml/lib -L/usr/lib64 -m64 -mwindows -s
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef

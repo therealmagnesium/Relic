@@ -2,47 +2,51 @@ project "RelicApp"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++14"
-    staticruntime "off"
-
-    files { "source/**.h", "source/**.cpp" }
-
-    includedirs
-    {
-        "source",
-        "../Relic/source",
-        "../Relic/vendor/spdlog/include",
-        "../Relic/SDL2/include"
-    }
-
-    links
-    {
-        "Relic",
-        "SDL2main",
-        "SDL2",
-        "SDL2_image"
-    }
-
+    staticruntime "on"
+    
     targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
     objdir ("../build/" .. outputdir .. "/%{prj.name}")
 
+    files 
+    {
+        "source/**.h", 
+        "source/**.cpp" 
+    }
+
+    includedirs
+    {
+        "../Relic/source",
+        "../Relic/vendor/spdlog/include"
+    }
+
+    libdirs { "../Relic/vendor/sfml/lib" }
+
+    links
+    {
+        "sfml-system",
+        "sfml-graphics",
+        "sfml-window",
+        "Relic"
+    }
+
+
     filter "system:windows"
-    systemversion "latest"
-    defines { "GL_PLATFORM_WINDOWS" }
+        systemversion "latest"
 
     filter "configurations:Debug"
-        defines { "GL_DEBUG" }
+        defines { "RL_DEBUG" }
         runtime "Debug"
         symbols "On"
 
     filter "configurations:Release"
-        defines { "GL_RELEASE" }
+        defines { "RL_RELEASE" }
         runtime "Release"
         optimize "On"
         symbols "On"
 
     filter "configurations:Dist"
         kind "WindowedApp"
-        defines { "GL_DIST" }
+        defines { "RL_DIST" }
         runtime "Release"
         optimize "On"
         symbols "Off"

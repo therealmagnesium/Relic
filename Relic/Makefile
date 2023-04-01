@@ -15,16 +15,16 @@ ifeq ($(config),debug)
   TARGETDIR = ../bin/Debug-windows/Relic
   TARGET = $(TARGETDIR)/Relic.lib
   OBJDIR = ../build/Debug-windows/Relic
-  DEFINES += -DGL_PLATFORM_WINDOWS -DGL_DEBUG
-  INCLUDES += -Isource -Ivendor/SDL2/include -Ivendor/spdlog/include
+  DEFINES += -DRL_DEBUG
+  INCLUDES += -Isource -Ivendor/sfml/include -Ivendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++14
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
+  LIBS += -lsfml-main -lsfml-system -lsfml-graphics -lsfml-window
   LDDEPS +=
-  ALL_LDFLAGS += $(LDFLAGS) -Lvendor/SDL2/lib -L/usr/lib64 -m64
+  ALL_LDFLAGS += $(LDFLAGS) -Lvendor/sfml/lib -L/usr/lib64 -m64
   LINKCMD = $(AR) -rcs "$@" $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -42,16 +42,16 @@ ifeq ($(config),release)
   TARGETDIR = ../bin/Release-windows/Relic
   TARGET = $(TARGETDIR)/Relic.lib
   OBJDIR = ../build/Release-windows/Relic
-  DEFINES += -DGL_PLATFORM_WINDOWS -DGL_RELEASE
-  INCLUDES += -Isource -Ivendor/SDL2/include -Ivendor/spdlog/include
+  DEFINES += -DRL_RELEASE
+  INCLUDES += -Isource -Ivendor/sfml/include -Ivendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -g
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -g -std=c++14
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
+  LIBS += -lsfml-main -lsfml-system -lsfml-graphics -lsfml-window
   LDDEPS +=
-  ALL_LDFLAGS += $(LDFLAGS) -Lvendor/SDL2/lib -L/usr/lib64 -m64
+  ALL_LDFLAGS += $(LDFLAGS) -Lvendor/sfml/lib -L/usr/lib64 -m64
   LINKCMD = $(AR) -rcs "$@" $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -69,16 +69,16 @@ ifeq ($(config),dist)
   TARGETDIR = ../bin/Dist-windows/Relic
   TARGET = $(TARGETDIR)/Relic.lib
   OBJDIR = ../build/Dist-windows/Relic
-  DEFINES += -DGL_PLATFORM_WINDOWS -DGL_DIST
-  INCLUDES += -Isource -Ivendor/SDL2/include -Ivendor/spdlog/include
+  DEFINES += -DRL_DIST
+  INCLUDES += -Isource -Ivendor/sfml/include -Ivendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++14
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
+  LIBS += -lsfml-main -lsfml-system -lsfml-graphics -lsfml-window
   LDDEPS +=
-  ALL_LDFLAGS += $(LDFLAGS) -Lvendor/SDL2/lib -L/usr/lib64 -m64 -s
+  ALL_LDFLAGS += $(LDFLAGS) -Lvendor/sfml/lib -L/usr/lib64 -m64 -s
   LINKCMD = $(AR) -rcs "$@" $(OBJECTS)
   define PREBUILDCMDS
   endef
@@ -93,6 +93,8 @@ endif
 
 OBJECTS := \
 	$(OBJDIR)/Application.o \
+	$(OBJDIR)/Entity.o \
+	$(OBJDIR)/EntityManager.o \
 	$(OBJDIR)/Vector2.o \
 	$(OBJDIR)/Log.o \
 
@@ -154,6 +156,12 @@ $(OBJECTS): | $(OBJDIR)
 endif
 
 $(OBJDIR)/Application.o: source/Relic/Application.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/Entity.o: source/Relic/Entity/Entity.cpp
+	@echo $(notdir $<)
+	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/EntityManager.o: source/Relic/Entity/EntityManager.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 $(OBJDIR)/Vector2.o: source/Relic/Entity/Vector2.cpp
