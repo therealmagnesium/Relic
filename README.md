@@ -1,6 +1,8 @@
+![BasicRelicApp](screenshots/BasicRelicApp.png)
+![BasicRelicApp](screenshots/PlayableRelicApp.png)
 # Relic Game Engine
 
-Relic is a small, cross platform, 2d game engine developed in C++14 with sfml for handeling window events and rendering. <br>
+Relic is a small, cross platform, 2d game engine developed in C++14 with sfml for handeling window events and rendering.
 Relic is currently supported for Windows and Linux.
 
 Magnus Ahlstromer V (mahlstromerv@gmail.com)
