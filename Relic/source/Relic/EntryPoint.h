@@ -1,6 +1,4 @@
 #pragma once
-#include "Application.h"
-#include "Log.h"
 
 extern Relic::Application* Relic::CreateApplication();
 

@@ -23,10 +23,10 @@ namespace Relic
 #define RL_CORE_INFO(...) Relic::Log::GetCoreLogger()->info(__VA_ARGS__);
 #define RL_CORE_WARN(...) Relic::Log::GetCoreLogger()->warn(__VA_ARGS__);
 #define RL_CORE_ERROR(...) Relic::Log::GetCoreLogger()->error(__VA_ARGS__);
-#define RL_CORE_FATAL(...) Relic::Log::GetCoreLogger()->fatal(__VA_ARGS__);
+#define RL_CORE_CRITICAL(...) Relic::Log::GetCoreLogger()->critical(__VA_ARGS__);
 
 #define RL_TRACE(...) Relic::Log::GetClientLogger()->trace(__VA_ARGS__);
 #define RL_INFO(...) Relic::Log::GetClientLogger()->info(__VA_ARGS__);
 #define RL_WARN(...) Relic::Log::GetClientLogger()->warn(__VA_ARGS__);
 #define RL_ERROR(...) Relic::Log::GetClientLogger()->error(__VA_ARGS__);
-#define RL_FATAL(...) Relic::Log::GetClientLogger()->fatal(__VA_ARGS__);
+#define RL_CRITICAL(...) Relic::Log::GetClientLogger()->critical(__VA_ARGS__);

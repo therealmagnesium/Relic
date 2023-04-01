@@ -1,11 +1,9 @@
 #include "Application.h"
 #include "Log.h"
+#include "Entity/EntityManager.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
 
 namespace Relic
 {
@@ -22,53 +20,43 @@ namespace Relic
 
     void Application::Init()
     {
-        if (SDL_Init(SDL_INIT_EVERYTHING) != 0 || !IMG_Init(IMG_INIT_PNG))
-        {
-            printf("Failed to init sdl2: %s\n", SDL_GetError());
-            return;
-        }
-
-        m_windowHandle = SDL_CreateWindow(m_properties.name.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                            m_properties.width, m_properties.height, 0);
+        RL_CORE_TRACE("{}, {}, {}", m_properties.name, m_properties.width, m_properties.height);
+        m_windowHandle = new sf::RenderWindow(sf::VideoMode(m_properties.width, m_properties.height), m_properties.name);
         if (!m_windowHandle)
         {
-            printf("Failed to make window: %s\n", SDL_GetError());
+            RL_ERROR("Failed to make window!");
             return;
         }
-
-        m_renderer = SDL_CreateRenderer(m_windowHandle, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-        if (!m_renderer)
-        {
-            printf("Failed to make renderer: %s\n", SDL_GetError());
-            return;
-        }
-        
-        SDL_SetRenderDrawColor(m_renderer, 0x00, 0x22, 077, 0xFF);
+        m_windowHandle->setFramerateLimit(60);
     }
 
     void Application::Shutdown()
     {
-        SDL_DestroyWindow(m_windowHandle);
-        SDL_DestroyRenderer(m_renderer);
-        IMG_Quit();
-        SDL_Quit();
+        m_windowHandle->close();
+        delete m_windowHandle;
     }
 
     void Application::Run()
     {
-        m_running = true;
+        m_running = m_windowHandle->isOpen();
         
         while (m_running)
         {
-            SDL_Event event;
-            SDL_PollEvent(&event);
-            if (event.type == SDL_QUIT) Close();
-
-            SDL_RenderClear(m_renderer);
+            sf::Event event;
+            while (m_windowHandle->pollEvent(event))
+            {
+                if (event.type == sf::Event::Closed)
+                {
+                    m_windowHandle->close();
+                    Close();
+                }
+            }
 
             OnUpdate();
 
-            SDL_RenderPresent(m_renderer);
+            m_windowHandle->clear(sf::Color(0x0a0a0aFF));
+            OnRender();
+            m_windowHandle->display();
         }
     }
 
@@ -76,4 +64,9 @@ namespace Relic
     {
         m_running = false;
     } 
+
+    void Application::Draw(const sf::Drawable& drawable)
+    {
+        m_windowHandle->draw(drawable);
+    }
 }

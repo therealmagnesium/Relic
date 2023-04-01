@@ -1,10 +1,9 @@
 #pragma once
+#include <SFML/Graphics.hpp>
+
 #include <string>
 #include <memory>
 #include <vector>
-
-struct SDL_Window;
-struct SDL_Renderer;
 
 namespace Relic
 {
@@ -23,11 +22,16 @@ namespace Relic
 
         virtual void OnStart() = 0;
         virtual void OnUpdate() = 0;
+        virtual void OnRender() = 0;
 
         void Run();
         void Close();
+        
+        void Draw(const sf::Drawable& drawable);
 
-        SDL_Window* GetWindowHandle() const { return m_windowHandle; }
+        inline const std::string& GetTitle() const { return m_properties.name; }
+        inline uint32_t GetWindowWidth() const { return m_properties.width; }
+        inline uint32_t GetWindowHeight() const { return m_properties.height; }
 
     private:
         void Init();
@@ -37,8 +41,7 @@ namespace Relic
         ApplicationProperties m_properties;
         bool m_running = false;
 
-        SDL_Window* m_windowHandle = nullptr;
-        SDL_Renderer* m_renderer = nullptr;
+        sf::RenderWindow* m_windowHandle;
     };
 
     Application* CreateApplication();
