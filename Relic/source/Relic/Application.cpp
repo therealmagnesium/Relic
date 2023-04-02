@@ -54,7 +54,7 @@ namespace Relic
 
             OnUpdate();
 
-            m_windowHandle->clear(sf::Color(0x0a0a0aFF));
+            m_windowHandle->clear(sf::Color(0x0A0A0AFF));
             OnRender();
             m_windowHandle->display();
         }
