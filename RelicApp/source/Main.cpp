@@ -3,6 +3,11 @@
 class BasicRelicApp : public Relic::Application
 {
 public:
+    BasicRelicApp(const Relic::ApplicationProperties& props) : Relic::Application(props)
+    {
+
+    }
+
     void OnStart() override
     {
         // Log example texts to the console (will not show in dist build)
@@ -41,7 +46,7 @@ class PlayableRelicApp : public Relic::Application
 {
 public:
     PlayableRelicApp(const Relic::ApplicationProperties& props) : Relic::Application(props)
-    {
+    { 
 
     }
 
@@ -58,8 +63,10 @@ public:
             setting the fill color to 0x00000000 gives transparency
             effect
         */
-        m_octogon = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(2.f, 4.f), 32.f, 8, sf::Color(0x00000000), sf::Color::Red);
-        m_square = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(4.f, 2.f), 64.f, 4, sf::Color(0x00000000), sf::Color::Green);
+        m_octogon = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(3.f, 6.f), 32.f, 8, sf::Color(0x00000000), sf::Color::Red);
+        m_square = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(6.f, 3.f), 64.f, 4, sf::Color(0x00000000), sf::Color::Green);
+          
+        SpawnEntity(Relic::Vector2(1200.f, 500.f), Relic::Vector2(0.f, 0.f), 32.f, 3, sf::Color(0x00000000), sf::Color::Blue);
     }
 
     void OnUpdate() override
@@ -96,7 +103,7 @@ public:
                 e->transform->angle = 0.f;
 
             // Set the entity's actual shape rotation at its transform's rotation
-            e->shape->circle.setRotation(e->transform->angle);
+            e->shape->circle.setRotation(e->GetAngle());
 
             // Draw every entity's shape
             Draw(e->shape->circle);
