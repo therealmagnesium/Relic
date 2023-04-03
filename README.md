@@ -15,4 +15,4 @@ Magnus Ahlstromer V (mahlstromerv@gmail.com)
 
 # Screenshots
 ![BasicRelicApp](screenshots/BasicRelicApp.png)
-![BasicRelicApp](screenshots/PlayableRelicApp.png)
+![PlayableRelicApp](screenshots/PlayableRelicApp.png)
