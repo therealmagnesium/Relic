@@ -1,11 +1,11 @@
-project "RelicApp"
+project "BasicRelicApp"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++14"
     staticruntime "on"
     
-    targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
-    objdir ("../build/" .. outputdir .. "/%{prj.name}")
+    targetdir ("../../bin/" .. outputdir .. "/%{prj.name}")
+    objdir ("../../build/" .. outputdir .. "/%{prj.name}")
 
     files 
     {
@@ -15,11 +15,11 @@ project "RelicApp"
 
     includedirs
     {
-        "../Relic/source",
-        "../Relic/vendor/spdlog/include"
+        "../../Relic/source",
+        "../../Relic/vendor/spdlog/include"
     }
 
-    libdirs { "../Relic/vendor/sfml/lib" }
+    libdirs { "../../Relic/vendor/sfml/lib" }
 
     links
     {
@@ -31,6 +31,9 @@ project "RelicApp"
 
 
     filter "system:windows"
+        systemversion "latest"
+
+    filter "system:linux"
         systemversion "latest"
 
     filter "configurations:Debug"

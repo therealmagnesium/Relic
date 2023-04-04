@@ -10,18 +10,21 @@ endif
 
 ifeq ($(config),debug)
   Relic_config = debug
-  RelicApp_config = debug
+  BasicRelicApp_config = debug
+  PlayableRelicApp_config = debug
 endif
 ifeq ($(config),release)
   Relic_config = release
-  RelicApp_config = release
+  BasicRelicApp_config = release
+  PlayableRelicApp_config = release
 endif
 ifeq ($(config),dist)
   Relic_config = dist
-  RelicApp_config = dist
+  BasicRelicApp_config = dist
+  PlayableRelicApp_config = dist
 endif
 
-PROJECTS := Relic RelicApp
+PROJECTS := Relic BasicRelicApp PlayableRelicApp
 
 .PHONY: all clean help $(PROJECTS) 
 
@@ -33,15 +36,22 @@ ifneq (,$(Relic_config))
 	@${MAKE} --no-print-directory -C Relic -f Makefile config=$(Relic_config)
 endif
 
-RelicApp: Relic
-ifneq (,$(RelicApp_config))
-	@echo "==== Building RelicApp ($(RelicApp_config)) ===="
-	@${MAKE} --no-print-directory -C RelicApp -f Makefile config=$(RelicApp_config)
+BasicRelicApp: Relic
+ifneq (,$(BasicRelicApp_config))
+	@echo "==== Building BasicRelicApp ($(BasicRelicApp_config)) ===="
+	@${MAKE} --no-print-directory -C Examples/BasicRelicApp -f Makefile config=$(BasicRelicApp_config)
+endif
+
+PlayableRelicApp: Relic
+ifneq (,$(PlayableRelicApp_config))
+	@echo "==== Building PlayableRelicApp ($(PlayableRelicApp_config)) ===="
+	@${MAKE} --no-print-directory -C Examples/PlayableRelicApp -f Makefile config=$(PlayableRelicApp_config)
 endif
 
 clean:
 	@${MAKE} --no-print-directory -C Relic -f Makefile clean
-	@${MAKE} --no-print-directory -C RelicApp -f Makefile clean
+	@${MAKE} --no-print-directory -C Examples/BasicRelicApp -f Makefile clean
+	@${MAKE} --no-print-directory -C Examples/PlayableRelicApp -f Makefile clean
 
 help:
 	@echo "Usage: make [config=name] [target]"
@@ -55,6 +65,7 @@ help:
 	@echo "   all (default)"
 	@echo "   clean"
 	@echo "   Relic"
-	@echo "   RelicApp"
+	@echo "   BasicRelicApp"
+	@echo "   PlayableRelicApp"
 	@echo ""
 	@echo "For more information, see https://github.com/premake/premake-core/wiki"

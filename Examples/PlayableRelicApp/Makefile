@@ -12,19 +12,19 @@ endif
 
 ifeq ($(config),debug)
   RESCOMP = windres
-  TARGETDIR = ../bin/Debug-windows/RelicApp
-  TARGET = $(TARGETDIR)/RelicApp.exe
-  OBJDIR = ../build/Debug-windows/RelicApp
+  TARGETDIR = ../../bin/Debug-windows/PlayableRelicApp
+  TARGET = $(TARGETDIR)/PlayableRelicApp.exe
+  OBJDIR = ../../build/Debug-windows/PlayableRelicApp
   DEFINES += -DRL_DEBUG
-  INCLUDES += -I../Relic/source -I../Relic/vendor/spdlog/include
+  INCLUDES += -I../../Relic/source -I../../Relic/vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -g
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -g -std=c++14
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Debug-windows/Relic/Relic.lib -lsfml-system -lsfml-graphics -lsfml-window
-  LDDEPS += ../bin/Debug-windows/Relic/Relic.lib
-  ALL_LDFLAGS += $(LDFLAGS) -L../Relic/vendor/sfml/lib -L/usr/lib64 -m64
+  LIBS += ../../bin/Debug-windows/Relic/Relic.lib -lsfml-system -lsfml-graphics -lsfml-window
+  LDDEPS += ../../bin/Debug-windows/Relic/Relic.lib
+  ALL_LDFLAGS += $(LDFLAGS) -L../../Relic/vendor/sfml/lib -L/usr/lib64 -m64
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
@@ -39,19 +39,19 @@ endif
 
 ifeq ($(config),release)
   RESCOMP = windres
-  TARGETDIR = ../bin/Release-windows/RelicApp
-  TARGET = $(TARGETDIR)/RelicApp.exe
-  OBJDIR = ../build/Release-windows/RelicApp
+  TARGETDIR = ../../bin/Release-windows/PlayableRelicApp
+  TARGET = $(TARGETDIR)/PlayableRelicApp.exe
+  OBJDIR = ../../build/Release-windows/PlayableRelicApp
   DEFINES += -DRL_RELEASE
-  INCLUDES += -I../Relic/source -I../Relic/vendor/spdlog/include
+  INCLUDES += -I../../Relic/source -I../../Relic/vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -g
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -g -std=c++14
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Release-windows/Relic/Relic.lib -lsfml-system -lsfml-graphics -lsfml-window
-  LDDEPS += ../bin/Release-windows/Relic/Relic.lib
-  ALL_LDFLAGS += $(LDFLAGS) -L../Relic/vendor/sfml/lib -L/usr/lib64 -m64
+  LIBS += ../../bin/Release-windows/Relic/Relic.lib -lsfml-system -lsfml-graphics -lsfml-window
+  LDDEPS += ../../bin/Release-windows/Relic/Relic.lib
+  ALL_LDFLAGS += $(LDFLAGS) -L../../Relic/vendor/sfml/lib -L/usr/lib64 -m64
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
@@ -66,19 +66,19 @@ endif
 
 ifeq ($(config),dist)
   RESCOMP = windres
-  TARGETDIR = ../bin/Dist-windows/RelicApp
-  TARGET = $(TARGETDIR)/RelicApp.exe
-  OBJDIR = ../build/Dist-windows/RelicApp
+  TARGETDIR = ../../bin/Dist-windows/PlayableRelicApp
+  TARGET = $(TARGETDIR)/PlayableRelicApp.exe
+  OBJDIR = ../../build/Dist-windows/PlayableRelicApp
   DEFINES += -DRL_DIST
-  INCLUDES += -I../Relic/source -I../Relic/vendor/spdlog/include
+  INCLUDES += -I../../Relic/source -I../../Relic/vendor/spdlog/include
   FORCE_INCLUDE +=
   ALL_CPPFLAGS += $(CPPFLAGS) -MD -MP $(DEFINES) $(INCLUDES)
   ALL_CFLAGS += $(CFLAGS) $(ALL_CPPFLAGS) -m64 -O2
   ALL_CXXFLAGS += $(CXXFLAGS) $(ALL_CPPFLAGS) -m64 -O2 -std=c++14
   ALL_RESFLAGS += $(RESFLAGS) $(DEFINES) $(INCLUDES)
-  LIBS += ../bin/Dist-windows/Relic/Relic.lib -lsfml-system -lsfml-graphics -lsfml-window
-  LDDEPS += ../bin/Dist-windows/Relic/Relic.lib
-  ALL_LDFLAGS += $(LDFLAGS) -L../Relic/vendor/sfml/lib -L/usr/lib64 -m64 -mwindows -s
+  LIBS += ../../bin/Dist-windows/Relic/Relic.lib -lsfml-system -lsfml-graphics -lsfml-window
+  LDDEPS += ../../bin/Dist-windows/Relic/Relic.lib
+  ALL_LDFLAGS += $(LDFLAGS) -L../../Relic/vendor/sfml/lib -L/usr/lib64 -m64 -mwindows -s
   LINKCMD = $(CXX) -o "$@" $(OBJECTS) $(RESOURCES) $(ALL_LDFLAGS) $(LIBS)
   define PREBUILDCMDS
   endef
@@ -92,7 +92,7 @@ all: prebuild prelink $(TARGET)
 endif
 
 OBJECTS := \
-	$(OBJDIR)/Main.o \
+	$(OBJDIR)/PlayableRelicApp.o \
 
 RESOURCES := \
 
@@ -104,7 +104,7 @@ ifeq (.exe,$(findstring .exe,$(ComSpec)))
 endif
 
 $(TARGET): $(GCH) ${CUSTOMFILES} $(OBJECTS) $(LDDEPS) $(RESOURCES) | $(TARGETDIR)
-	@echo Linking RelicApp
+	@echo Linking PlayableRelicApp
 	$(SILENT) $(LINKCMD)
 	$(POSTBUILDCMDS)
 
@@ -127,7 +127,7 @@ else
 endif
 
 clean:
-	@echo Cleaning RelicApp
+	@echo Cleaning PlayableRelicApp
 ifeq (posix,$(SHELLTYPE))
 	$(SILENT) rm -f  $(TARGET)
 	$(SILENT) rm -rf $(OBJDIR)
@@ -151,7 +151,7 @@ else
 $(OBJECTS): | $(OBJDIR)
 endif
 
-$(OBJDIR)/Main.o: source/Main.cpp
+$(OBJDIR)/PlayableRelicApp.o: source/PlayableRelicApp.cpp
 	@echo $(notdir $<)
 	$(SILENT) $(CXX) $(ALL_CXXFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 
