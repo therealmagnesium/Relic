@@ -4,15 +4,24 @@ Relic is currently supported for Windows and Linux.
 
 Magnus Ahlstromer V (mahlstromerv@gmail.com)
 
-# How to build
+# How to build Windows
     1) git clone --recursive git@github.com:therealmagnesium/Relic.git
     2) cd Relic
-    3) ./build.sh (system) (type)
-    4) Open bin folder and run some example apps!
-    + system:
-        - windows
-        - linux
-    + type:
+    3) chmod +x build.sh
+    4) ./build.sh windows (config)
+    5) open bin folder and run some example apps!
+    + config:
+        - debug
+        - release
+        - dist
+
+# How to build Linux
+    1) git clone --recursive git@github.com:therealmagnesium/Relic.git
+    2) cd Relic
+    3) chmod +x build.sh vendor/linux/premake5
+    4) ./build.sh linux (config)
+    5) open bin folder and run some example apps!
+    + config:
         - debug
         - release
         - dist
