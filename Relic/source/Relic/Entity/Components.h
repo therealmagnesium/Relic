@@ -27,4 +27,26 @@ namespace Relic
             circle.setOrigin(radius, radius);
         }       
     };
+
+    struct Collision
+    {
+        float radius = 0.f;
+
+        Collision(float radius) :
+            radius(radius) {}
+    };
+
+    struct Input
+    {
+        enum KeyCodes
+        {
+            RL_KEY_LEFT = 0,
+            RL_KEY_RIGHT,
+            RL_KEY_UP,
+            RL_KEY_DOWN,
+            RL_KEY_FIRE
+        };
+
+        Input(){}
+    };
 }

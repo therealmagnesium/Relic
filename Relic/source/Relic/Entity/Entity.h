@@ -11,6 +11,8 @@ namespace Relic
     public:
         std::shared_ptr<Tranform> transform;
         std::shared_ptr<Shape> shape;      
+        std::shared_ptr<Collision> collision;
+        std::shared_ptr<Input> input;
 
     public:
         void Move(float dx, float dy);
