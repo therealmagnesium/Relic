@@ -7,7 +7,11 @@ Magnus Ahlstromer V (mahlstromerv@gmail.com)
 # How to build
     1) git clone --recursive git@github.com:therealmagnesium/Relic.git
     2) cd Relic
-    3) ./build.sh (type)
+    3) ./build.sh (system) (type)
+    4) Open bin folder and run some example apps!
+    + system:
+        - windows
+        - linux
     + type:
         - debug
         - release
