@@ -12,9 +12,9 @@ endif
 
 ifeq ($(config),debug)
   RESCOMP = windres
-  TARGETDIR = ../bin/Debug-windows/Relic
-  TARGET = $(TARGETDIR)/Relic.lib
-  OBJDIR = ../build/Debug-windows/Relic
+  TARGETDIR = ../bin/Debug-linux/Relic
+  TARGET = $(TARGETDIR)/libRelic.a
+  OBJDIR = ../build/Debug-linux/Relic
   DEFINES += -DRL_DEBUG
   INCLUDES += -Isource -Ivendor/sfml/include -Ivendor/spdlog/include
   FORCE_INCLUDE +=
@@ -39,9 +39,9 @@ endif
 
 ifeq ($(config),release)
   RESCOMP = windres
-  TARGETDIR = ../bin/Release-windows/Relic
-  TARGET = $(TARGETDIR)/Relic.lib
-  OBJDIR = ../build/Release-windows/Relic
+  TARGETDIR = ../bin/Release-linux/Relic
+  TARGET = $(TARGETDIR)/libRelic.a
+  OBJDIR = ../build/Release-linux/Relic
   DEFINES += -DRL_RELEASE
   INCLUDES += -Isource -Ivendor/sfml/include -Ivendor/spdlog/include
   FORCE_INCLUDE +=
@@ -66,9 +66,9 @@ endif
 
 ifeq ($(config),dist)
   RESCOMP = windres
-  TARGETDIR = ../bin/Dist-windows/Relic
-  TARGET = $(TARGETDIR)/Relic.lib
-  OBJDIR = ../build/Dist-windows/Relic
+  TARGETDIR = ../bin/Dist-linux/Relic
+  TARGET = $(TARGETDIR)/libRelic.a
+  OBJDIR = ../build/Dist-linux/Relic
   DEFINES += -DRL_DIST
   INCLUDES += -Isource -Ivendor/sfml/include -Ivendor/spdlog/include
   FORCE_INCLUDE +=
