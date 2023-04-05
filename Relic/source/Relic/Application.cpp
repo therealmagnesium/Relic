@@ -30,6 +30,9 @@ namespace Relic
         m_windowHandle->setFramerateLimit(60);
     }
 
+    void Application::InitEntityManager() { m_entityManager = std::make_shared<EntityManager>(); }
+    void Application::UpdateEntityManager() { m_entityManager->Update(); }
+
     void Application::Shutdown()
     {
         m_windowHandle->close();
@@ -69,4 +72,9 @@ namespace Relic
     {
         m_windowHandle->draw(drawable);
     }
+
+    EntityVec& Application::GetAllEntities() { return m_entityManager->GetEntities(); }
+    std::shared_ptr<Entity> Application::AddEntity(const std::string& tag) { return m_entityManager->AddEntity(tag); }
+
+
 }

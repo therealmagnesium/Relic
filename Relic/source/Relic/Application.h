@@ -7,6 +7,11 @@
 
 namespace Relic
 {
+    class Entity;
+    class EntityManager;
+
+    typedef std::vector<std::shared_ptr<Entity>> EntityVec;
+
     struct ApplicationProperties
     {
         std::string name = "Relic App";
@@ -33,6 +38,13 @@ namespace Relic
         inline uint32_t GetWindowWidth() const { return m_properties.width; }
         inline uint32_t GetWindowHeight() const { return m_properties.height; }
 
+    protected:
+        EntityVec& GetAllEntities();
+        std::shared_ptr<Entity> AddEntity(const std::string& tag);
+
+        void InitEntityManager();
+        void UpdateEntityManager();
+        
     private:
         void Init();
         void Shutdown();
@@ -42,6 +54,7 @@ namespace Relic
         bool m_running = false;
 
         sf::RenderWindow* m_windowHandle;
+        std::shared_ptr<EntityManager> m_entityManager;
     };
 
     Application* CreateApplication();

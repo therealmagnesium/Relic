@@ -34,7 +34,7 @@ private:
     std::shared_ptr<Relic::Entity> SpawnEntity(Relic::Vector2 position, Relic::Vector2 velocity, float radius, int points, const sf::Color& fill, const sf::Color& outline);
 
 private:
-    std::shared_ptr<Relic::EntityManager> m_entityManager;
+    //std::shared_ptr<Relic::EntityManager> m_entityManager;
     std::shared_ptr<Relic::Entity> m_octogon;
     std::shared_ptr<Relic::Entity> m_square;
     std::shared_ptr<Relic::Entity> m_player;
