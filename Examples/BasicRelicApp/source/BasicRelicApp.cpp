@@ -8,6 +8,9 @@ BasicRelicApp::BasicRelicApp(const Relic::ApplicationProperties& props) :
 
 void BasicRelicApp::OnStart() 
 {
+    // Init entity manager
+    InitEntityManager();
+
     // Log example texts to the console (will not show in dist build)
     RL_TRACE("Relic trace example");
     RL_INFO("Relic info example");
@@ -46,8 +49,8 @@ Relic::Application* Relic::CreateApplication()
    
     Relic::ApplicationProperties properties;
     properties.name = "Basic Relic App";
-    properties.width = 1600;
-    properties.height = 900;
+    properties.width = 1280;
+    properties.height = 720;
 
     BasicRelicApp* game = new BasicRelicApp(properties);
     game->OnStart();
