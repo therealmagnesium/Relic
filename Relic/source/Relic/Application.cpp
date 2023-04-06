@@ -119,16 +119,21 @@ namespace Relic
         }
     }
 
-    void Application::Close()
+    void Application::Close() { m_running = false; } 
+    void Application::Draw(const sf::Drawable& drawable) { m_windowHandle->draw(drawable); }
+    void Application::Constrain(const std::shared_ptr<Entity>&  entity, uint32_t x, uint32_t y)
     {
-        m_running = false;
-    } 
+        if (entity->transform->position.x < entity->GetRadius()) 
+            entity->transform->position.x = entity->GetRadius();
+        if (entity->transform->position.x + entity->GetRadius() > x)
+            entity->transform->position.x = x - entity->GetRadius();
 
-    void Application::Draw(const sf::Drawable& drawable)
-    {
-        m_windowHandle->draw(drawable);
+        if (entity->transform->position.y < entity->GetRadius())
+            entity->transform->position.y = entity->GetRadius();
+        if (entity->transform->position.y + entity->GetRadius()> y)
+            entity->transform->position.y = y - entity->GetRadius();
     }
-
+    
     EntityVec& Application::GetAllEntities() { return m_entityManager->GetEntities(); }
     std::shared_ptr<Entity> Application::AddEntity(const std::string& tag) { return m_entityManager->AddEntity(tag); }
 
