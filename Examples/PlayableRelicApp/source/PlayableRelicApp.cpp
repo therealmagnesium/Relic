@@ -41,6 +41,7 @@ void PlayableRelicApp::OnUpdate()
     m_octogon->Move(m_octogon->GetXVel(), m_octogon->GetYVel());    
     m_square->Move(m_square->GetXVel(), m_square->GetYVel());
 
+    // Constrain the player into the window
     Constrain(m_player, GetWindowWidth(), GetWindowHeight());
 
     // Check if any entities are colliding with the borders; If so, flip the velocity
@@ -81,10 +82,13 @@ void PlayableRelicApp::HandleMovement()
     static float speed = 6.f;
     m_player->transform->velocity = Relic::Vector2(0.f, 0.f);
 
+    // Move the player's x velocity based on the left and right keys
     if (m_player->input->keyLeft)
         m_player->transform->velocity.x = -speed;
     if (m_player->input->keyRight)
         m_player->transform->velocity.x = speed;
+    
+    // Move the player's y velocity based on the up and down keys
     if (m_player->input->keyUp)
         m_player->transform->velocity.y = -speed;
     if (m_player->input->keyDown)
