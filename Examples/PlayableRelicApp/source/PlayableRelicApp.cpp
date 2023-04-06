@@ -41,6 +41,8 @@ void PlayableRelicApp::OnUpdate()
     m_octogon->Move(m_octogon->GetXVel(), m_octogon->GetYVel());    
     m_square->Move(m_square->GetXVel(), m_square->GetYVel());
 
+    Constrain(m_player, GetWindowWidth(), GetWindowHeight());
+
     // Check if any entities are colliding with the borders; If so, flip the velocity
     for (auto& e : GetAllEntities())
     {
@@ -75,7 +77,7 @@ void PlayableRelicApp::OnRender()
 }
 
 void PlayableRelicApp::HandleMovement()
-{
+{ 
     static float speed = 6.f;
     m_player->transform->velocity = Relic::Vector2(0.f, 0.f);
 
@@ -117,8 +119,8 @@ Relic::Application* Relic::CreateApplication()
 
     Relic::ApplicationProperties properties;
     properties.name = "Playable Relic App";
-    properties.width = 1280;
-    properties.height = 720;
+    properties.width = 1024;
+    properties.height = 576;
 
     PlayableRelicApp* game = new PlayableRelicApp(properties);
     game->OnStart();
