@@ -27,5 +27,5 @@ Magnus Ahlstromer V (mahlstromerv@gmail.com)
         - dist
 
 # Screenshots
-![BasicRelicApp](screenshots/BasicRelicApp.png)
+![LoggingRelicApp](screenshots/LoggingRelicApp.png)
 ![PlayableRelicApp](screenshots/PlayableRelicApp.png)
