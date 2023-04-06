@@ -53,6 +53,64 @@ namespace Relic
                     m_windowHandle->close();
                     Close();
                 }
+
+                for (auto& e : GetAllEntities())
+                {
+                    if (e->input)
+                    {
+                        if (event.type == sf::Event::KeyPressed)
+                        {
+                            switch (event.key.code)
+                            {
+                                case sf::Keyboard::Left:
+                                    e->input->keyLeft = true;
+                                    break;
+                                
+                                case sf::Keyboard::Right:
+                                    e->input->keyRight = true;
+                                    break;
+                                
+                                case sf::Keyboard::Up:
+                                    e->input->keyUp = true;
+                                    break;
+                        
+                                case sf::Keyboard::Down:
+                                    e->input->keyDown = true;
+                                    break;
+                        
+                                case sf::Keyboard::Space:
+                                    e->input->keyFire = true;
+                                    break;
+                            }
+                        }
+                        
+                        if (event.type == sf::Event::KeyReleased)
+                        {
+                            switch (event.key.code)
+                            {
+                                case sf::Keyboard::Left:
+                                    e->input->keyLeft = false;
+                                    break;
+                                
+                                case sf::Keyboard::Right:
+                                    e->input->keyRight = false;
+                                    break;
+                                
+                                case sf::Keyboard::Up:
+                                    e->input->keyUp = false;
+                                    break;
+                        
+                                case sf::Keyboard::Down:
+                                    e->input->keyDown = false;
+                                    break;
+                        
+                                case sf::Keyboard::Space:
+                                    e->input->keyFire = false;
+                                    break;
+                            }
+                        }
+                    }
+                }
             }
 
             OnUpdate();

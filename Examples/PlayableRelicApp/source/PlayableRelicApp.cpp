@@ -21,6 +21,8 @@ void PlayableRelicApp::OnStart()
     */
     
     m_player = SpawnEntity(Relic::Vector2(200.f, 500.f), Relic::Vector2(3.f, 3.f), 32.f, 3, sf::Color(0x00000000), sf::Color::Blue);
+    m_player->input = std::make_shared<Relic::Input>();
+
     m_octogon = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(3.f, 6.f), 32.f, 8, sf::Color(0x00000000), sf::Color::Red);
     m_square = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(6.f, 3.f), 64.f, 4, sf::Color(0x00000000), sf::Color::Green);
       
@@ -30,11 +32,15 @@ void PlayableRelicApp::OnUpdate()
 {
     // Update the entity manager
     UpdateEntityManager();
-    
+
+    // Handle player movement
+    HandleMovement();
+
     // Move the entities based on their velocity
+    m_player->Move(m_player->GetXVel(), m_player->GetYVel());
     m_octogon->Move(m_octogon->GetXVel(), m_octogon->GetYVel());    
     m_square->Move(m_square->GetXVel(), m_square->GetYVel());
-    
+
     // Check if any entities are colliding with the borders; If so, flip the velocity
     for (auto& e : GetAllEntities())
     {
@@ -68,6 +74,21 @@ void PlayableRelicApp::OnRender()
     }
 }
 
+void PlayableRelicApp::HandleMovement()
+{
+    static float speed = 6.f;
+    m_player->transform->velocity = Relic::Vector2(0.f, 0.f);
+
+    if (m_player->input->keyLeft)
+        m_player->transform->velocity.x = -speed;
+    if (m_player->input->keyRight)
+        m_player->transform->velocity.x = speed;
+    if (m_player->input->keyUp)
+        m_player->transform->velocity.y = -speed;
+    if (m_player->input->keyDown)
+        m_player->transform->velocity.y = speed;
+}
+
 std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnEntity(Relic::Vector2 position, Relic::Vector2 velocity, 
                                                             float radius, int points, 
                                                             const sf::Color& fill, const sf::Color& outline)
@@ -81,6 +102,8 @@ std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnEntity(Relic::Vector2 posi
     std::shared_ptr<Relic::Entity> entity = AddEntity("object");
     entity->transform = std::make_shared<Relic::Tranform>(position, velocity, 0.f);
     entity->shape = std::make_shared<Relic::Shape>(radius, points, fill, outline, 4.f);
+    entity->collision = std::make_shared<Relic::Collision>(radius);
+
     return entity;   
 }
 
@@ -94,8 +117,8 @@ Relic::Application* Relic::CreateApplication()
 
     Relic::ApplicationProperties properties;
     properties.name = "Playable Relic App";
-    properties.width = 800;
-    properties.height = 600;
+    properties.width = 1280;
+    properties.height = 720;
 
     PlayableRelicApp* game = new PlayableRelicApp(properties);
     game->OnStart();

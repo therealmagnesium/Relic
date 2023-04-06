@@ -6,8 +6,8 @@ namespace Relic
 {
     struct Tranform
     {
-        Vector2 position = { 0.f, 0.f };
-        Vector2 velocity = { 0.f, 0.f };
+        Vector2 position = Vector2(0.f, 0.f);
+        Vector2 velocity = Vector2(0.f, 0.f);
         float angle = 0.f;
 
         Tranform(const Vector2& pos, const Vector2& vel, float a) :
@@ -38,14 +38,11 @@ namespace Relic
 
     struct Input
     {
-        enum KeyCodes
-        {
-            RL_KEY_LEFT = 0,
-            RL_KEY_RIGHT,
-            RL_KEY_UP,
-            RL_KEY_DOWN,
-            RL_KEY_FIRE
-        };
+        bool keyLeft = false;
+        bool keyRight = false;
+        bool keyUp = false;
+        bool keyDown = false;
+        bool keyFire = false;
 
         Input(){}
     };
