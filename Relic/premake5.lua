@@ -2,11 +2,13 @@ project "Relic"
     kind "StaticLib"
     language "C++"
     cppdialect "C++14"
-    staticruntime "on"
+    staticruntime "off"
 
     targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
     objdir ("../build/" .. outputdir .. "/%{prj.name}")
-    
+
+    pchheader "pch.h"
+
     files 
     { 
         "source/**.h", 

@@ -1,9 +1,6 @@
 #pragma once
 #include "Components.h"
 
-#include <string>
-#include <memory>
-
 namespace Relic
 {
     class Entity

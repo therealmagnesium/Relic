@@ -1,12 +1,6 @@
 #pragma once
 #include "Entity.h"
 
-#include <memory>
-#include <string>
-#include <vector>
-#include <unordered_map>
-
-
 namespace Relic
 {
     typedef std::vector<std::shared_ptr<Entity>> EntityVec;

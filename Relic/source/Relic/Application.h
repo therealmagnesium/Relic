@@ -1,10 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 
-#include <string>
-#include <memory>
-#include <vector>
-
 namespace Relic
 {
     class Entity;

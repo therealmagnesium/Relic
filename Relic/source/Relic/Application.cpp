@@ -1,9 +1,7 @@
+#include "pch.h"
 #include "Application.h"
 #include "Log.h"
 #include "Entity/EntityManager.h"
-
-#include <stdio.h>
-#include <stdlib.h>
 
 namespace Relic
 {
