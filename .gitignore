@@ -4,4 +4,7 @@ bin/
 build/
 
 # Files
-
+Makefile
+Relic/Makefile
+Examples/BasicRelicApp/Makefile
+Examples/PlayableRelicApp/Makefile
