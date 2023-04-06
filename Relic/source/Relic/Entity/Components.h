@@ -4,13 +4,13 @@
 
 namespace Relic
 {
-    struct Tranform
+    struct Transform
     {
         Vector2 position = Vector2(0.f, 0.f);
         Vector2 velocity = Vector2(0.f, 0.f);
         float angle = 0.f;
 
-        Tranform(const Vector2& pos, const Vector2& vel, float a) :
+        Transform(const Vector2& pos, const Vector2& vel, float a) :
             position(pos), velocity(vel), angle(a) {}
     };
 
@@ -43,7 +43,12 @@ namespace Relic
         bool keyUp = false;
         bool keyDown = false;
         bool keyFire = false;
+        bool mouseLeft = false;
+        bool mouseRight = false;
 
-        Input(){}
+        Vector2 clickedPosition;
+        Vector2 releasedPosition;
+
+        Input() {}
     };
 }

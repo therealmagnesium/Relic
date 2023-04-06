@@ -60,19 +60,19 @@ namespace Relic
                         {
                             switch (event.key.code)
                             {
-                                case sf::Keyboard::Left:
+                                case sf::Keyboard::A:
                                     e->input->keyLeft = true;
                                     break;
                                 
-                                case sf::Keyboard::Right:
+                                case sf::Keyboard::D:
                                     e->input->keyRight = true;
                                     break;
                                 
-                                case sf::Keyboard::Up:
+                                case sf::Keyboard::W:
                                     e->input->keyUp = true;
                                     break;
                         
-                                case sf::Keyboard::Down:
+                                case sf::Keyboard::S:
                                     e->input->keyDown = true;
                                     break;
                         
@@ -86,25 +86,54 @@ namespace Relic
                         {
                             switch (event.key.code)
                             {
-                                case sf::Keyboard::Left:
+                                case sf::Keyboard::A:
                                     e->input->keyLeft = false;
                                     break;
                                 
-                                case sf::Keyboard::Right:
+                                case sf::Keyboard::D:
                                     e->input->keyRight = false;
                                     break;
                                 
-                                case sf::Keyboard::Up:
+                                case sf::Keyboard::W:
                                     e->input->keyUp = false;
                                     break;
                         
-                                case sf::Keyboard::Down:
+                                case sf::Keyboard::S:
                                     e->input->keyDown = false;
                                     break;
                         
                                 case sf::Keyboard::Space:
                                     e->input->keyFire = false;
                                     break;
+                            }
+                        }
+
+                        if (event.type == sf::Event::MouseButtonPressed)
+                        {
+                            if (event.mouseButton.button == sf::Mouse::Left)
+                            {
+                                RL_CORE_INFO("Mouse clicked");
+                                e->input->mouseLeft = true;
+                                e->input->clickedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
+                            }
+                            if (event.mouseButton.button == sf::Mouse::Right)
+                            {
+                                e->input->mouseRight = true;
+                                e->input->clickedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
+                            }
+                        }
+
+                        if (event.type == sf::Event::MouseButtonReleased)
+                        {
+                            if (event.mouseButton.button == sf::Mouse::Left)
+                            {
+                                e->input->mouseLeft = false;
+                                e->input->releasedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
+                            }
+                            if (event.mouseButton.button == sf::Mouse::Right)
+                            {
+                                e->input->mouseRight = false;
+                                e->input->releasedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
                             }
                         }
                     }
@@ -136,6 +165,4 @@ namespace Relic
     
     EntityVec& Application::GetAllEntities() { return m_entityManager->GetEntities(); }
     std::shared_ptr<Entity> Application::AddEntity(const std::string& tag) { return m_entityManager->AddEntity(tag); }
-
-
 }

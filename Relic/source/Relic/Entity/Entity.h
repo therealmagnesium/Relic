@@ -6,7 +6,7 @@ namespace Relic
     class Entity
     {
     public:
-        std::shared_ptr<Tranform> transform;
+        std::shared_ptr<Transform> transform;
         std::shared_ptr<Shape> shape;      
         std::shared_ptr<Collision> collision;
         std::shared_ptr<Input> input;
