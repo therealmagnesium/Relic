@@ -1,11 +1,11 @@
 #include <Relic.h>
 
 // Make an app class that inherits from Relic::Application
-class BasicRelicApp : public Relic::Application
+class LoggingRelicApp : public Relic::Application
 {
 public:
         // Simple constructor for the app
-        BasicRelicApp(const Relic::ApplicationProperties& props);
+        LoggingRelicApp(const Relic::ApplicationProperties& props);
 
         /* OnStart()
          *      - Called once, when the app is initialized

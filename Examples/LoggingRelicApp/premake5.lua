@@ -1,4 +1,4 @@
-project "BasicRelicApp"
+project "LoggingRelicApp"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++14"

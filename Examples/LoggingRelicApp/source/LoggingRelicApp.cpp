@@ -1,12 +1,12 @@
-#include "BasicRelicApp.h"
+#include "LoggingRelicApp.h"
 
-BasicRelicApp::BasicRelicApp(const Relic::ApplicationProperties& props) :
+LoggingRelicApp::LoggingRelicApp(const Relic::ApplicationProperties& props) :
     Relic::Application(props) 
 {
 
 }
 
-void BasicRelicApp::OnStart() 
+void LoggingRelicApp::OnStart() 
 {
     // Init entity manager
     InitEntityManager();
@@ -29,12 +29,12 @@ void BasicRelicApp::OnStart()
     RL_TRACE("v1 + v2 = {}, {}", v3.x, v3.y); 
 }
 
-void BasicRelicApp::OnUpdate() 
+void LoggingRelicApp::OnUpdate() 
 {
 
 }
 
-void BasicRelicApp::OnRender() 
+void LoggingRelicApp::OnRender() 
 {
 
 }
@@ -48,11 +48,11 @@ Relic::Application* Relic::CreateApplication()
     */
    
     Relic::ApplicationProperties properties;
-    properties.name = "Basic Relic App";
+    properties.name = "Logging Relic App";
     properties.width = 1280;
     properties.height = 720;
 
-    BasicRelicApp* game = new BasicRelicApp(properties);
+    LoggingRelicApp* game = new LoggingRelicApp(properties);
     game->OnStart();
     return game; 
 }
