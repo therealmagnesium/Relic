@@ -20,11 +20,11 @@ void PlayableRelicApp::OnStart()
         effect
     */
     
-    m_player = SpawnEntity(Relic::Vector2(200.f, 500.f), Relic::Vector2(3.f, 3.f), 32.f, 3, sf::Color(0x00000000), sf::Color::Blue);
+    m_player = SpawnEntity(Relic::Vector2(200.f, 500.f), Relic::Vector2(3.f, 3.f), 32.f, 3, sf::Color::Blue, sf::Color::White);
     m_player->input = std::make_shared<Relic::Input>();
 
-    m_octogon = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(3.f, 6.f), 32.f, 8, sf::Color(0x00000000), sf::Color::Red);
-    m_square = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(6.f, 3.f), 64.f, 4, sf::Color(0x00000000), sf::Color::Green);
+    m_octogon = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(3.f, 6.f), 32.f, 8, sf::Color::Red, sf::Color::White);
+    m_square = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(6.f, 3.f), 64.f, 4, sf::Color::Green, sf::Color::White);
       
 }
 
