@@ -33,8 +33,15 @@ private:
     // A helper function to handle player movement
     void HandleMovement();
 
-    // A small helper function to spawn entities
-    std::shared_ptr<Relic::Entity> SpawnEntity(Relic::Vector2 position, Relic::Vector2 velocity, float radius, int points, const sf::Color& fill, const sf::Color& outline);
+    // A helper function to spawn the player
+    std::shared_ptr<Relic::Entity> SpawnPlayer();
+
+    // A helper function to spawn entities
+    std::shared_ptr<Relic::Entity> SpawnEntity(const Relic::Vector2& position, const Relic::Vector2& velocity, float radius, int points, const sf::Color& fill, const sf::Color& outline);
+
+    // A helper function to spawn bullets
+    void SpawnBullet(std::shared_ptr<Relic::Entity> entity, const Relic::Vector2& target);
+
 
 private:
     //std::shared_ptr<Relic::EntityManager> m_entityManager;

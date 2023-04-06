@@ -20,9 +20,7 @@ void PlayableRelicApp::OnStart()
         effect
     */
     
-    m_player = SpawnEntity(Relic::Vector2(200.f, 500.f), Relic::Vector2(3.f, 3.f), 32.f, 3, sf::Color::Blue, sf::Color::White);
-    m_player->input = std::make_shared<Relic::Input>();
-
+    m_player = SpawnPlayer();
     m_octogon = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(3.f, 6.f), 32.f, 8, sf::Color::Red, sf::Color::White);
     m_square = SpawnEntity(Relic::Vector2(100.f, 100.f), Relic::Vector2(6.f, 3.f), 64.f, 4, sf::Color::Green, sf::Color::White);
       
@@ -93,25 +91,63 @@ void PlayableRelicApp::HandleMovement()
         m_player->transform->velocity.y = -speed;
     if (m_player->input->keyDown)
         m_player->transform->velocity.y = speed;
+
+    // If the user clicks the left mouse button, then shoot a bullet
+    if (m_player->input->mouseLeft)
+    {
+        RL_TRACE("bullet at ({}, {})", m_player->input->clickedPosition.x, m_player->input->clickedPosition.y);
+        SpawnBullet(m_player, m_player->input->clickedPosition);
+    }
 }
 
-std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnEntity(Relic::Vector2 position, Relic::Vector2 velocity, 
+std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnPlayer()
+{
+    /* 
+        Create the player entity and give it a tag of 'player',
+        then set the components for the player, and finally return
+        the new entity
+    */
+
+    std::shared_ptr<Relic::Entity> entity = AddEntity("player");
+    entity->transform = std::make_shared<Relic::Transform>(Relic::Vector2(200.f, 500.f), Relic::Vector2(3.f, 3.f), 0.f);
+    entity->shape = std::make_shared<Relic::Shape>(32.f, 3, sf::Color::Blue, sf::Color::White, 4.f);
+    entity->collision = std::make_shared<Relic::Collision>(32.f);
+    entity->input = std::make_shared<Relic::Input>();
+
+    return entity;   
+}
+
+std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnEntity(const Relic::Vector2& position, const Relic::Vector2& velocity, 
                                                             float radius, int points, 
                                                             const sf::Color& fill, const sf::Color& outline)
 {
     /* 
-        Create an entity and give it a tag ov 'object',
+        Create an entity and give it a tag of 'object',
         then set the components for the entity, and finally return
         the new entity
     */
 
     std::shared_ptr<Relic::Entity> entity = AddEntity("object");
-    entity->transform = std::make_shared<Relic::Tranform>(position, velocity, 0.f);
+    entity->transform = std::make_shared<Relic::Transform>(position, velocity, 0.f);
     entity->shape = std::make_shared<Relic::Shape>(radius, points, fill, outline, 4.f);
     entity->collision = std::make_shared<Relic::Collision>(radius);
 
     return entity;   
 }
+
+void PlayableRelicApp::SpawnBullet(std::shared_ptr<Relic::Entity> entity, const Relic::Vector2& target)
+{
+    /* 
+        Create a bullet entity, which travels towards
+        the target parameter; then give the entity
+        its components
+    */
+
+    std::shared_ptr<Relic::Entity> bullet = AddEntity("bullet");
+    bullet->transform = std::make_shared<Relic::Transform>(target, Relic::Vector2(0.f, 0.f), 0.f);
+    bullet->shape = std::make_shared<Relic::Shape>(10, 8, sf::Color::White, sf::Color::Blue, 2.f);
+}
+
 
 Relic::Application* Relic::CreateApplication()
 {
