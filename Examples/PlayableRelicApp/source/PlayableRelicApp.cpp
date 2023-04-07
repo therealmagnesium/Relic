@@ -9,10 +9,7 @@ PlayableRelicApp::PlayableRelicApp(const Relic::ApplicationProperties& props) :
 void PlayableRelicApp::OnStart()
 {
     // Log the app has started
-    RL_INFO("Playable Relic App has started successfully");
-
-    // Initialize the entity manager
-    InitEntityManager();
+    RL_TRACE("Playable Relic App has started!");
     
     /*
         Initialize the scene's entities, note that
@@ -26,14 +23,31 @@ void PlayableRelicApp::OnStart()
       
 }
 
+void PlayableRelicApp::OnEvent()
+{
+    // Declare a speed and always set the player's velocity to <0, 0>
+    static float speed = 6.f;
+    m_player->transform->velocity = Relic::Vector2(0.f, 0.f);
+
+    // Move the player's x velocity based on the left and right keys
+    if (m_player->input->keys[sf::Keyboard::A])
+        m_player->transform->velocity.x = -speed;
+    if (m_player->input->keys[sf::Keyboard::D])
+        m_player->transform->velocity.x = speed;
+    
+    // Move the player's y velocity based on the up and down keys
+    if (m_player->input->keys[sf::Keyboard::W])
+        m_player->transform->velocity.y = -speed;
+    if (m_player->input->keys[sf::Keyboard::S])
+        m_player->transform->velocity.y = speed;
+
+    // If the user clicks the left mouse button, then shoot a bullet
+    if (m_player->input->mouse[sf::Mouse::Left])
+        SpawnBullet(m_player, m_player->input->clickedPosition);
+}
+
 void PlayableRelicApp::OnUpdate()
 {
-    // Update the entity manager
-    UpdateEntityManager();
-
-    // Handle player movement
-    HandleMovement();
-
     // Move the entities based on their velocity
     m_player->Move(m_player->GetXVel(), m_player->GetYVel());
     m_octogon->Move(m_octogon->GetXVel(), m_octogon->GetYVel());    
@@ -61,42 +75,24 @@ void PlayableRelicApp::OnRender()
         e->shape->circle.setPosition(e->GetX(), e->GetY());
 
         // Rotate the shape's angle
-        e->transform->angle += 1.f;
+        if (e->GetTag() == "player")
+            e->transform->angle -= 1.f;
+        else
+            e->transform->angle += 1.f;
         
         // If the angle goes above 360, set it back to 0
         if (e->transform->angle > 360.f)
             e->transform->angle = 0.f;
+        
+        // If the angle goes below 0, set it back to 360
+        if (e->transform->angle < 0.f)
+            e->transform->angle = 360.f;
         
         // Set the entity's actual shape rotation at its transform's rotation
         e->shape->circle.setRotation(e->GetAngle());
         
         // Draw every entity's shape
         Draw(e->shape->circle);
-    }
-}
-
-void PlayableRelicApp::HandleMovement()
-{ 
-    static float speed = 6.f;
-    m_player->transform->velocity = Relic::Vector2(0.f, 0.f);
-
-    // Move the player's x velocity based on the left and right keys
-    if (m_player->input->keyLeft)
-        m_player->transform->velocity.x = -speed;
-    if (m_player->input->keyRight)
-        m_player->transform->velocity.x = speed;
-    
-    // Move the player's y velocity based on the up and down keys
-    if (m_player->input->keyUp)
-        m_player->transform->velocity.y = -speed;
-    if (m_player->input->keyDown)
-        m_player->transform->velocity.y = speed;
-
-    // If the user clicks the left mouse button, then shoot a bullet
-    if (m_player->input->mouseLeft)
-    {
-        RL_TRACE("bullet at ({}, {})", m_player->input->clickedPosition.x, m_player->input->clickedPosition.y);
-        SpawnBullet(m_player, m_player->input->clickedPosition);
     }
 }
 
@@ -109,7 +105,7 @@ std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnPlayer()
     */
 
     std::shared_ptr<Relic::Entity> entity = AddEntity("player");
-    entity->transform = std::make_shared<Relic::Transform>(Relic::Vector2(200.f, 500.f), Relic::Vector2(3.f, 3.f), 0.f);
+    entity->transform = std::make_shared<Relic::Transform>(Relic::Vector2(200.f, 500.f), Relic::Vector2(3.f, -3.f), 0.f);
     entity->shape = std::make_shared<Relic::Shape>(32.f, 3, sf::Color::Blue, sf::Color::White, 4.f);
     entity->collision = std::make_shared<Relic::Collision>(32.f);
     entity->input = std::make_shared<Relic::Input>();

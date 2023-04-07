@@ -12,10 +12,17 @@ public:
      */
     void OnStart() override;
 
+    /* OnEvent()
+     *      - Called once per frame, before OnUpdate()
+     *      - Used for:
+     *              - Handeling input
+     *              - Checking events
+    */
+    void OnEvent() override;
+
     /* OnUpdate()
      *      - Called once per frame
      *      - Used for:
-     *              - Handeling input
      *              - Collisions / physics
      *              - Movement
      */
