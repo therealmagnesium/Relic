@@ -22,10 +22,12 @@ namespace Relic
         m_windowHandle = new sf::RenderWindow(sf::VideoMode(m_properties.width, m_properties.height), m_properties.name);
         if (!m_windowHandle)
         {
-            RL_ERROR("Failed to make window!");
+            RL_CORE_ERROR("Failed to make window!");
             return;
         }
         m_windowHandle->setFramerateLimit(60);
+
+        InitEntityManager();
     }
 
     void Application::InitEntityManager() { m_entityManager = std::make_shared<EntityManager>(); }
@@ -43,103 +45,9 @@ namespace Relic
         
         while (m_running)
         {
-            sf::Event event;
-            while (m_windowHandle->pollEvent(event))
-            {
-                if (event.type == sf::Event::Closed)
-                {
-                    m_windowHandle->close();
-                    Close();
-                }
+            HandleEvents();
 
-                for (auto& e : GetAllEntities())
-                {
-                    if (e->input)
-                    {
-                        if (event.type == sf::Event::KeyPressed)
-                        {
-                            switch (event.key.code)
-                            {
-                                case sf::Keyboard::A:
-                                    e->input->keyLeft = true;
-                                    break;
-                                
-                                case sf::Keyboard::D:
-                                    e->input->keyRight = true;
-                                    break;
-                                
-                                case sf::Keyboard::W:
-                                    e->input->keyUp = true;
-                                    break;
-                        
-                                case sf::Keyboard::S:
-                                    e->input->keyDown = true;
-                                    break;
-                        
-                                case sf::Keyboard::Space:
-                                    e->input->keyFire = true;
-                                    break;
-                            }
-                        }
-                        
-                        if (event.type == sf::Event::KeyReleased)
-                        {
-                            switch (event.key.code)
-                            {
-                                case sf::Keyboard::A:
-                                    e->input->keyLeft = false;
-                                    break;
-                                
-                                case sf::Keyboard::D:
-                                    e->input->keyRight = false;
-                                    break;
-                                
-                                case sf::Keyboard::W:
-                                    e->input->keyUp = false;
-                                    break;
-                        
-                                case sf::Keyboard::S:
-                                    e->input->keyDown = false;
-                                    break;
-                        
-                                case sf::Keyboard::Space:
-                                    e->input->keyFire = false;
-                                    break;
-                            }
-                        }
-
-                        if (event.type == sf::Event::MouseButtonPressed)
-                        {
-                            if (event.mouseButton.button == sf::Mouse::Left)
-                            {
-                                RL_CORE_INFO("Mouse clicked");
-                                e->input->mouseLeft = true;
-                                e->input->clickedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
-                            }
-                            if (event.mouseButton.button == sf::Mouse::Right)
-                            {
-                                e->input->mouseRight = true;
-                                e->input->clickedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
-                            }
-                        }
-
-                        if (event.type == sf::Event::MouseButtonReleased)
-                        {
-                            if (event.mouseButton.button == sf::Mouse::Left)
-                            {
-                                e->input->mouseLeft = false;
-                                e->input->releasedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
-                            }
-                            if (event.mouseButton.button == sf::Mouse::Right)
-                            {
-                                e->input->mouseRight = false;
-                                e->input->releasedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
-                            }
-                        }
-                    }
-                }
-            }
-
+            UpdateEntityManager();
             OnUpdate();
 
             m_windowHandle->clear(sf::Color(0x0A0A0AFF));
@@ -148,8 +56,58 @@ namespace Relic
         }
     }
 
-    void Application::Close() { m_running = false; } 
-    void Application::Draw(const sf::Drawable& drawable) { m_windowHandle->draw(drawable); }
+    void Application::HandleEvents()
+    {
+        sf::Event event;
+        while (m_windowHandle->pollEvent(event))
+        {
+            if (event.type == sf::Event::Closed)
+            {
+                m_windowHandle->close();
+                Close();
+            }
+
+            for (auto& e : GetAllEntities())
+            {
+                if (e->input)
+                {
+                    e->input->mousePosition.x = sf::Mouse::getPosition().x;
+                    e->input->mousePosition.y = sf::Mouse::getPosition().y;
+
+                    switch (event.type)
+                    {
+                        case sf::Event::KeyPressed:
+                            e->input->keys[event.key.code] = true;
+                            break;
+                        
+                        case sf::Event::KeyReleased:
+                            e->input->keys[event.key.code] = false;
+                            break;
+
+                        case sf::Event::MouseButtonPressed:
+                            e->input->mouse[event.mouseButton.button] = true;
+                            e->input->clickedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
+                            break;
+                        
+                        case sf::Event::MouseButtonReleased:
+                            e->input->mouse[event.mouseButton.button] = false;
+                            e->input->releasedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
+                            break;
+                    }
+                }
+            }
+            OnEvent();
+            for (auto& e : GetAllEntities())
+            {
+                if (e->input)
+                {
+                    e->input->mouse[sf::Mouse::Left] = false;
+                    e->input->mouse[sf::Mouse::Right] = false;
+                }
+            }
+        }
+    }
+
     void Application::Constrain(const std::shared_ptr<Entity>&  entity, uint32_t x, uint32_t y)
     {
         if (entity->transform->position.x < entity->GetRadius()) 
@@ -162,6 +120,8 @@ namespace Relic
         if (entity->transform->position.y + entity->GetRadius()> y)
             entity->transform->position.y = y - entity->GetRadius();
     }
+    void Application::Close() { m_running = false; } 
+    void Application::Draw(const sf::Drawable& drawable) { m_windowHandle->draw(drawable); }
     
     EntityVec& Application::GetAllEntities() { return m_entityManager->GetEntities(); }
     std::shared_ptr<Entity> Application::AddEntity(const std::string& tag) { return m_entityManager->AddEntity(tag); }

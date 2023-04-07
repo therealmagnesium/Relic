@@ -38,14 +38,11 @@ namespace Relic
 
     struct Input
     {
-        bool keyLeft = false;
-        bool keyRight = false;
-        bool keyUp = false;
-        bool keyDown = false;
-        bool keyFire = false;
-        bool mouseLeft = false;
-        bool mouseRight = false;
+        bool dragging = false;
+        bool keys[107];
+        bool mouse[6];
 
+        Vector2 mousePosition;
         Vector2 clickedPosition;
         Vector2 releasedPosition;
 

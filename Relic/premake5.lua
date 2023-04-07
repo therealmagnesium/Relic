@@ -2,7 +2,7 @@ project "Relic"
     kind "StaticLib"
     language "C++"
     cppdialect "C++14"
-    staticruntime "off"
+    staticruntime "on"
 
     targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
     objdir ("../build/" .. outputdir .. "/%{prj.name}")
