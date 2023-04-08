@@ -8,9 +8,6 @@ LoggingRelicApp::LoggingRelicApp(const Relic::ApplicationProperties& props) :
 
 void LoggingRelicApp::OnStart() 
 {
-    // Init entity manager
-    InitEntityManager();
-
     // Log example texts to the console (will not show in dist build)
     RL_TRACE("Relic trace example");
     RL_INFO("Relic info example");
@@ -27,6 +24,11 @@ void LoggingRelicApp::OnStart()
     RL_TRACE("v1: {}, {}", v1.x, v1.y);        
     RL_TRACE("v2: {}, {}", v2.x, v2.y);        
     RL_TRACE("v1 + v2 = {}, {}", v3.x, v3.y); 
+}
+
+void LoggingRelicApp::OnEvent()
+{
+    
 }
 
 void LoggingRelicApp::OnUpdate() 
