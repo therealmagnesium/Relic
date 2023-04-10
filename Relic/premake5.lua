@@ -18,6 +18,7 @@ project "Relic"
     includedirs
     {
         "source",
+        "source/Relic",
 
         "vendor/sfml/include",
         "vendor/spdlog/include"

@@ -25,21 +25,20 @@ void PlayableRelicApp::OnStart()
 
 void PlayableRelicApp::OnEvent()
 {
-    // Declare a speed and always set the player's velocity to <0, 0>
-    static float speed = 6.f;
-    m_player->transform->velocity = Relic::Vector2(0.f, 0.f);
+    // Declare a speed
+    static float accel = 0.3f;
 
     // Move the player's x velocity based on the left and right keys
-    if (m_player->input->keys[sf::Keyboard::A])
-        m_player->transform->velocity.x = -speed;
-    if (m_player->input->keys[sf::Keyboard::D])
-        m_player->transform->velocity.x = speed;
+    if (m_player->input->keys[Relic::Key::A])
+        m_player->transform->velocity.x -= accel;
+    if (m_player->input->keys[Relic::Key::D])
+        m_player->transform->velocity.x += accel;
     
     // Move the player's y velocity based on the up and down keys
-    if (m_player->input->keys[sf::Keyboard::W])
-        m_player->transform->velocity.y = -speed;
-    if (m_player->input->keys[sf::Keyboard::S])
-        m_player->transform->velocity.y = speed;
+    if (m_player->input->keys[Relic::Key::W])
+        m_player->transform->velocity.y -= accel;
+    if (m_player->input->keys[Relic::Key::S])
+        m_player->transform->velocity.y += accel;
 
     // If the user clicks the left mouse button, then shoot a bullet
     if (m_player->input->mouse[sf::Mouse::Left])
@@ -52,6 +51,19 @@ void PlayableRelicApp::OnUpdate()
     m_player->Move(m_player->GetXVel(), m_player->GetYVel());
     m_octogon->Move(m_octogon->GetXVel(), m_octogon->GetYVel());    
     m_square->Move(m_square->GetXVel(), m_square->GetYVel());
+
+    if (!m_player->input->keys[Relic::Key::W] && !m_player->input->keys[Relic::Key::A] && !m_player->input->keys[Relic::Key::S] && ! m_player->input->keys[Relic::Key::D])
+    {
+        if (m_player->GetXVel() > 0.f)
+            m_player->transform->velocity.x -= 0.3f;
+        if (m_player->GetXVel() < 0.f)
+            m_player->transform->velocity.x += 0.3f;
+    
+        if (m_player->GetYVel() > 0.f)
+            m_player->transform->velocity.y -= 0.3f;
+        if (m_player->GetYVel() < 0.f)
+            m_player->transform->velocity.y += 0.3f;
+    }
 
     // Constrain the player into the window
     Constrain(m_player, GetWindowWidth(), GetWindowHeight());
@@ -105,7 +117,7 @@ std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnPlayer()
     */
 
     std::shared_ptr<Relic::Entity> entity = AddEntity("player");
-    entity->transform = std::make_shared<Relic::Transform>(Relic::Vector2(200.f, 500.f), Relic::Vector2(3.f, -3.f), 0.f);
+    entity->transform = std::make_shared<Relic::Transform>(Relic::Vector2(200.f, 500.f), Relic::Vector2(), 0.f);
     entity->shape = std::make_shared<Relic::Shape>(32.f, 3, sf::Color::Blue, sf::Color::White, 4.f);
     entity->collision = std::make_shared<Relic::Collision>(32.f);
     entity->input = std::make_shared<Relic::Input>();

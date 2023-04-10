@@ -40,7 +40,7 @@ namespace Relic
     {
         bool dragging = false;
         bool keys[107];
-        bool mouse[6];
+        bool mouse[6]; 
 
         Vector2 mousePosition;
         Vector2 clickedPosition;

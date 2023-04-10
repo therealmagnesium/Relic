@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Relic/Application.h"
-#include "Relic/Log.h"
-#include "Relic/EntryPoint.h"
+#include "Relic/Core/Application.h"
+#include "Relic/Core/Log.h"
+#include "Relic/Core/EntryPoint.h"
+#include "Relic/Core/KeyCodes.h"
 #include "Relic/Entity/EntityManager.h"
 #include "Relic/Entity/Vector2.h"

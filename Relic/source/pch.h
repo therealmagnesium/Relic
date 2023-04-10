@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 #include <string>
 #include <vector>
 #include <memory>
@@ -10,4 +11,4 @@
 #include <fstream>
 #include <sstream>
 
-#include "Relic/Log.h"
+#include "Relic/Core/Log.h"
