@@ -35,17 +35,4 @@ namespace Relic
         Collision(float radius) :
             radius(radius) {}
     };
-
-    struct Input
-    {
-        bool dragging = false;
-        bool keys[107];
-        bool mouse[6]; 
-
-        Vector2 mousePosition;
-        Vector2 clickedPosition;
-        Vector2 releasedPosition;
-
-        Input() {}
-    };
 }

@@ -22,7 +22,6 @@ namespace Relic
         virtual ~Application();
 
         virtual void OnStart() = 0;
-        virtual void OnEvent() = 0;
         virtual void OnUpdate() = 0;
         virtual void OnRender() = 0;
 

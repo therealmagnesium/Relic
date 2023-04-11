@@ -45,9 +45,8 @@ namespace Relic
         
         while (m_running)
         {
-            HandleEvents();
-
             UpdateEntityManager();
+            HandleEvents();
             OnUpdate();
 
             m_windowHandle->clear(sf::Color(0x0A0A0AFF));
@@ -60,50 +59,11 @@ namespace Relic
     {
         sf::Event event;
         while (m_windowHandle->pollEvent(event))
-        {
+        {   
             if (event.type == sf::Event::Closed)
             {
                 m_windowHandle->close();
                 Close();
-            }
-
-            for (auto& e : GetAllEntities())
-            {
-                if (e->input)
-                {
-                    e->input->mousePosition.x = sf::Mouse::getPosition().x;
-                    e->input->mousePosition.y = sf::Mouse::getPosition().y;
-
-                    switch (event.type)
-                    {
-                        case sf::Event::KeyPressed:
-                            e->input->keys[event.key.code] = true;
-                            break;
-                        
-                        case sf::Event::KeyReleased:
-                            e->input->keys[event.key.code] = false;
-                            break;
-
-                        case sf::Event::MouseButtonPressed:
-                            e->input->mouse[event.mouseButton.button] = true;
-                            e->input->clickedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
-                            break;
-                        
-                        case sf::Event::MouseButtonReleased:
-                            e->input->mouse[event.mouseButton.button] = false;
-                            e->input->releasedPosition = Vector2(event.mouseButton.x, event.mouseButton.y);
-                            break;
-                    }
-                }
-            }
-            OnEvent();
-            for (auto& e : GetAllEntities())
-            {
-                if (e->input)
-                {
-                    e->input->mouse[sf::Mouse::Left] = false;
-                    e->input->mouse[sf::Mouse::Right] = false;
-                }
             }
         }
     }
