@@ -46,8 +46,8 @@ Relic::Application* Relic::CreateApplication()
    
     WindowData properties = WindowData();
     properties.title = "Logging Relic App";
-    properties.width = 1280;
-    properties.height = 720;
+    properties.width = 1024;
+    properties.height = 576;
 
     LoggingRelicApp* game = new LoggingRelicApp(properties);
     game->OnStart();

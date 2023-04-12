@@ -45,6 +45,8 @@ private:
 
 
 private:
+    int m_shootTime;
+
     std::shared_ptr<Entity> m_player;
     std::shared_ptr<Entity> m_octogon;
     std::shared_ptr<Entity> m_square;

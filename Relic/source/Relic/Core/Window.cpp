@@ -19,7 +19,7 @@ namespace Relic
 
     void Window::Init(const WindowData& props)
     {
-        m_windowHandle = new sf::RenderWindow(sf::VideoMode(m_data.width, m_data.height), m_data.title);
+        m_windowHandle = new sf::RenderWindow(sf::VideoMode(m_data.width, m_data.height), m_data.title, sf::Style::Close | sf::Style::Titlebar);
         if (!m_windowHandle)
         {
             RL_CORE_ERROR("Failed to make window!");
@@ -33,10 +33,12 @@ namespace Relic
         sf::Event event;
         while (m_windowHandle->pollEvent(event))
         {   
-            if (event.type == sf::Event::Closed)
+            switch (event.type)
             {
-                m_data.shouldClose = true;
-                m_windowHandle->close();
+                case sf::Event::Closed:
+                    m_data.shouldClose = true;
+                    m_windowHandle->close();
+                    break;
             }
         }
     }

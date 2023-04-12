@@ -16,10 +16,12 @@ namespace Relic
 
         inline float GetX() const { return transform->position.x; }
         inline float GetY() const { return transform->position.y; }
+        inline Vector2& GetPosition() { return transform->position; }
+
         inline float GetXVel() const { return transform->velocity.x; }
         inline float GetYVel() const { return transform->velocity.y; }
+        
         inline float GetAngle() const { return transform->angle; }
-
         inline float GetRadius() const { return shape->circle.getRadius(); }
 
         inline bool IsActive() const { return m_active; };

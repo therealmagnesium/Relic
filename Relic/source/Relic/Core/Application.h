@@ -43,12 +43,13 @@ namespace Relic
         EntityVec& GetAllEntities();
         std::shared_ptr<Entity> AddEntity(const std::string& tag);
 
-        void InitEntityManager();
-        void UpdateEntityManager();
         
     private:
         void Init();
         void Shutdown();
+
+        void InitEntityManager();
+        void UpdateEntityManager();
 
     private:
         WindowData m_properties;

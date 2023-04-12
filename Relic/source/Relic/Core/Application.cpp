@@ -20,9 +20,8 @@ namespace Relic
 
     void Application::Init()
     {
-        RL_CORE_TRACE("{}, {}, {}", m_properties.title, m_properties.width, m_properties.height);
+        RL_CORE_TRACE("Application properties: {}, {}, {}", m_properties.title, m_properties.width, m_properties.height);
         m_window = std::make_shared<Window>(m_properties);
-        RL_CORE_TRACE("{}, {}, {}", m_window->GetTitle(), m_window->GetWidth(), m_window->GetHeight());
 
         InitEntityManager();
     }

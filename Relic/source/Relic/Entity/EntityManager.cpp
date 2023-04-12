@@ -10,13 +10,22 @@ namespace Relic
 
     void EntityManager::Update()
     {
-        for (auto entity : m_entitiesToAdd)
+        for (auto& entity : m_entitiesToAdd)
         {
             m_entities.push_back(entity);
             m_entityMap[entity->GetTag()].push_back(entity);
         }
 
         m_entitiesToAdd.clear();
+    }
+
+    void EntityManager::RemoveInactiveEntities(EntityVec& entityVec)
+    {
+        for (auto& entity : entityVec)
+        {
+            if (!entity->IsActive())
+                entityVec.erase(std::remove(entityVec.begin(), entityVec.end(), entity));
+        }
     }
 
     std::shared_ptr<Entity> EntityManager::AddEntity(const std::string& tag)

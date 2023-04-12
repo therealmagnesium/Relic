@@ -12,6 +12,7 @@ namespace Relic
         EntityManager();
 
         void Update();
+        void RemoveInactiveEntities(EntityVec& entityVec);
 
         EntityVec& GetEntities();
         EntityVec& GetEntities(const std::string& tag);
