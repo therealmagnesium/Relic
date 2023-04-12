@@ -16,6 +16,15 @@ namespace Relic
     float Input::GetMouseY()
         { return sf::Mouse::getPosition().y; }
 
+    float Input::GetMouseX(const sf::Window& window)
+        { return sf::Mouse::getPosition(window).x; }
+
+    float Input::GetMouseY(const sf::Window& window)
+        { return sf::Mouse::getPosition(window).y; }
+
     Vector2 Input::GetMousePosition()
         { return Vector2(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y); }
+
+    Vector2 Input::GetMousePosition(const sf::Window& window)
+        { return Vector2(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y); }
 }

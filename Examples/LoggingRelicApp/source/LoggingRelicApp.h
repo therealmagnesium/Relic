@@ -1,26 +1,18 @@
 #include <Relic.h>
+using namespace Relic;
 
 // Make an app class that inherits from Relic::Application
 class LoggingRelicApp : public Relic::Application
 {
 public:
         // Simple constructor for the app
-        LoggingRelicApp(const Relic::ApplicationProperties& props);
+        LoggingRelicApp(const WindowData& props);
 
         /* OnStart()
          *      - Called once, when the app is initialized
          *      - Used for initializing entities and other game objects
          */
         void OnStart() override;
-
-        /* OnEvent()
-         *      - Called once per frame, before OnUpdate()
-         *      - Used for:
-         *              - Handeling input
-         *              - Checking events
-         */
-        void OnEvent() override;
-
 
         /* OnUpdate()
          *      - Called once per frame

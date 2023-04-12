@@ -3,9 +3,11 @@
 #include "Log.h"
 #include "Entity/EntityManager.h"
 
+#include <SFML/Graphics.hpp>
+
 namespace Relic
 {
-    Application::Application(const ApplicationProperties& props) :
+    Application::Application(const WindowData& props) :
         m_properties(props)
     {
         Init();
@@ -18,14 +20,9 @@ namespace Relic
 
     void Application::Init()
     {
-        RL_CORE_TRACE("{}, {}, {}", m_properties.name, m_properties.width, m_properties.height);
-        m_windowHandle = new sf::RenderWindow(sf::VideoMode(m_properties.width, m_properties.height), m_properties.name);
-        if (!m_windowHandle)
-        {
-            RL_CORE_ERROR("Failed to make window!");
-            return;
-        }
-        m_windowHandle->setFramerateLimit(60);
+        RL_CORE_TRACE("{}, {}, {}", m_properties.title, m_properties.width, m_properties.height);
+        m_window = std::make_shared<Window>(m_properties);
+        RL_CORE_TRACE("{}, {}, {}", m_window->GetTitle(), m_window->GetWidth(), m_window->GetHeight());
 
         InitEntityManager();
     }
@@ -35,39 +32,23 @@ namespace Relic
 
     void Application::Shutdown()
     {
-        m_windowHandle->close();
-        delete m_windowHandle;
+        m_window->Close();
     }
 
     void Application::Run()
-    {
-        m_running = m_windowHandle->isOpen();
-        
-        while (m_running)
+    {        
+        while (!m_window->ShouldClose())
         {
             UpdateEntityManager();
-            HandleEvents();
+            m_window->HandleEvents();
             OnUpdate();
 
-            m_windowHandle->clear(sf::Color(0x0A0A0AFF));
+            m_window->Clear(0x0A0A0AFF);
             OnRender();
-            m_windowHandle->display();
+            m_window->Display();
         }
     }
-
-    void Application::HandleEvents()
-    {
-        sf::Event event;
-        while (m_windowHandle->pollEvent(event))
-        {   
-            if (event.type == sf::Event::Closed)
-            {
-                m_windowHandle->close();
-                Close();
-            }
-        }
-    }
-
+    
     void Application::Constrain(const std::shared_ptr<Entity>&  entity, uint32_t x, uint32_t y)
     {
         if (entity->transform->position.x < entity->GetRadius()) 
@@ -80,8 +61,8 @@ namespace Relic
         if (entity->transform->position.y + entity->GetRadius()> y)
             entity->transform->position.y = y - entity->GetRadius();
     }
-    void Application::Close() { m_running = false; } 
-    void Application::Draw(const sf::Drawable& drawable) { m_windowHandle->draw(drawable); }
+
+    void Application::Draw(const sf::Drawable& drawable) { m_window->Draw(drawable); }
     
     EntityVec& Application::GetAllEntities() { return m_entityManager->GetEntities(); }
     std::shared_ptr<Entity> Application::AddEntity(const std::string& tag) { return m_entityManager->AddEntity(tag); }

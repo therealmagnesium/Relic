@@ -1,7 +1,7 @@
 #include "LoggingRelicApp.h"
 
-LoggingRelicApp::LoggingRelicApp(const Relic::ApplicationProperties& props) :
-    Relic::Application(props) 
+LoggingRelicApp::LoggingRelicApp(const WindowData& props) :
+    Application(props) 
 {
 
 }
@@ -26,14 +26,9 @@ void LoggingRelicApp::OnStart()
     RL_TRACE("v1 + v2 = {}, {}", v3.x, v3.y); 
 }
 
-void LoggingRelicApp::OnEvent()
-{
-    
-}
-
 void LoggingRelicApp::OnUpdate() 
 {
-
+    RL_TRACE("{}, {}", Input::GetMouseX(*GetNativeWindow()), Input::GetMouseY(*GetNativeWindow()));
 }
 
 void LoggingRelicApp::OnRender() 
@@ -49,8 +44,8 @@ Relic::Application* Relic::CreateApplication()
         return the instance to the application
     */
    
-    Relic::ApplicationProperties properties;
-    properties.name = "Logging Relic App";
+    WindowData properties = WindowData();
+    properties.title = "Logging Relic App";
     properties.width = 1280;
     properties.height = 720;
 

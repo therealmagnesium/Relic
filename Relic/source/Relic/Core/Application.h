@@ -1,5 +1,7 @@
 #pragma once
-#include <SFML/Graphics.hpp>
+#include "Window.h"
+
+namespace sf { class Drawable; }
 
 namespace Relic
 {
@@ -18,7 +20,7 @@ namespace Relic
     class Application
     {
     public:
-        Application(const ApplicationProperties& props = ApplicationProperties());
+        Application(const WindowData& props = WindowData());
         virtual ~Application();
 
         virtual void OnStart() = 0;
@@ -26,15 +28,16 @@ namespace Relic
         virtual void OnRender() = 0;
 
         void Run();
-        void HandleEvents();
-        void Close();
 
-        void Constrain(const std::shared_ptr<Entity>&  entity, uint32_t  x, uint32_t  y);
+        void Constrain(const std::shared_ptr<Entity>& entity, uint32_t x, uint32_t y);
         void Draw(const sf::Drawable& drawable);
 
-        inline const std::string& GetTitle() const { return m_properties.name; }
-        inline uint32_t GetWindowWidth() const { return m_properties.width; }
-        inline uint32_t GetWindowHeight() const { return m_properties.height; }
+        inline const std::string& GetTitle() const { return m_window->GetTitle(); }
+        inline uint32_t GetWindowWidth() const { return m_window->GetWidth(); }
+        inline uint32_t GetWindowHeight() const { return m_window->GetHeight(); }
+
+        inline std::shared_ptr<Window> GetWindow() const { return m_window; }
+        inline sf::RenderWindow* GetNativeWindow() const { return m_window->GetHandle(); }
 
     protected:
         EntityVec& GetAllEntities();
@@ -48,10 +51,9 @@ namespace Relic
         void Shutdown();
 
     private:
-        ApplicationProperties m_properties;
-        bool m_running = false;
+        WindowData m_properties;
 
-        sf::RenderWindow* m_windowHandle;
+        std::shared_ptr<Window> m_window;
         std::shared_ptr<EntityManager> m_entityManager;
     };
 

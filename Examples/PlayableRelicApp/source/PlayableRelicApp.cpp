@@ -1,7 +1,6 @@
 #include "PlayableRelicApp.h"
-using namespace Relic;
 
-PlayableRelicApp::PlayableRelicApp(const Relic::ApplicationProperties& props) :
+PlayableRelicApp::PlayableRelicApp(const WindowData& props) :
     Application(props)
 {
 
@@ -41,7 +40,7 @@ void PlayableRelicApp::OnUpdate()
 
     // If the user clicks, spawn a bullet
     if (Input::IsMouseButtonPressed(sf::Mouse::Button::Left))
-        SpawnBullet(m_player, Input::GetMousePosition());
+        SpawnBullet(m_player, Input::GetMousePosition(*GetNativeWindow()));
 
     // If the user isn't pressing any keys, slow the player down to stop
     if (!Input::IsKeyPressed(Key::W) && !Input::IsKeyPressed(Key::A) && !Input::IsKeyPressed(Key::S) && !Input::IsKeyPressed(Key::D))
@@ -125,7 +124,7 @@ void PlayableRelicApp::OnRender()
     }
 }
 
-std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnPlayer()
+std::shared_ptr<Entity> PlayableRelicApp::SpawnPlayer()
 {
     /* 
         Create the player entity and give it a tag of 'player',
@@ -133,17 +132,17 @@ std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnPlayer()
         the new entity
     */
 
-    std::shared_ptr<Relic::Entity> entity = AddEntity("player");
-    entity->transform = std::make_shared<Transform>(Relic::Vector2(200.f, 500.f), Relic::Vector2(), 0.f);
+    std::shared_ptr<Entity> entity = AddEntity("player");
+    entity->transform = std::make_shared<Transform>(Vector2(200.f, 500.f), Vector2(), 0.f);
     entity->shape = std::make_shared<Shape>(32.f, 3, sf::Color::Blue, sf::Color::White, 4.f);
     entity->collision = std::make_shared<Collision>(32.f);
 
     return entity;   
 }
 
-std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnEntity(const Relic::Vector2& position, const Relic::Vector2& velocity, 
-                                                            float radius, int points, 
-                                                            const sf::Color& fill, const sf::Color& outline)
+std::shared_ptr<Entity> PlayableRelicApp::SpawnEntity(const Vector2& position, const Vector2& velocity, 
+                                                        float radius, int points, 
+                                                        const sf::Color& fill, const sf::Color& outline)
 {
     /* 
         Create an entity and give it a tag of 'object',
@@ -151,15 +150,15 @@ std::shared_ptr<Relic::Entity> PlayableRelicApp::SpawnEntity(const Relic::Vector
         the new entity
     */
 
-    std::shared_ptr<Relic::Entity> entity = AddEntity("object");
-    entity->transform = std::make_shared<Relic::Transform>(position, velocity, 0.f);
-    entity->shape = std::make_shared<Relic::Shape>(radius, points, fill, outline, 4.f);
-    entity->collision = std::make_shared<Relic::Collision>(radius);
+    std::shared_ptr<Entity> entity = AddEntity("object");
+    entity->transform = std::make_shared<Transform>(position, velocity, 0.f);
+    entity->shape = std::make_shared<Shape>(radius, points, fill, outline, 4.f);
+    entity->collision = std::make_shared<Collision>(radius);
 
     return entity;   
 }
 
-void PlayableRelicApp::SpawnBullet(std::shared_ptr<Relic::Entity> entity, const Relic::Vector2& target)
+void PlayableRelicApp::SpawnBullet(std::shared_ptr<Relic::Entity> entity, const Vector2& target)
 {
     /* 
         Create a bullet entity, which travels towards
@@ -167,8 +166,8 @@ void PlayableRelicApp::SpawnBullet(std::shared_ptr<Relic::Entity> entity, const 
         its components
     */
 
-    std::shared_ptr<Relic::Entity> bullet = AddEntity("bullet");
-    bullet->transform = std::make_shared<Relic::Transform>(target, Relic::Vector2(0.f, 0.f), 0.f);
+    std::shared_ptr<Entity> bullet = AddEntity("bullet");
+    bullet->transform = std::make_shared<Relic::Transform>(target, Vector2(0.f, 0.f), 0.f);
     bullet->shape = std::make_shared<Relic::Shape>(10, 8, sf::Color::White, sf::Color::Blue, 2.f);
 }
 
@@ -181,8 +180,8 @@ Relic::Application* Relic::CreateApplication()
         return the instance to the application
     */
 
-    Relic::ApplicationProperties properties;
-    properties.name = "Playable Relic App";
+    WindowData properties = WindowData();
+    properties.title = "Playable Relic App";
     properties.width = 1024;
     properties.height = 576;
 

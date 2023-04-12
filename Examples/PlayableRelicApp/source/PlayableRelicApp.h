@@ -1,10 +1,12 @@
 #include <Relic.h>
 
+using namespace Relic;
+
 // Make an app class that inherits from Relic::Application
 class PlayableRelicApp : public Relic::Application
 {
 public:
-    PlayableRelicApp(const Relic::ApplicationProperties& props);
+    PlayableRelicApp(const WindowData& props);
 
     /* OnStart()
      *      - Called once, when the app is initialized
@@ -33,18 +35,17 @@ private:
     void HandleMovement();
 
     // A helper function to spawn the player
-    std::shared_ptr<Relic::Entity> SpawnPlayer();
+    std::shared_ptr<Entity> SpawnPlayer();
 
     // A helper function to spawn entities
-    std::shared_ptr<Relic::Entity> SpawnEntity(const Relic::Vector2& position, const Relic::Vector2& velocity, float radius, int points, const sf::Color& fill, const sf::Color& outline);
+    std::shared_ptr<Entity> SpawnEntity(const Vector2& position, const Vector2& velocity, float radius, int points, const sf::Color& fill, const sf::Color& outline);
 
     // A helper function to spawn bullets
-    void SpawnBullet(std::shared_ptr<Relic::Entity> entity, const Relic::Vector2& target);
+    void SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target);
 
 
 private:
-    //std::shared_ptr<Relic::EntityManager> m_entityManager;
-    std::shared_ptr<Relic::Entity> m_player;
-    std::shared_ptr<Relic::Entity> m_octogon;
-    std::shared_ptr<Relic::Entity> m_square;
+    std::shared_ptr<Entity> m_player;
+    std::shared_ptr<Entity> m_octogon;
+    std::shared_ptr<Entity> m_square;
 };
