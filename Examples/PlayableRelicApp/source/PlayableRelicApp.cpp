@@ -80,14 +80,12 @@ void PlayableRelicApp::OnUpdate()
             m_player->transform->velocity.y = -maxPlayerSpeed;
     }
 
-    //RL_TRACE("player velocity: <{}, {}>", m_player->GetXVel(), m_player->GetYVel());
-
     // Move the entities based on their velocity
     for (auto& e : GetAllEntities())
         e->Move(e->GetXVel(), e->GetYVel());
 
     // Constrain the player into the window
-    //Constrain(m_player, GetWindowWidth(), GetWindowHeight());
+    Constrain(m_player, GetWindowWidth(), GetWindowHeight());
 }
 
 void PlayableRelicApp::OnRender()
@@ -163,7 +161,7 @@ void PlayableRelicApp::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2
         its components
     */
 
-    float speed = 12.f;
+    float speed = 16.f;
     Vector2 aim = Input::GetMousePosition(*GetNativeWindow()) - m_player->GetPosition();
     Vector2 normalizedAim = aim / Vector2(sqrt((aim.x*aim.x) + (aim.y*aim.y)), sqrt((aim.x*aim.x) + (aim.y*aim.y)));
 
