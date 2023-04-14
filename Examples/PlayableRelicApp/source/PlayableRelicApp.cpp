@@ -1,4 +1,5 @@
 #include "PlayableRelicApp.h"
+#define MAX_SHOOT_TIME 16
 
 PlayableRelicApp::PlayableRelicApp(const WindowData& props) :
     Application(props), m_shootTime(0)
@@ -37,11 +38,11 @@ void PlayableRelicApp::OnUpdate()
     m_player->transform->velocity.y += (playerAccel * verticalInput);
 
     // Update shoot timer
-    if (m_shootTime < 10)
+    if (m_shootTime < MAX_SHOOT_TIME)
         m_shootTime++;
 
     // If the user clicks, spawn a bullet
-    if (Input::IsMouseButtonPressed(sf::Mouse::Button::Left) && m_shootTime >= 10)
+    if (Input::IsMouseButtonPressed(sf::Mouse::Button::Left) && m_shootTime >= MAX_SHOOT_TIME)
     {
         SpawnBullet(m_player, Input::GetMousePosition(*GetNativeWindow()));
         m_shootTime = 0;
@@ -86,7 +87,7 @@ void PlayableRelicApp::OnUpdate()
         e->Move(e->GetXVel(), e->GetYVel());
 
     // Constrain the player into the window
-    Constrain(m_player, GetWindowWidth(), GetWindowHeight());
+    //Constrain(m_player, GetWindowWidth(), GetWindowHeight());
 }
 
 void PlayableRelicApp::OnRender()
@@ -115,7 +116,8 @@ void PlayableRelicApp::OnRender()
         e->shape->circle.setRotation(e->GetAngle());
         
         // Draw every entity's shape
-        Draw(e->shape->circle);
+        if (e->IsInRenderView())
+            Draw(e->shape->circle);
     }
 }
 
@@ -161,7 +163,7 @@ void PlayableRelicApp::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2
         its components
     */
 
-    float speed = 6.f;
+    float speed = 12.f;
     Vector2 aim = Input::GetMousePosition(*GetNativeWindow()) - m_player->GetPosition();
     Vector2 normalizedAim = aim / Vector2(sqrt((aim.x*aim.x) + (aim.y*aim.y)), sqrt((aim.x*aim.x) + (aim.y*aim.y)));
 

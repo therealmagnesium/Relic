@@ -39,6 +39,12 @@ namespace Relic
         while (!m_window->ShouldClose())
         {
             UpdateEntityManager();
+            for (auto& entity : GetAllEntities())
+                if (IsInWindow(entity))
+                    entity->SetInRenderView(true);
+                else
+                    entity->SetInRenderView(false);
+                
             m_window->HandleEvents();
             OnUpdate();
 
@@ -48,7 +54,7 @@ namespace Relic
         }
     }
     
-    void Application::Constrain(const std::shared_ptr<Entity>&  entity, uint32_t x, uint32_t y)
+    void Application::Constrain(std::shared_ptr<Entity> entity, uint32_t x, uint32_t y)
     {
         if (entity->transform->position.x < entity->GetRadius()) 
             entity->transform->position.x = entity->GetRadius();
@@ -61,8 +67,15 @@ namespace Relic
             entity->transform->position.y = y - entity->GetRadius();
     }
 
+    bool Application::IsInWindow(std::shared_ptr<Entity> entity)
+    {
+        return (entity->GetX() + entity->GetRadius() >= 0.f && entity->GetX() - 5 < GetWindowWidth() && 
+            entity->GetY() + entity->GetRadius() >= 0.f && entity->GetY() - 5 < GetWindowHeight());
+    }
+
     void Application::Draw(const sf::Drawable& drawable) { m_window->Draw(drawable); }
     
     EntityVec& Application::GetAllEntities() { return m_entityManager->GetEntities(); }
+    EntityVec& Application::GetAllEntities(const std::string& tag) { return m_entityManager->GetEntities(tag); }
     std::shared_ptr<Entity> Application::AddEntity(const std::string& tag) { return m_entityManager->AddEntity(tag); }
 }

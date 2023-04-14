@@ -29,7 +29,7 @@ namespace Relic
 
         void Run();
 
-        void Constrain(const std::shared_ptr<Entity>& entity, uint32_t x, uint32_t y);
+        void Constrain(std::shared_ptr<Entity> entity, uint32_t x, uint32_t y);
         void Draw(const sf::Drawable& drawable);
 
         inline const std::string& GetTitle() const { return m_window->GetTitle(); }
@@ -41,15 +41,17 @@ namespace Relic
 
     protected:
         EntityVec& GetAllEntities();
+        EntityVec& GetAllEntities(const std::string& tag);
         std::shared_ptr<Entity> AddEntity(const std::string& tag);
 
-        
     private:
         void Init();
         void Shutdown();
 
         void InitEntityManager();
         void UpdateEntityManager();
+
+        bool IsInWindow(std::shared_ptr<Entity> entity);
 
     private:
         WindowData m_properties;

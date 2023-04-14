@@ -25,8 +25,11 @@ namespace Relic
         inline float GetRadius() const { return shape->circle.getRadius(); }
 
         inline bool IsActive() const { return m_active; };
+        inline bool IsInRenderView() const { return m_inRenderView; }
         inline size_t GetId() const { return m_id; };
         inline const std::string& GetTag() const { return m_tag; };
+
+        inline void SetInRenderView(bool inRenderView) { m_inRenderView = inRenderView; }
 
     private:
         Entity(const size_t id, const std::string& tag);
@@ -35,6 +38,7 @@ namespace Relic
         friend class EntityManager;
 
         bool m_active = true;
+        bool m_inRenderView = true;
         size_t m_id = 0;
         std::string m_tag = "default";
     };
