@@ -31,8 +31,14 @@ public:
     void OnRender() override;
 
 private:
-    // A helper function to handle player movement
-    void HandleMovement();
+    // A function to organize player movement code
+    void HandlePlayerMovement();
+
+    // A function to organize player shooting code
+    void HandleShooting();
+
+    // A function to organize enemy collision code
+    void HandleEnemyCollision();
 
     // A helper function to spawn the player
     std::shared_ptr<Entity> SpawnPlayer();

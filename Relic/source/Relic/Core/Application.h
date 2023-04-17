@@ -50,6 +50,7 @@ namespace Relic
 
         void InitEntityManager();
         void UpdateEntityManager();
+        void RemoveInactiveEntities();
 
         bool IsInWindow(std::shared_ptr<Entity> entity);
 

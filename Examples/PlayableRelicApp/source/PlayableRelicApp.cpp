@@ -26,59 +26,9 @@ void PlayableRelicApp::OnStart()
 
 void PlayableRelicApp::OnUpdate()
 {
-    static float playerAccel = 1.f;
-    static float maxPlayerSpeed = 8.f;
-
-    // Get a direction on both axis to be multiplied by accelereation
-    int8_t horizontalInput = (Input::IsKeyPressed(Key::D) - Input::IsKeyPressed(Key::A));
-    int8_t verticalInput = (Input::IsKeyPressed(Key::S) - Input::IsKeyPressed(Key::W));
-
-    // Update the player's velocity
-    m_player->transform->velocity.x += (playerAccel * horizontalInput);
-    m_player->transform->velocity.y += (playerAccel * verticalInput);
-
-    // Update shoot timer
-    if (m_shootTime < MAX_SHOOT_TIME)
-        m_shootTime++;
-
-    // If the user clicks, spawn a bullet
-    if (Input::IsMouseButtonPressed(sf::Mouse::Button::Left) && m_shootTime >= MAX_SHOOT_TIME)
-    {
-        SpawnBullet(m_player, Input::GetMousePosition(*GetNativeWindow()));
-        m_shootTime = 0;
-    }
-
-    // If the user isn't pressing any keys, slow the player down to stop
-    if (!Input::IsKeyPressed(Key::W) && !Input::IsKeyPressed(Key::A) && !Input::IsKeyPressed(Key::S) && !Input::IsKeyPressed(Key::D))
-    {
-        if (m_player->GetXVel() > 0.f)
-            m_player->transform->velocity.x -= playerAccel;
-        else if (m_player->GetXVel() < 0.f)
-            m_player->transform->velocity.x += playerAccel;
-    
-        if (m_player->GetYVel() > 0.f)
-            m_player->transform->velocity.y -= playerAccel;
-        else if (m_player->GetYVel() < 0.f)
-            m_player->transform->velocity.y += playerAccel; 
-    }
-
-    // Cap the player's X velocity
-    if (abs(m_player->GetXVel()) > maxPlayerSpeed)
-    {
-        if (m_player->GetXVel() > 0.f)
-            m_player->transform->velocity.x = maxPlayerSpeed;
-        else if (m_player->GetXVel() < 0.f)
-            m_player->transform->velocity.x = -maxPlayerSpeed;
-    }
-    
-    // Cap the player's Y velocity
-    if (abs(m_player->GetYVel()) > maxPlayerSpeed)
-    {
-        if (m_player->GetYVel() > 0.f)
-            m_player->transform->velocity.y = maxPlayerSpeed;
-        else if (m_player->GetYVel() < 0.f)
-            m_player->transform->velocity.y = -maxPlayerSpeed;
-    }
+    HandleEnemyCollision();
+    HandlePlayerMovement();
+    HandleShooting();
 
     // Move the entities based on their velocity
     for (auto& e : GetAllEntities())
@@ -114,8 +64,88 @@ void PlayableRelicApp::OnRender()
         e->shape->circle.setRotation(e->GetAngle());
         
         // Draw every entity's shape
-        if (e->IsInRenderView())
+        if (e->IsInRenderView() && e->IsActive())
             Draw(e->shape->circle);
+    }
+}
+
+void PlayableRelicApp::HandlePlayerMovement()
+{
+    static float playerAccel = 1.f;
+    static float maxPlayerSpeed = 8.f;
+
+    // Get a direction on both axis to be multiplied by accelereation
+    int8_t horizontalInput = (Input::IsKeyPressed(Key::D) - Input::IsKeyPressed(Key::A));
+    int8_t verticalInput = (Input::IsKeyPressed(Key::S) - Input::IsKeyPressed(Key::W));
+
+    // Update the player's velocity
+    m_player->transform->velocity.x += (playerAccel * horizontalInput);
+    m_player->transform->velocity.y += (playerAccel * verticalInput);
+
+    // If the user isn't pressing any keys, slow the player down to stop
+    if (!Input::IsKeyPressed(Key::W) && !Input::IsKeyPressed(Key::A) && !Input::IsKeyPressed(Key::S) && !Input::IsKeyPressed(Key::D))
+    {
+        if (m_player->GetXVel() > 0.f)
+            m_player->transform->velocity.x -= playerAccel;
+        else if (m_player->GetXVel() < 0.f)
+            m_player->transform->velocity.x += playerAccel;
+    
+        if (m_player->GetYVel() > 0.f)
+            m_player->transform->velocity.y -= playerAccel;
+        else if (m_player->GetYVel() < 0.f)
+            m_player->transform->velocity.y += playerAccel; 
+    }
+
+    // Cap the player's X velocity
+    if (abs(m_player->GetXVel()) > maxPlayerSpeed)
+    {
+        if (m_player->GetXVel() > 0.f)
+            m_player->transform->velocity.x = maxPlayerSpeed;
+        else if (m_player->GetXVel() < 0.f)
+            m_player->transform->velocity.x = -maxPlayerSpeed;
+    }
+    
+    // Cap the player's Y velocity
+    if (abs(m_player->GetYVel()) > maxPlayerSpeed)
+    {
+        if (m_player->GetYVel() > 0.f)
+            m_player->transform->velocity.y = maxPlayerSpeed;
+        else if (m_player->GetYVel() < 0.f)
+            m_player->transform->velocity.y = -maxPlayerSpeed;
+    }
+}
+
+void PlayableRelicApp::HandleShooting()
+{
+    // Update shoot timer
+    if (m_shootTime < MAX_SHOOT_TIME)
+        m_shootTime++;
+
+    // If the user clicks, spawn a bullet
+    if (Input::IsMouseButtonPressed(sf::Mouse::Button::Left) && m_shootTime >= MAX_SHOOT_TIME)
+    {
+        SpawnBullet(m_player, Input::GetMousePosition(*GetNativeWindow()));
+        m_shootTime = 0;
+    }
+
+}
+
+void PlayableRelicApp::HandleEnemyCollision()
+{
+    for (auto& b : GetAllEntities("bullet"))
+    {
+        for (auto& e : GetAllEntities("object"))
+        {
+            float dx = b->GetX() - e->GetX();
+            float dy = b->GetY() - e->GetY();
+            float dist = sqrt((dx*dx) + (dy*dy));
+
+            if (dist <= b->GetCollisionRadius() + e->GetCollisionRadius())
+            {
+                b->SetActive(false);
+                e->SetActive(false);
+            }
+        }
     }
 }
 
@@ -131,6 +161,8 @@ std::shared_ptr<Entity> PlayableRelicApp::SpawnPlayer()
     entity->transform = std::make_shared<Transform>(Vector2(200.f, 500.f), Vector2(), 0.f);
     entity->shape = std::make_shared<Shape>(32.f, 3, sf::Color::Blue, sf::Color::White, 4.f);
     entity->collision = std::make_shared<Collision>(32.f);
+
+    entity->shape->circle.setOrigin(entity->GetRadius(), entity->GetRadius());
 
     return entity;   
 }
@@ -150,6 +182,8 @@ std::shared_ptr<Entity> PlayableRelicApp::SpawnEntity(const Vector2& position, c
     entity->shape = std::make_shared<Shape>(radius, points, fill, outline, 4.f);
     entity->collision = std::make_shared<Collision>(radius);
 
+    entity->shape->circle.setOrigin(radius, radius);
+
     return entity;   
 }
 
@@ -167,7 +201,10 @@ void PlayableRelicApp::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2
 
     std::shared_ptr<Entity> bullet = AddEntity("bullet");
     bullet->transform = std::make_shared<Transform>(entity->GetPosition(), Vector2(normalizedAim.x*speed, normalizedAim.y*speed), 0.f);
-    bullet->shape = std::make_shared<Shape>(10, 8, sf::Color::White, sf::Color::Blue, 2.f);
+    bullet->shape = std::make_shared<Shape>(10, 32, sf::Color::White, sf::Color::Blue, 2.f);
+    bullet->collision = std::make_shared<Collision>(10.f);
+
+    bullet->shape->circle.setOrigin(bullet->GetRadius(), bullet->GetRadius());
 }
 
 Relic::Application* Relic::CreateApplication()

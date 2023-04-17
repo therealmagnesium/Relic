@@ -28,6 +28,7 @@ namespace Relic
 
     void Application::InitEntityManager() { m_entityManager = std::make_shared<EntityManager>(); }
     void Application::UpdateEntityManager() { m_entityManager->Update(); }
+    void Application::RemoveInactiveEntities() { m_entityManager->RemoveInactiveEntities(m_entityManager->GetEntities()); }
 
     void Application::Shutdown()
     {
@@ -39,14 +40,17 @@ namespace Relic
         while (!m_window->ShouldClose())
         {
             UpdateEntityManager();
+                
+            m_window->HandleEvents();
+            OnUpdate();
+
+            //RemoveInactiveEntities();
+
             for (auto& entity : GetAllEntities())
                 if (IsInWindow(entity))
                     entity->SetInRenderView(true);
                 else
                     entity->SetInRenderView(false);
-                
-            m_window->HandleEvents();
-            OnUpdate();
 
             m_window->Clear(0x0A0A0AFF);
             OnRender();
