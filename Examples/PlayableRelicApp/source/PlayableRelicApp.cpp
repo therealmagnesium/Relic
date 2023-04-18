@@ -26,6 +26,7 @@ void PlayableRelicApp::OnStart()
 
 void PlayableRelicApp::OnUpdate()
 {
+    // Call the gameplay functions
     HandleEnemyCollision();
     HandlePlayerMovement();
     HandleShooting();
@@ -132,15 +133,12 @@ void PlayableRelicApp::HandleShooting()
 
 void PlayableRelicApp::HandleEnemyCollision()
 {
+    // If any bullets collide with objects, set the objects to be inactive
     for (auto& b : GetAllEntities("bullet"))
     {
         for (auto& e : GetAllEntities("object"))
         {
-            float dx = b->GetX() - e->GetX();
-            float dy = b->GetY() - e->GetY();
-            float dist = sqrt((dx*dx) + (dy*dy));
-
-            if (dist <= b->GetCollisionRadius() + e->GetCollisionRadius())
+            if (GetDistance(b->GetPosition(), e->GetPosition()) <= b->GetCollisionRadius() + e->GetCollisionRadius())
             {
                 b->SetActive(false);
                 e->SetActive(false);
@@ -197,7 +195,7 @@ void PlayableRelicApp::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2
 
     float speed = 16.f;
     Vector2 aim = Input::GetMousePosition(*GetNativeWindow()) - m_player->GetPosition();
-    Vector2 normalizedAim = aim / Vector2(sqrt((aim.x*aim.x) + (aim.y*aim.y)), sqrt((aim.x*aim.x) + (aim.y*aim.y)));
+    Vector2 normalizedAim = Normalize(aim);
 
     std::shared_ptr<Entity> bullet = AddEntity("bullet");
     bullet->transform = std::make_shared<Transform>(entity->GetPosition(), Vector2(normalizedAim.x*speed, normalizedAim.y*speed), 0.f);

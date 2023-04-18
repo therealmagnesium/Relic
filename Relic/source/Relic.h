@@ -5,6 +5,7 @@
 #include "Relic/Core/EntryPoint.h"
 #include "Relic/Core/KeyCodes.h"
 #include "Relic/Core/Input.h"
+#include "Relic/Core/Util.h"
 #include "Relic/Core/Window.h"
 
 #include "Relic/Entity/EntityManager.h"

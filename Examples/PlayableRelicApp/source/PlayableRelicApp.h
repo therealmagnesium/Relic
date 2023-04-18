@@ -9,12 +9,14 @@ public:
     PlayableRelicApp(const WindowData& props);
 
     /* OnStart()
+     *      - [REQUIRED]
      *      - Called once, when the app is initialized
      *      - Used for initializing entities and other game objects
      */
     void OnStart() override;
 
     /* OnUpdate()
+     *      - [REQUIRED]
      *      - Called once per frame
      *      - Used for:
      *              - Collisions / physics
@@ -23,9 +25,10 @@ public:
     void OnUpdate() override;
 
     /* OnRender()
+     *      - [REQUIRED]
      *      - Called once per frame, after OnUpdate()
      *      - Used for:
-     *              - Rendering enteties
+     *              - Rendering entities
      *              - Dynamic graphic properties
      */
     void OnRender() override;
