@@ -17,14 +17,19 @@ namespace Relic
         }
 
         m_entitiesToAdd.clear();
+
+        RemoveInactiveEntities(m_entities);
+
+        for (auto& [tag, EntityVec] : m_entityMap)
+            RemoveInactiveEntities(EntityVec);
     }
 
     void EntityManager::RemoveInactiveEntities(EntityVec& entityVec)
     {
         for (auto& entity : entityVec)
         {
-            if (!entity->IsActive())
-                entityVec.erase(std::remove(entityVec.begin(), entityVec.end(), entity));
+            entityVec.erase(std::remove_if(entityVec.begin(), entityVec.end(), [](std::shared_ptr<Entity> entity)
+                            { return !entity->IsActive(); }), entityVec.end());
         }
     }
 

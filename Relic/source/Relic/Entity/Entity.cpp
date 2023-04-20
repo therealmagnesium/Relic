@@ -18,5 +18,6 @@ namespace Relic
     void Entity::Destroy()
     {
        RL_CORE_INFO("Entity destroyed [{}, {}]", m_id, m_tag); 
+       m_active = false;
     }
 }

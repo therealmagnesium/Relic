@@ -30,7 +30,6 @@ namespace Relic
         inline size_t GetId() const { return m_id; };
         inline const std::string& GetTag() const { return m_tag; };
 
-        inline void SetActive(bool active) { m_active = active; }
         inline void SetInRenderView(bool inRenderView) { m_inRenderView = inRenderView; }
 
     private:

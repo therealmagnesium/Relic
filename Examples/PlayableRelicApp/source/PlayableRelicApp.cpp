@@ -140,10 +140,14 @@ void PlayableRelicApp::HandleEnemyCollision()
         {
             if (GetDistance(b->GetPosition(), e->GetPosition()) <= b->GetCollisionRadius() + e->GetCollisionRadius())
             {
-                b->SetActive(false);
-                e->SetActive(false);
+                b->Destroy();
+                e->Destroy();
             }
         }
+
+        // If bullets are not in render view, destroy them
+        if (!b->IsInRenderView())
+            b->Destroy();
     }
 }
 
