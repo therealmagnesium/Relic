@@ -73,8 +73,8 @@ namespace Relic
 
     bool Application::IsInWindow(std::shared_ptr<Entity> entity)
     {
-        return (entity->GetX() + entity->GetRadius() >= 0.f && entity->GetX() - 5 < GetWindowWidth() && 
-            entity->GetY() + entity->GetRadius() >= 0.f && entity->GetY() - 5 < GetWindowHeight());
+        return (entity->GetX() + entity->GetRadius() >= 0.f && entity->GetX() - 5 < WINDOW_WIDTH && 
+            entity->GetY() + entity->GetRadius() >= 0.f && entity->GetY() - 5 < WINDOW_HEIGHT);
     }
 
     void Application::Draw(const sf::Drawable& drawable) { m_window->Draw(drawable); }

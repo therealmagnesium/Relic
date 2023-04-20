@@ -36,7 +36,7 @@ void PlayableRelicApp::OnUpdate()
         e->Move(e->GetXVel(), e->GetYVel());
 
     // Constrain the player into the window
-    Constrain(m_player, GetWindowWidth(), GetWindowHeight());
+    Constrain(m_player, WINDOW_WIDTH, WINDOW_HEIGHT);
 }
 
 void PlayableRelicApp::OnRender()
@@ -125,7 +125,7 @@ void PlayableRelicApp::HandleShooting()
     // If the user clicks, spawn a bullet
     if (Input::IsMouseButtonPressed(sf::Mouse::Button::Left) && m_shootTime >= MAX_SHOOT_TIME)
     {
-        SpawnBullet(m_player, Input::GetMousePosition(*GetNativeWindow()));
+        SpawnBullet(m_player, Input::GetMousePosition(GetNativeWindow()));
         m_shootTime = 0;
     }
 
@@ -136,7 +136,7 @@ void PlayableRelicApp::HandleEnemyCollision()
     // If any bullets collide with objects, set the objects to be inactive
     for (auto& b : GetAllEntities("bullet"))
     {
-        for (auto& e : GetAllEntities("object"))
+        for (auto& e : GetAllEntities("enemy"))
         {
             if (GetDistance(b->GetPosition(), e->GetPosition()) <= b->GetCollisionRadius() + e->GetCollisionRadius())
             {
@@ -179,7 +179,7 @@ std::shared_ptr<Entity> PlayableRelicApp::SpawnEntity(const Vector2& position, c
         the new entity
     */
 
-    std::shared_ptr<Entity> entity = AddEntity("object");
+    std::shared_ptr<Entity> entity = AddEntity("enemy");
     entity->transform = std::make_shared<Transform>(position, velocity, 0.f);
     entity->shape = std::make_shared<Shape>(radius, points, fill, outline, 4.f);
     entity->collision = std::make_shared<Collision>(radius);
@@ -198,7 +198,7 @@ void PlayableRelicApp::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2
     */
 
     float speed = 16.f;
-    Vector2 aim = Input::GetMousePosition(*GetNativeWindow()) - m_player->GetPosition();
+    Vector2 aim = Input::GetMousePosition(GetNativeWindow()) - m_player->GetPosition();
     Vector2 normalizedAim = Normalize(aim);
 
     std::shared_ptr<Entity> bullet = AddEntity("bullet");

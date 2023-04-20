@@ -1,6 +1,9 @@
 #pragma once
 #include "Window.h"
 
+#define WINDOW_WIDTH GetWindowWidth()
+#define WINDOW_HEIGHT GetWindowHeight()
+
 namespace sf { class Drawable; }
 
 namespace Relic
@@ -37,7 +40,7 @@ namespace Relic
         inline uint32_t GetWindowHeight() const { return m_window->GetHeight(); }
 
         inline std::shared_ptr<Window> GetWindow() const { return m_window; }
-        inline sf::RenderWindow* GetNativeWindow() const { return m_window->GetHandle(); }
+        inline sf::RenderWindow& GetNativeWindow() const { return *m_window->GetHandle(); }
 
     protected:
         EntityVec& GetAllEntities();
