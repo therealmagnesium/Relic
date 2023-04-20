@@ -99,21 +99,13 @@ void PlayableRelicApp::HandlePlayerMovement()
 
     // Cap the player's X velocity
     if (abs(m_player->GetXVel()) > maxPlayerSpeed)
-    {
-        if (m_player->GetXVel() > 0.f)
-            m_player->transform->velocity.x = maxPlayerSpeed;
-        else if (m_player->GetXVel() < 0.f)
-            m_player->transform->velocity.x = -maxPlayerSpeed;
-    }
+        m_player->transform->velocity.x = (m_player->GetXVel() > 0.f)
+                                        ? maxPlayerSpeed : -maxPlayerSpeed;
     
     // Cap the player's Y velocity
     if (abs(m_player->GetYVel()) > maxPlayerSpeed)
-    {
-        if (m_player->GetYVel() > 0.f)
-            m_player->transform->velocity.y = maxPlayerSpeed;
-        else if (m_player->GetYVel() < 0.f)
-            m_player->transform->velocity.y = -maxPlayerSpeed;
-    }
+        m_player->transform->velocity.y = (m_player->GetYVel() > 0.f) 
+                                        ? maxPlayerSpeed : -maxPlayerSpeed;
 }
 
 void PlayableRelicApp::HandleShooting()
