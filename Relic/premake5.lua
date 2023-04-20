@@ -1,7 +1,7 @@
 project "Relic"
     kind "StaticLib"
     language "C++"
-    cppdialect "C++14"
+    cppdialect "C++17"
     staticruntime "on"
 
     targetdir ("../bin/" .. outputdir .. "/%{prj.name}")
