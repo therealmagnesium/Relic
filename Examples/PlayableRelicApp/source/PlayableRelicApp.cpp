@@ -1,10 +1,11 @@
 #include "PlayableRelicApp.h"
 #define MAX_SHOOT_TIME 16
+#define ENEMY_SPAWN_TIME 50
 
 PlayableRelicApp::PlayableRelicApp(const WindowData& props) :
-    Application(props), m_shootTime(0)
+    Application(props), m_shootTime(0), m_lastEnemySpawnTime(0), m_currentFrame(0)
 {
-
+    srand(time(NULL));
 }
 
 void PlayableRelicApp::OnStart()
@@ -18,10 +19,7 @@ void PlayableRelicApp::OnStart()
         effect
     */
     
-    m_player = SpawnPlayer();
-    m_octogon = SpawnEntity(Vector2(800.f, 300.f), Vector2(), 32.f, 8, sf::Color::Red, sf::Color::White);
-    m_square = SpawnEntity(Vector2(100.f, 100.f), Vector2(), 64.f, 4, sf::Color::Green, sf::Color::White);
-      
+    m_player = SpawnPlayer();    
 }
 
 void PlayableRelicApp::OnUpdate()
@@ -31,12 +29,17 @@ void PlayableRelicApp::OnUpdate()
     HandlePlayerMovement();
     HandleShooting();
 
+    if (m_currentFrame - m_lastEnemySpawnTime == ENEMY_SPAWN_TIME)
+        SpawnEnemy();
+
     // Move the entities based on their velocity
     for (auto& e : GetAllEntities())
         e->Move(e->GetXVel(), e->GetYVel());
 
     // Constrain the player into the window
     Constrain(m_player, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+    m_currentFrame++; // Should be at very end of OnUpdate()
 }
 
 void PlayableRelicApp::OnRender()
@@ -148,12 +151,12 @@ std::shared_ptr<Entity> PlayableRelicApp::SpawnPlayer()
     /* 
         Create the player entity and give it a tag of 'player',
         then set the components for the player, and finally return
-        the new entity
+        the new entity.
     */
 
     std::shared_ptr<Entity> entity = AddEntity("player");
     entity->transform = std::make_shared<Transform>(Vector2(200.f, 500.f), Vector2(), 0.f);
-    entity->shape = std::make_shared<Shape>(32.f, 3, sf::Color::Blue, sf::Color::White, 4.f);
+    entity->shape = std::make_shared<Shape>(32.f, 3, sf::Color::Blue, sf::Color(0xEEC9F5FF), 4.f);
     entity->collision = std::make_shared<Collision>(32.f);
 
     entity->shape->circle.setOrigin(entity->GetRadius(), entity->GetRadius());
@@ -161,24 +164,36 @@ std::shared_ptr<Entity> PlayableRelicApp::SpawnPlayer()
     return entity;   
 }
 
-std::shared_ptr<Entity> PlayableRelicApp::SpawnEntity(const Vector2& position, const Vector2& velocity, 
-                                                        float radius, int points, 
-                                                        const sf::Color& fill, const sf::Color& outline)
+void PlayableRelicApp::SpawnEnemy()
 {
     /* 
-        Create an entity and give it a tag of 'object',
-        then set the components for the entity, and finally return
-        the new entity
+        Create an enemy and give it a tag of 'enemy',
+        then get random values for the x and y position,
+        and the amount of points. Then get random
+        color values, after that set the components
+        for the enemy. Then set the last enemy spawn
+        time to the current frame.
     */
 
     std::shared_ptr<Entity> entity = AddEntity("enemy");
-    entity->transform = std::make_shared<Transform>(position, velocity, 0.f);
-    entity->shape = std::make_shared<Shape>(radius, points, fill, outline, 4.f);
-    entity->collision = std::make_shared<Collision>(radius);
 
-    entity->shape->circle.setOrigin(radius, radius);
+    float x = rand() % WINDOW_WIDTH;
+    float y = rand() % WINDOW_HEIGHT;
+    int points = rand() % 4 + 4;
 
-    return entity;   
+    uint8_t r = rand() % 0xFF + 0x50;
+    uint8_t g = rand() % 0xFF + 0x50;
+    uint8_t b = rand() % 0xFF + 0x50;
+    
+    RL_TRACE("{}, {}, {}", x, y, points);
+
+    entity->transform = std::make_shared<Transform>(Vector2(x, y), Vector2(0.f, 0.f), 0.f);
+    entity->shape = std::make_shared<Shape>(32.f, points, sf::Color(r, g, b, 0xFF), sf::Color::White, 4.f);
+    entity->collision = std::make_shared<Collision>(32.f);
+
+    entity->shape->circle.setOrigin(32.f, 32.f);
+
+    m_lastEnemySpawnTime = m_currentFrame;
 }
 
 void PlayableRelicApp::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target)
