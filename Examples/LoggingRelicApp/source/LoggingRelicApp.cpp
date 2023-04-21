@@ -28,7 +28,7 @@ void LoggingRelicApp::OnStart()
 
 void LoggingRelicApp::OnUpdate() 
 {
-    RL_TRACE("{}, {}", Input::GetMouseX(WINDOW_WIDTH), Input::GetMouseY(WINDOW_HEIGHT));
+    RL_TRACE("{}, {}", Input::GetMouseX(GetNativeWindow()), Input::GetMouseY(GetNativeWindow()));
 }
 
 void LoggingRelicApp::OnRender() 
