@@ -44,8 +44,6 @@ namespace Relic
             m_window->HandleEvents();
             OnUpdate();
 
-            //RemoveInactiveEntities();
-
             for (auto& entity : GetAllEntities())
                 if (IsInWindow(entity))
                     entity->SetInRenderView(true);

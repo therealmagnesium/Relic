@@ -18,6 +18,6 @@ namespace Relic
     Vector2 Normalize(const Vector2& p)
     {
         float magnitude = GetMagnitude(p);
-        return (magnitude > 0) ? p / Vector2(magnitude, magnitude) : Vector2(0.f, 0.f);
+        return (magnitude > 0) ? p / magnitude : Vector2(0.f, 0.f);
     }
 }

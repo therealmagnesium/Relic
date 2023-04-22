@@ -17,7 +17,12 @@ namespace Relic
         Vector2 operator - (const Vector2& v) const;
         Vector2 operator * (const Vector2& v) const;
         Vector2 operator / (const Vector2& v) const;
-    
+
+        Vector2 operator * (int s) const;
+        Vector2 operator / (int s) const;
+        Vector2 operator * (float s) const;
+        Vector2 operator / (float s) const;
+
         float Dist(const Vector2& v) const;
     };
 }
