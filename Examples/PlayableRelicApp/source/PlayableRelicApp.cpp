@@ -142,7 +142,7 @@ void PlayableRelicApp::HandleShooting()
 
 void PlayableRelicApp::HandleEnemyCollision()
 {
-    // If any bullets collide with objects, set the objects to be inactive
+    // If the player's bullets collide...
     for (auto& b : GetAllEntities("player_bullet"))
     {
         for (auto& e : GetAllEntities("enemy"))
