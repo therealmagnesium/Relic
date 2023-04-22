@@ -24,14 +24,18 @@ project "Relic"
         "vendor/spdlog/include"
     }
 
+    defines { "SFML_STATIC" }
     libdirs { "vendor/sfml/lib" }
 
     links
     {
-        "sfml-main",
-        "sfml-system",
-        "sfml-graphics",
-        "sfml-window"
+        "sfml-graphics-s",
+        "sfml-window-s",
+        "sfml-system-s",
+        "opengl32",
+        "winmm",
+        "freetype",
+        "gdi32"
     }
 
 
