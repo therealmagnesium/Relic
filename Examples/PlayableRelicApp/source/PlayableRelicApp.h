@@ -3,10 +3,10 @@
 using namespace Relic;
 
 // Make an app class that inherits from Relic::Application
-class PlayableRelicApp : public Relic::Application
+class PlayableRelicApp : public Application
 {
 public:
-    PlayableRelicApp(const WindowData& props);
+    PlayableRelicApp();
 
     /* OnStart()
      *      - [REQUIRED]
@@ -50,7 +50,7 @@ private:
     std::shared_ptr<Entity> SpawnPlayer();
 
     // A helper function to spawn enemies
-    std::shared_ptr<Entity> SpawnEnemy();
+    void SpawnEnemy();
 
     // A helper function to spawn bullets
     void SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target, const std::string& tag);

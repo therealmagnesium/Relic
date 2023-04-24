@@ -1,7 +1,6 @@
 #include "LoggingRelicApp.h"
 
-LoggingRelicApp::LoggingRelicApp(const WindowData& props) :
-    Application(props) 
+LoggingRelicApp::LoggingRelicApp() 
 {
 
 }
@@ -43,13 +42,8 @@ Relic::Application* Relic::CreateApplication()
         call the OnStart() method for it, then
         return the instance to the application
     */
-   
-    WindowData properties = WindowData();
-    properties.title = "Logging Relic App";
-    properties.width = 1024;
-    properties.height = 576;
 
-    LoggingRelicApp* game = new LoggingRelicApp(properties);
+    LoggingRelicApp* game = new LoggingRelicApp();
     game->OnStart();
     return game; 
 }

@@ -19,7 +19,7 @@ namespace Relic
 
     void Window::Init(const WindowData& props)
     {
-        m_windowHandle = new sf::RenderWindow(sf::VideoMode(m_data.width, m_data.height), m_data.title, sf::Style::Close | sf::Style::Titlebar);
+        m_windowHandle = new sf::RenderWindow(sf::VideoMode(m_data.width, m_data.height), m_data.title, m_data.style);
         if (!m_windowHandle)
         {
             RL_CORE_ERROR("Failed to make window!");

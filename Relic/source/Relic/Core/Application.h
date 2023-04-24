@@ -23,14 +23,16 @@ namespace Relic
     class Application
     {
     public:
-        Application(const WindowData& props = WindowData());
+        Application();
         virtual ~Application();
 
         virtual void OnStart() = 0;
         virtual void OnUpdate() = 0;
         virtual void OnRender() = 0;
 
+        void LoadConfigFile(const std::string& path);
         void Run();
+        void Close();
 
         void Constrain(std::shared_ptr<Entity> entity, uint32_t x, uint32_t y);
         void Draw(const sf::Drawable& drawable);

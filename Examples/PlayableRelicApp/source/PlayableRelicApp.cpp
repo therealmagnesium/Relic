@@ -4,8 +4,8 @@
 #define MIN_ENEMY_SPAWN_TIME 25
 #define DEC_ENEMY_SPAWN_TIME 500
 
-PlayableRelicApp::PlayableRelicApp(const WindowData& props) :
-    Application(props), m_shootTime(0), m_enemySpawnTime(51), m_lastEnemySpawnTime(0), m_currentFrame(0)
+PlayableRelicApp::PlayableRelicApp() :
+    m_shootTime(0), m_enemySpawnTime(51), m_lastEnemySpawnTime(0), m_currentFrame(0)
 {
     srand(time(NULL));
 }
@@ -16,9 +16,8 @@ void PlayableRelicApp::OnStart()
     RL_TRACE("Playable Relic App has started!");
     
     /*
-        Initialize the scene's entities, note that
-        setting the fill color to 0x00000000 gives transparency
-        effect
+        Initialize the player and load the
+        configuration file from 'data/settings.cfg'
     */
     
     m_player = SpawnPlayer();    
@@ -26,6 +25,10 @@ void PlayableRelicApp::OnStart()
 
 void PlayableRelicApp::OnUpdate()
 {
+    // If ESC is pressed, close the game
+    if (Input::IsKeyPressed(Key::Escape))
+        Close();
+
     // Call the gameplay functions
     HandleEnemyCollision();
     HandlePlayerMovement();
@@ -164,19 +167,7 @@ void PlayableRelicApp::SpawnAllEnemies()
 {
     // Spawn an enemy over m_enemySpawnTime
     if (m_currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
-    {
-        std::shared_ptr<Entity> enemy = SpawnEnemy();
-
-        if (enemy->GetX() < m_player->GetX())
-            enemy->transform->position.x -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
-        else if (enemy->GetX() > m_player->GetX())
-            enemy->transform->position.x += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
-        
-        if (enemy->GetY() < m_player->GetY())
-            enemy->transform->position.y -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
-        else if (enemy->GetY() > m_player->GetY())
-            enemy->transform->position.y += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
-    }
+        SpawnEnemy();
 }
 
 std::shared_ptr<Entity> PlayableRelicApp::SpawnPlayer()
@@ -197,7 +188,7 @@ std::shared_ptr<Entity> PlayableRelicApp::SpawnPlayer()
     return entity;   
 }
 
-std::shared_ptr<Entity> PlayableRelicApp::SpawnEnemy()
+void PlayableRelicApp::SpawnEnemy()
 {
     /* 
         Create an enemy and give it a tag of 'enemy',
@@ -210,27 +201,35 @@ std::shared_ptr<Entity> PlayableRelicApp::SpawnEnemy()
 
     std::shared_ptr<Entity> entity = AddEntity("enemy");
 
-    float x = rand() % WINDOW_WIDTH;
-    float y = rand() % WINDOW_HEIGHT;
+    Vector2 randPos = Vector2(rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT);
     int points = rand() % 4 + 4;
 
     uint8_t r = rand() % 0xFF + 0x50;
     uint8_t g = rand() % 0xFF + 0x50;
     uint8_t b = rand() % 0xFF + 0x50;
     
-    RL_TRACE("{}, {}, {}", x, y, points);
+    RL_TRACE("{}, {}, {}", randPos.x, randPos.y, points);
 
-    Vector2 velocity = m_player->GetPosition() - Vector2(x, y);
+    Vector2 velocity = m_player->GetPosition() - Vector2(randPos.x, randPos.y);
     Vector2 normalizedVel = Normalize(velocity);
 
-    entity->transform = std::make_shared<Transform>(Vector2(x, y), (normalizedVel * points) / 1.2f, 0.f);
+    if (randPos.x < m_player->GetX())
+        randPos.x -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+    else if (randPos.x > m_player->GetX())
+        randPos.x += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+    
+    if (randPos.y < m_player->GetY())
+        randPos.y -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+    else if (randPos.y > m_player->GetY())
+        randPos.y += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+
+    entity->transform = std::make_shared<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points) / 1.2f, 0.f);
     entity->shape = std::make_shared<Shape>(32.f, points, sf::Color(r, g, b, 0xFF), sf::Color::White, 4.f);
     entity->collision = std::make_shared<Collision>(32.f);
 
     entity->shape->circle.setOrigin(32.f, 32.f);
 
     m_lastEnemySpawnTime = m_currentFrame;
-    return entity;
 }
 
 void PlayableRelicApp::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target, const std::string& tag)
@@ -261,12 +260,7 @@ Relic::Application* Relic::CreateApplication()
         return the instance to the application
     */
 
-    WindowData properties = WindowData();
-    properties.title = "Playable Relic App";
-    properties.width = 1024;
-    properties.height = 576;
-
-    PlayableRelicApp* game = new PlayableRelicApp(properties);
+    PlayableRelicApp* game = new PlayableRelicApp();
     game->OnStart();
     return game; 
 }

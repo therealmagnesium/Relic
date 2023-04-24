@@ -7,8 +7,7 @@
 
 namespace Relic
 {
-    Application::Application(const WindowData& props) :
-        m_properties(props)
+    Application::Application()
     {
         Init();
     }
@@ -20,10 +19,30 @@ namespace Relic
 
     void Application::Init()
     {
-        RL_CORE_TRACE("Application properties: {}, {}, {}", m_properties.title, m_properties.width, m_properties.height);
+        LoadConfigFile("data/settings.cfg");
         m_window = std::make_shared<Window>(m_properties);
 
         InitEntityManager();
+    }
+
+    void Application::LoadConfigFile(const std::string& path)
+    {
+        std::ifstream in(path);
+        std::string temp;
+
+        if (!in.is_open())
+        {
+            RL_CORE_ERROR("Failed to open config file: '{}'", path);
+            return;
+        }
+
+        while (in >> temp)
+        {
+            if (temp == "Window")
+                in >> m_properties.width >> m_properties.height >> m_properties.title >> m_properties.style;
+        }
+
+        RL_CORE_TRACE("Application properties: {}, {}, {}", m_properties.title, m_properties.width, m_properties.height);
     }
 
     void Application::InitEntityManager() { m_entityManager = std::make_shared<EntityManager>(); }
@@ -32,6 +51,7 @@ namespace Relic
 
     void Application::Shutdown()
     {
+        RL_CORE_INFO("Successfully shutdown application!");
         m_window->Close();
     }
 
@@ -55,6 +75,8 @@ namespace Relic
             m_window->Display();
         }
     }
+
+    void Application::Close() { m_window->EnableShouldClose(); }
     
     void Application::Constrain(std::shared_ptr<Entity> entity, uint32_t x, uint32_t y)
     {
