@@ -21,26 +21,31 @@ project "LoggingRelicApp"
         "../../Relic/vendor/spdlog/include"
     }
 
-    defines { "SFML_STATIC" }
     libdirs { "../../Relic/vendor/sfml/lib" }
 
-    links
-    {
-        "Relic",
-        "sfml-graphics-s",
-        "sfml-window-s",
-        "sfml-system-s",
-        "opengl32",
-        "winmm",
-        "freetype",
-        "gdi32"
-    }
-
-
     filter "system:windows"
-        systemversion "latest"
-
+        defines { "SFML_STATIC" }
+        links
+        {
+            "Relic",
+            "sfml-graphics-s",
+            "sfml-window-s",
+            "sfml-system-s",
+            "opengl32",
+            "winmm",
+            "freetype",
+            "gdi32"
+        } 
+        systemversion "latest"   
+    
     filter "system:linux"
+        links
+        {
+            "Relic",
+            "sfml-graphics",
+            "sfml-window",
+            "sfml-system"
+        } 
         systemversion "latest"
 
     filter "configurations:Debug"

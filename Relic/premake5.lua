@@ -24,23 +24,30 @@ project "Relic"
         "vendor/spdlog/include"
     }
 
-    defines { "SFML_STATIC" }
     libdirs { "vendor/sfml/lib" }
 
-    links
-    {
-        "sfml-graphics-s",
-        "sfml-window-s",
-        "sfml-system-s",
-        "opengl32",
-        "winmm",
-        "freetype",
-        "gdi32"
-    }
-
-
     filter "system:windows"
-        systemversion "latest"    
+        defines { "SFML_STATIC" }
+        links
+        {
+            "sfml-graphics-s",
+            "sfml-window-s",
+            "sfml-system-s",
+            "opengl32",
+            "winmm",
+            "freetype",
+            "gdi32"
+        } 
+        systemversion "latest"   
+    
+    filter "system:linux"
+        links
+        {
+            "sfml-graphics",
+            "sfml-window",
+            "sfml-system"
+        } 
+        systemversion "latest"
 
     filter "configurations:Debug"
         defines { "RL_DEBUG" }
