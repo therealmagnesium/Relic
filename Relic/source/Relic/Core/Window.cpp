@@ -26,6 +26,9 @@ namespace Relic
             return;
         }
         m_windowHandle->setFramerateLimit(60);
+        
+        sf::FloatRect visibleArea(0, 0, m_data.width, m_data.height);
+        m_windowHandle->setView(sf::View(visibleArea));
     }
 
     void Window::HandleEvents()
@@ -36,9 +39,11 @@ namespace Relic
             switch (event.type)
             {
                 case sf::Event::Closed:
+                {
                     m_data.shouldClose = true;
                     m_windowHandle->close();
                     break;
+                }
             }
         }
     }
