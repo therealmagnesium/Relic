@@ -35,10 +35,6 @@ void PlayableRelicApp::OnUpdate()
     HandleShooting();
     SpawnAllEnemies();
 
-    // Move the entities based on their velocity
-    for (auto& e : GetAllEntities())
-        e->Move(e->GetXVel(), e->GetYVel());
-
     // Constrain the player into the window
     Constrain(m_player, WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -48,6 +44,17 @@ void PlayableRelicApp::OnUpdate()
         if (m_currentFrame % DEC_ENEMY_SPAWN_TIME == 0)
             m_enemySpawnTime--;
     }
+
+    // Move the entities based on their velocity and update their lifetime
+    for (auto& e : GetAllEntities())
+    {
+        e->Move(e->GetXVel(), e->GetYVel());
+
+        if (e->lifetime)
+            if (e->lifetime->lifetime > 0)
+                e->lifetime->lifetime--;
+    }
+
     m_currentFrame++;
 }
 
@@ -161,6 +168,10 @@ void PlayableRelicApp::HandleEnemyCollision()
         if (!b->IsInRenderView())
             b->Destroy();
     }
+
+    for (auto& e: GetAllEntities("enemy"))
+        if (!e->IsInRenderView() && e->GetLifetime() == 0.f)
+            e->Destroy();
 }
 
 void PlayableRelicApp::SpawnAllEnemies()
@@ -208,8 +219,6 @@ void PlayableRelicApp::SpawnEnemy()
     uint8_t g = rand() % 0xFF + 0x50;
     uint8_t b = rand() % 0xFF + 0x50;
     
-    RL_TRACE("{}, {}, {}", randPos.x, randPos.y, points);
-
     Vector2 velocity = m_player->GetPosition() - Vector2(randPos.x, randPos.y);
     Vector2 normalizedVel = Normalize(velocity);
 
@@ -226,6 +235,7 @@ void PlayableRelicApp::SpawnEnemy()
     entity->transform = std::make_shared<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points) / 1.2f, 0.f);
     entity->shape = std::make_shared<Shape>(32.f, points, sf::Color(r, g, b, 0xFF), sf::Color::White, 4.f);
     entity->collision = std::make_shared<Collision>(32.f);
+    entity->lifetime = std::make_shared<Lifetime>(100);
 
     entity->shape->circle.setOrigin(32.f, 32.f);
 

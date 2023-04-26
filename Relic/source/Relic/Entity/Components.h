@@ -35,4 +35,12 @@ namespace Relic
         Collision(float radius) :
             radius(radius) {}
     };
+
+    struct Lifetime
+    {
+        int lifetime = 0;
+
+        Lifetime(int lifetime) :
+            lifetime(lifetime) {}
+    };
 }

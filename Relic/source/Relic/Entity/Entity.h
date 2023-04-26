@@ -9,6 +9,7 @@ namespace Relic
         std::shared_ptr<Transform> transform;
         std::shared_ptr<Shape> shape;      
         std::shared_ptr<Collision> collision;
+        std::shared_ptr<Lifetime> lifetime;
 
     public:
         void Move(float dx, float dy);
@@ -25,6 +26,8 @@ namespace Relic
         inline float GetAngle() const { return transform->angle; }
         inline float GetRadius() const { return shape->circle.getRadius(); }
         inline float GetCollisionRadius() const { return collision->radius; }
+
+        inline int GetLifetime() const { return lifetime->lifetime; }
 
         inline bool IsActive() const { return m_active; };
         inline bool IsInRenderView() const { return m_inRenderView; }
