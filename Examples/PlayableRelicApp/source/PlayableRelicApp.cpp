@@ -5,7 +5,7 @@
 #define DEC_ENEMY_SPAWN_TIME 500
 
 PlayableRelicApp::PlayableRelicApp() :
-    m_shootTime(0), m_enemySpawnTime(51), m_lastEnemySpawnTime(0), m_currentFrame(0)
+    m_score(0), m_shootTime(0), m_enemySpawnTime(51), m_lastEnemySpawnTime(0), m_currentFrame(0)
 {
     srand(time(NULL));
 }
@@ -27,12 +27,18 @@ void PlayableRelicApp::OnUpdate()
 {
     // If ESC is pressed, close the game
     if (Input::IsKeyPressed(Key::Escape))
+    {
+        RL_TRACE("Score: {}", m_score);
         Close();
+    }
 
     // Call the gameplay functions
-    HandleEnemyCollision();
-    HandlePlayerMovement();
-    HandleShooting();
+    if (!m_playerDead)
+    {
+        HandleEnemyCollision();
+        HandlePlayerMovement();
+        HandleShooting();
+    }
     SpawnAllEnemies();
 
     // Constrain the player into the window
@@ -159,6 +165,7 @@ void PlayableRelicApp::HandleEnemyCollision()
         {
             if (GetDistance(b->GetPosition(), e->GetPosition()) <= b->GetCollisionRadius() + e->GetCollisionRadius())
             {
+                m_score++;
                 b->Destroy();
                 e->Destroy();
             }
@@ -170,8 +177,17 @@ void PlayableRelicApp::HandleEnemyCollision()
     }
 
     for (auto& e: GetAllEntities("enemy"))
+    {
+        if (GetDistance(e->GetPosition(), m_player->GetPosition()) <= e->GetCollisionRadius() + m_player->GetCollisionRadius())
+        {
+            e->Destroy();
+            m_player->Destroy();
+            m_playerDead = true;
+        }
+
         if (!e->IsInRenderView() && e->GetLifetime() == 0.f)
             e->Destroy();
+    }
 }
 
 void PlayableRelicApp::SpawnAllEnemies()

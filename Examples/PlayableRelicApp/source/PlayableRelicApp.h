@@ -43,6 +43,7 @@ private:
     // A function to organize enemy collision code
     void HandleEnemyCollision();
 
+
     // A function to spawn all the enemies
     void SpawnAllEnemies();
 
@@ -55,12 +56,13 @@ private:
     // A helper function to spawn bullets
     void SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target, const std::string& tag);
 
-
 private:
+    int m_score;
     int m_shootTime;
     int m_enemySpawnTime;
     int m_lastEnemySpawnTime;
     int m_currentFrame;
+    bool m_playerDead = false;
 
     std::shared_ptr<Entity> m_player;
 };

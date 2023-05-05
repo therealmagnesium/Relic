@@ -1,5 +1,6 @@
 #pragma once
 #include "Window.h"
+#include <memory>
 
 #define WINDOW_WIDTH GetWindowWidth()
 #define WINDOW_HEIGHT GetWindowHeight()

@@ -21,7 +21,7 @@ namespace Relic
     {
         LoadConfigFile("data/settings.cfg");
         m_window = std::make_shared<Window>(m_properties);
-
+        
         InitEntityManager();
     }
 
