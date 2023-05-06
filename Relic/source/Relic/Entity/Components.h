@@ -6,6 +6,8 @@ namespace Relic
 {
     struct Transform
     {
+        bool has = false;
+
         Vector2 position = Vector2(0.f, 0.f);
         Vector2 velocity = Vector2(0.f, 0.f);
         float angle = 0.f;
@@ -16,6 +18,7 @@ namespace Relic
 
     struct Shape
     {
+        bool has = false;
         sf::CircleShape circle;
 
         Shape(float radius, int points, const sf::Color& fill, const sf::Color& outline, float thickness) :
@@ -30,6 +33,7 @@ namespace Relic
 
     struct Collision
     {
+        bool has = false;
         float radius = 0.f;
 
         Collision(float radius) :
@@ -38,6 +42,7 @@ namespace Relic
 
     struct Lifetime
     {
+        bool has = false;
         int lifetime = 0;
 
         Lifetime(int lifetime) :

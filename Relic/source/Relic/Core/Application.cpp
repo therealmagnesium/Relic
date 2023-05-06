@@ -1,3 +1,4 @@
+#include "Entity/Components.h"
 #include "pch.h"
 #include "Application.h"
 #include "Log.h"
@@ -78,17 +79,17 @@ namespace Relic
 
     void Application::Close() { m_window->EnableShouldClose(); }
     
-    void Application::Constrain(std::shared_ptr<Entity> entity, uint32_t x, uint32_t y)
+    void Application::Constrain(std::shared_ptr<Entity> entity, float x, float y)
     {
-        if (entity->transform->position.x < entity->GetRadius()) 
-            entity->transform->position.x = entity->GetRadius();
-        if (entity->transform->position.x + entity->GetRadius() > x)
-            entity->transform->position.x = x - entity->GetRadius();
+        if (entity->GetComponent<Transform>().position.x < entity->GetRadius()) 
+            entity->GetComponent<Transform>().position.x = entity->GetRadius();
+        if (entity->GetComponent<Transform>().position.x + entity->GetRadius() > x)
+            entity->GetComponent<Transform>().position.x = x - entity->GetRadius();
 
-        if (entity->transform->position.y < entity->GetRadius())
-            entity->transform->position.y = entity->GetRadius();
-        if (entity->transform->position.y + entity->GetRadius()> y)
-            entity->transform->position.y = y - entity->GetRadius();
+        if (entity->GetComponent<Transform>().position.y < entity->GetRadius())
+            entity->GetComponent<Transform>().position.y = entity->GetRadius();
+        if (entity->GetComponent<Transform>().position.y + entity->GetRadius() > y)
+            entity->GetComponent<Transform>().position.y = y - entity->GetRadius();
     }
 
     bool Application::IsInWindow(std::shared_ptr<Entity> entity)

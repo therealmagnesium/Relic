@@ -1,33 +1,53 @@
 #pragma once
 #include "Components.h"
+#include <tuple>
 
 namespace Relic
 {
+    typedef std::tuple<
+        Transform,
+        Shape,
+        Collision,
+        Lifetime
+    > ComponentTuple;
+
     class Entity
     {
     public:
-        std::shared_ptr<Transform> transform;
-        std::shared_ptr<Shape> shape;      
-        std::shared_ptr<Collision> collision;
-        std::shared_ptr<Lifetime> lifetime;
+        template<typename T>
+        bool HasComponent()
+            { return GetComponent<T>().has; }
+
+        template<typename T>
+        T& GetComponent()
+            { return std::get<T>(m_components); }
+
+        template<typename T, typename... TArgs>
+        T& AddComponent(TArgs&&... args)
+        {
+            auto& component = GetComponent<T>();
+            component = T(std::forward<TArgs>(args)...);
+            component.has = true;
+            return component;
+        }
 
     public:
         void Move(float dx, float dy);
         void Destroy();
 
-        inline float GetX() const { return transform->position.x; }
-        inline float GetY() const { return transform->position.y; }
-        inline Vector2 GetPosition() { return transform->position; }
+        inline float GetX() { return GetComponent<Transform>().position.x; }
+        inline float GetY() { return GetComponent<Transform>().position.y; }
+        inline Vector2 GetPosition() { return GetComponent<Transform>().position; }
 
-        inline float GetXVel() const { return transform->velocity.x; }
-        inline float GetYVel() const { return transform->velocity.y; }
-        inline Vector2 GetVel() const { return transform->velocity; }
+        inline float GetXVel() { return GetComponent<Transform>().velocity.x; }
+        inline float GetYVel() { return GetComponent<Transform>().velocity.y; }
+        inline Vector2 GetVel() { return GetComponent<Transform>().velocity; }
         
-        inline float GetAngle() const { return transform->angle; }
-        inline float GetRadius() const { return shape->circle.getRadius(); }
-        inline float GetCollisionRadius() const { return collision->radius; }
+        inline float GetAngle() { return GetComponent<Transform>().angle; }
+        inline float GetRadius() { return GetComponent<Shape>().circle.getRadius(); }
+        inline float GetCollisionRadius() { return GetComponent<Collision>().radius; }
 
-        inline int GetLifetime() const { return lifetime->lifetime; }
+        inline int GetLifetime() { return GetComponent<Lifetime>().lifetime; }
 
         inline bool IsActive() const { return m_active; };
         inline bool IsInRenderView() const { return m_inRenderView; }
@@ -46,5 +66,7 @@ namespace Relic
         bool m_inRenderView = true;
         size_t m_id = 0;
         std::string m_tag = "default";
+
+        ComponentTuple m_components;
     };
 }

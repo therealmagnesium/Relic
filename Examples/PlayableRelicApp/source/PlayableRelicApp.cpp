@@ -1,4 +1,5 @@
 #include "PlayableRelicApp.h"
+#include "Relic/Entity/Components.h"
 #define MAX_SHOOT_TIME 16
 #define ENEMY_POS_OFFSET 200
 #define MIN_ENEMY_SPAWN_TIME 25
@@ -35,11 +36,12 @@ void PlayableRelicApp::OnUpdate()
     // Call the gameplay functions
     if (!m_playerDead)
     {
-        HandleEnemyCollision();
         HandlePlayerMovement();
         HandleShooting();
     }
+
     SpawnAllEnemies();
+    HandleEnemyCollision();
 
     // Constrain the player into the window
     Constrain(m_player, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -56,9 +58,9 @@ void PlayableRelicApp::OnUpdate()
     {
         e->Move(e->GetXVel(), e->GetYVel());
 
-        if (e->lifetime)
-            if (e->lifetime->lifetime > 0)
-                e->lifetime->lifetime--;
+        if (e->HasComponent<Lifetime>())
+            if (e->GetComponent<Lifetime>().lifetime > 0)
+                e->GetComponent<Lifetime>().lifetime--;
     }
 
     m_currentFrame++;
@@ -70,28 +72,28 @@ void PlayableRelicApp::OnRender()
     for (auto& e : GetAllEntities())
     {
         // Set the entity's actual shape position at its transform's position
-        e->shape->circle.setPosition(e->GetX(), e->GetY());
+        e->GetComponent<Shape>().circle.setPosition(e->GetX(), e->GetY());
 
         // Rotate the shape's angle
         if (e->GetTag() == "player")
-            e->transform->angle -= 1.f;
+            e->GetComponent<Transform>().angle -= 1.f;
         else
-            e->transform->angle += 1.f;
+             e->GetComponent<Transform>().angle += 1.f;
         
         // If the angle goes above 360, set it back to 0
-        if (e->transform->angle > 360.f)
-            e->transform->angle = 0.f;
+        if (e->GetComponent<Transform>().angle > 360.f)
+            e->GetComponent<Transform>().angle = 0.f;
         
         // If the angle goes below 0, set it back to 360
-        if (e->transform->angle < 0.f)
-            e->transform->angle = 360.f;
+        if (e->GetComponent<Transform>().angle < 0.f)
+            e->GetComponent<Transform>().angle = 360.f;
         
         // Set the entity's actual shape rotation at its transform's rotation
-        e->shape->circle.setRotation(e->GetAngle());
+        e->GetComponent<Shape>().circle.setRotation(e->GetAngle());
         
         // Draw every entity's shape
         if (e->IsInRenderView() && e->IsActive())
-            Draw(e->shape->circle);
+            Draw(e->GetComponent<Shape>().circle);
     }
 }
 
@@ -108,35 +110,35 @@ void PlayableRelicApp::HandlePlayerMovement()
         input = input / inputDist;
 
     // Update the player's velocity
-    m_player->transform->velocity.x += (playerAccel * input.x);
-    m_player->transform->velocity.y += (playerAccel * input.y);
+    m_player->GetComponent<Transform>().velocity.x += (playerAccel * input.x);
+    m_player->GetComponent<Transform>().velocity.y += (playerAccel * input.y);
 
     // If the user isn't pressing any horizontal input keys, slow the player down on the x axis
     if (!Input::IsKeyPressed(Key::A) && !Input::IsKeyPressed(Key::D))
     {
         if (m_player->GetXVel() > 0.f)
-            m_player->transform->velocity.x -= playerAccel;
+            m_player->GetComponent<Transform>().velocity.x -= playerAccel;
         else if (m_player->GetXVel() < 0.f)
-            m_player->transform->velocity.x += playerAccel;
+            m_player->GetComponent<Transform>().velocity.x += playerAccel;
     }
     
     // If the user isn't pressing any vertical input keys, slow the player down on the y axis
     if (!Input::IsKeyPressed(Key::W) && !Input::IsKeyPressed(Key::S))
     {
         if (m_player->GetYVel() > 0.f)
-            m_player->transform->velocity.y -= playerAccel;
+            m_player->GetComponent<Transform>().velocity.y -= playerAccel;
         else if (m_player->GetYVel() < 0.f)
-            m_player->transform->velocity.y += playerAccel; 
+            m_player->GetComponent<Transform>().velocity.y += playerAccel; 
     }
 
     // Cap the player's X velocity
     if (abs(m_player->GetXVel()) > maxPlayerSpeed)
-        m_player->transform->velocity.x = (m_player->GetXVel() > 0.f)
+        m_player->GetComponent<Transform>().velocity.x = (m_player->GetXVel() > 0.f)
                                         ? maxPlayerSpeed : -maxPlayerSpeed;
     
     // Cap the player's Y velocity
     if (abs(m_player->GetYVel()) > maxPlayerSpeed)
-        m_player->transform->velocity.y = (m_player->GetYVel() > 0.f) 
+        m_player->GetComponent<Transform>().velocity.y = (m_player->GetYVel() > 0.f) 
                                         ? maxPlayerSpeed : -maxPlayerSpeed;
 
 }
@@ -178,7 +180,7 @@ void PlayableRelicApp::HandleEnemyCollision()
 
     for (auto& e: GetAllEntities("enemy"))
     {
-        if (GetDistance(e->GetPosition(), m_player->GetPosition()) <= e->GetCollisionRadius() + m_player->GetCollisionRadius())
+        if (!m_playerDead && GetDistance(e->GetPosition(), m_player->GetPosition()) <= e->GetCollisionRadius() + m_player->GetCollisionRadius())
         {
             e->Destroy();
             m_player->Destroy();
@@ -206,11 +208,11 @@ std::shared_ptr<Entity> PlayableRelicApp::SpawnPlayer()
     */
 
     std::shared_ptr<Entity> entity = AddEntity("player");
-    entity->transform = std::make_shared<Transform>(Vector2(200.f, 500.f), Vector2(), 0.f);
-    entity->shape = std::make_shared<Shape>(32.f, 3, sf::Color::Blue, sf::Color::White, 4.f);
-    entity->collision = std::make_shared<Collision>(32.f);
+    entity->AddComponent<Transform>(Vector2(200.f, 500.f), Vector2(), 0.f);
+    entity->AddComponent<Shape>(32.f, 3, sf::Color::Blue, sf::Color::White, 4.f);
+    entity->AddComponent<Collision>(32.f);
 
-    entity->shape->circle.setOrigin(entity->GetRadius(), entity->GetRadius());
+    entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
 
     return entity;   
 }
@@ -248,12 +250,12 @@ void PlayableRelicApp::SpawnEnemy()
     else if (randPos.y > m_player->GetY())
         randPos.y += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
 
-    entity->transform = std::make_shared<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points) / 1.2f, 0.f);
-    entity->shape = std::make_shared<Shape>(32.f, points, sf::Color(r, g, b, 0xFF), sf::Color::White, 4.f);
-    entity->collision = std::make_shared<Collision>(32.f);
-    entity->lifetime = std::make_shared<Lifetime>(100);
+    entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points) / 1.2f, 0.f);
+    entity->AddComponent<Shape>(32.f, points, sf::Color(r, g, b, 0xFF), sf::Color::White, 4.f);
+    entity->AddComponent<Collision>(32.f);
+    entity->AddComponent<Lifetime>(100);
 
-    entity->shape->circle.setOrigin(32.f, 32.f);
+    entity->GetComponent<Shape>().circle.setOrigin(32.f, 32.f);
 
     m_lastEnemySpawnTime = m_currentFrame;
 }
@@ -271,11 +273,11 @@ void PlayableRelicApp::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2
     Vector2 normalizedAim = Normalize(aim);
 
     std::shared_ptr<Entity> bullet = AddEntity(tag);
-    bullet->transform = std::make_shared<Transform>(entity->GetPosition(), Vector2(normalizedAim.x*speed, normalizedAim.y*speed), 0.f);
-    bullet->shape = std::make_shared<Shape>(10, 32, sf::Color::White, sf::Color::Blue, 2.f);
-    bullet->collision = std::make_shared<Collision>(10.f);
+    bullet->AddComponent<Transform>(entity->GetPosition(), Vector2(normalizedAim.x*speed, normalizedAim.y*speed), 0.f);
+    bullet->AddComponent<Shape>(10, 32, sf::Color::White, sf::Color::Blue, 2.f);
+    bullet->AddComponent<Collision>(10.f);
 
-    bullet->shape->circle.setOrigin(bullet->GetRadius(), bullet->GetRadius());
+    bullet->GetComponent<Shape>().circle.setOrigin(bullet->GetRadius(), bullet->GetRadius());
 }
 
 Relic::Application* Relic::CreateApplication()
