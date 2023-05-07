@@ -3,10 +3,10 @@
 using namespace Relic;
 
 // Make an app class that inherits from Relic::Application
-class PlayableRelicApp : public Application
+class SpaceShooterz : public Application
 {
 public:
-    PlayableRelicApp();
+    SpaceShooterz();
 
     /* OnStart()
      *      - [REQUIRED]

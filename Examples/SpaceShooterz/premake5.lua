@@ -1,4 +1,4 @@
-project "PlayableRelicApp"
+project "SpaceShooterz"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++17"

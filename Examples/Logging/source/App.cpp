@@ -1,11 +1,11 @@
-#include "LoggingRelicApp.h"
+#include "App.h"
 
-LoggingRelicApp::LoggingRelicApp() 
+LoggingApp::LoggingApp() 
 {
 
 }
 
-void LoggingRelicApp::OnStart() 
+void LoggingApp::OnStart() 
 {
     // Log example texts to the console (will not show in dist build)
     RL_TRACE("Relic trace example");
@@ -25,12 +25,12 @@ void LoggingRelicApp::OnStart()
     RL_TRACE("v1 + v2 = {}, {}", v3.x, v3.y); 
 }
 
-void LoggingRelicApp::OnUpdate() 
+void LoggingApp::OnUpdate() 
 {
     RL_TRACE("{}, {}", Input::GetMouseX(GetNativeWindow()), Input::GetMouseY(GetNativeWindow()));
 }
 
-void LoggingRelicApp::OnRender() 
+void LoggingApp::OnRender() 
 {
 
 }
@@ -43,7 +43,7 @@ Relic::Application* Relic::CreateApplication()
         return the instance to the application
     */
 
-    LoggingRelicApp* game = new LoggingRelicApp();
+    LoggingApp* game = new LoggingApp();
     game->OnStart();
     return game; 
 }

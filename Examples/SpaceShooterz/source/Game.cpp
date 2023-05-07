@@ -1,17 +1,17 @@
-#include "PlayableRelicApp.h"
+#include "Game.h"
 #include "Relic/Entity/Components.h"
 #define MAX_SHOOT_TIME 16
 #define ENEMY_POS_OFFSET 200
 #define MIN_ENEMY_SPAWN_TIME 25
 #define DEC_ENEMY_SPAWN_TIME 500
 
-PlayableRelicApp::PlayableRelicApp() :
+SpaceShooterz::SpaceShooterz() :
     m_score(0), m_shootTime(0), m_enemySpawnTime(51), m_lastEnemySpawnTime(0), m_currentFrame(0)
 {
     srand(time(NULL));
 }
 
-void PlayableRelicApp::OnStart()
+void SpaceShooterz::OnStart()
 {
     // Log the app has started
     RL_TRACE("Playable Relic App has started!");
@@ -24,7 +24,7 @@ void PlayableRelicApp::OnStart()
     m_player = SpawnPlayer();    
 }
 
-void PlayableRelicApp::OnUpdate()
+void SpaceShooterz::OnUpdate()
 {
     // If ESC is pressed, close the game
     if (Input::IsKeyPressed(Key::Escape))
@@ -66,7 +66,7 @@ void PlayableRelicApp::OnUpdate()
     m_currentFrame++;
 }
 
-void PlayableRelicApp::OnRender()
+void SpaceShooterz::OnRender()
 {
     // For every entitiy in the entity manager...
     for (auto& e : GetAllEntities())
@@ -97,7 +97,7 @@ void PlayableRelicApp::OnRender()
     }
 }
 
-void PlayableRelicApp::HandlePlayerMovement()
+void SpaceShooterz::HandlePlayerMovement()
 {
     static float playerAccel = 1.f;
     static float maxPlayerSpeed = 8.f;
@@ -143,7 +143,7 @@ void PlayableRelicApp::HandlePlayerMovement()
 
 }
 
-void PlayableRelicApp::HandleShooting()
+void SpaceShooterz::HandleShooting()
 {
     // Update shoot timer
     if (m_shootTime < MAX_SHOOT_TIME)
@@ -158,7 +158,7 @@ void PlayableRelicApp::HandleShooting()
 
 }
 
-void PlayableRelicApp::HandleEnemyCollision()
+void SpaceShooterz::HandleEnemyCollision()
 {
     // If the player's bullets collide...
     for (auto& b : GetAllEntities("player_bullet"))
@@ -192,14 +192,14 @@ void PlayableRelicApp::HandleEnemyCollision()
     }
 }
 
-void PlayableRelicApp::SpawnAllEnemies()
+void SpaceShooterz::SpawnAllEnemies()
 {
     // Spawn an enemy over m_enemySpawnTime
     if (m_currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
         SpawnEnemy();
 }
 
-std::shared_ptr<Entity> PlayableRelicApp::SpawnPlayer()
+std::shared_ptr<Entity> SpaceShooterz::SpawnPlayer()
 {
     /* 
         Create the player entity and give it a tag of 'player',
@@ -217,7 +217,7 @@ std::shared_ptr<Entity> PlayableRelicApp::SpawnPlayer()
     return entity;   
 }
 
-void PlayableRelicApp::SpawnEnemy()
+void SpaceShooterz::SpawnEnemy()
 {
     /* 
         Create an enemy and give it a tag of 'enemy',
@@ -260,7 +260,7 @@ void PlayableRelicApp::SpawnEnemy()
     m_lastEnemySpawnTime = m_currentFrame;
 }
 
-void PlayableRelicApp::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target, const std::string& tag)
+void SpaceShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target, const std::string& tag)
 {
     /* 
         Create a bullet entity, which travels towards
@@ -288,7 +288,7 @@ Relic::Application* Relic::CreateApplication()
         return the instance to the application
     */
 
-    PlayableRelicApp* game = new PlayableRelicApp();
+    SpaceShooterz* game = new SpaceShooterz();
     game->OnStart();
     return game; 
 }

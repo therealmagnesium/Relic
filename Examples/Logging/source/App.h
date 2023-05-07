@@ -2,10 +2,10 @@
 using namespace Relic;
 
 // Make an app class that inherits from Relic::Application
-class LoggingRelicApp : public Application
+class LoggingApp : public Application
 {
 public:
-    LoggingRelicApp();
+    LoggingApp();
 
     /* OnStart()
      *      - [REQUIRED]
