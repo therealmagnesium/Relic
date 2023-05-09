@@ -1,5 +1,6 @@
 #pragma once
 #include "Entity.h"
+#include <unordered_map>
 
 namespace Relic
 {

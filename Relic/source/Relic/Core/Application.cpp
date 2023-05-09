@@ -22,8 +22,33 @@ namespace Relic
     {
         LoadConfigFile("data/settings.cfg");
         m_window = std::make_shared<Window>(m_properties);
-        
-        InitEntityManager();
+
+        m_assets = std::make_shared<Assets>();
+        LoadAssetsFile("data/assets.cfg");
+
+        m_entityManager = std::make_shared<EntityManager>();
+    }
+
+    void Application::LoadAssetsFile(const std::string& path)
+    {
+        std::ifstream in(path);
+        std::string temp;
+        std::string fontName;
+        std::string fontPath;
+
+        if (!in.is_open())
+        {
+            RL_CORE_ERROR("Failed to open assets file - {}", path);
+            return;
+        }
+
+        while (in >> temp)
+        {
+            if (temp == "Font")
+                in >> fontName >> fontPath;
+        }
+
+        m_assets->AddFont(fontName, fontPath);
     }
 
     void Application::LoadConfigFile(const std::string& path)
@@ -33,7 +58,7 @@ namespace Relic
 
         if (!in.is_open())
         {
-            RL_CORE_ERROR("Failed to open config file: '{}'", path);
+            RL_CORE_ERROR("Failed to open config file - '{}'", path);
             return;
         }
 
@@ -46,10 +71,6 @@ namespace Relic
         RL_CORE_TRACE("Application properties: {}, {}, {}", m_properties.title, m_properties.width, m_properties.height);
     }
 
-    void Application::InitEntityManager() { m_entityManager = std::make_shared<EntityManager>(); }
-    void Application::UpdateEntityManager() { m_entityManager->Update(); }
-    void Application::RemoveInactiveEntities() { m_entityManager->RemoveInactiveEntities(m_entityManager->GetEntities()); }
-
     void Application::Shutdown()
     {
         RL_CORE_INFO("Successfully shutdown application!");
@@ -60,8 +81,8 @@ namespace Relic
     {        
         while (!m_window->ShouldClose())
         {
-            UpdateEntityManager();
-                
+            m_entityManager->Update();
+
             m_window->HandleEvents();
             OnUpdate();
 
@@ -99,7 +120,7 @@ namespace Relic
     }
 
     void Application::Draw(const sf::Drawable& drawable) { m_window->Draw(drawable); }
-    
+
     EntityVec& Application::GetAllEntities() { return m_entityManager->GetEntities(); }
     EntityVec& Application::GetAllEntities(const std::string& tag) { return m_entityManager->GetEntities(tag); }
     std::shared_ptr<Entity> Application::AddEntity(const std::string& tag) { return m_entityManager->AddEntity(tag); }

@@ -1,5 +1,9 @@
 #pragma once
 #include "Vector2.h"
+#include "Relic/Core/Assets.h"
+#include "Relic/Core/Log.h"
+
+#include <memory>
 #include <SFML/Graphics.hpp>
 
 namespace Relic
@@ -12,7 +16,7 @@ namespace Relic
         Vector2 velocity = Vector2(0.f, 0.f);
         float angle = 0.f;
 
-        Transform(const Vector2& pos, const Vector2& vel, float a) :
+        Transform(const Vector2& pos = Vector2(), const Vector2& vel = Vector2(), float a = 0.f) :
             position(pos), velocity(vel), angle(a) {}
     };
 
@@ -21,11 +25,11 @@ namespace Relic
         bool has = false;
         sf::CircleShape circle;
 
-        Shape(float radius, int points, const sf::Color& fill, const sf::Color& outline, float thickness) :
+        Shape(float radius, int points, uint32_t fill, uint32_t outline, float thickness) :
             circle(radius, points)
         {
-            circle.setFillColor(fill);
-            circle.setOutlineColor(outline);
+            circle.setFillColor(sf::Color(fill));
+            circle.setOutlineColor(sf::Color(outline));
             circle.setOutlineThickness(thickness);
             circle.setOrigin(radius, radius);
         }       
@@ -47,5 +51,15 @@ namespace Relic
 
         Lifetime(int lifetime) :
             lifetime(lifetime) {}
+    };
+
+    struct Text
+    {
+        bool has = false;
+        sf::Text text;
+
+        Text(const std::string& msg = "default", uint8_t fontSize = 24, uint32_t color = 0xFFFFFFFF) :
+            text(msg, Assets::defaultFont, fontSize) 
+            { text.setFillColor(sf::Color(color)); }
     };
 }

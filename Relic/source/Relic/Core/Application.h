@@ -1,5 +1,7 @@
 #pragma once
+#include "Assets.h"
 #include "Window.h"
+
 #include <memory>
 
 #define WINDOW_WIDTH GetWindowWidth()
@@ -31,7 +33,9 @@ namespace Relic
         virtual void OnUpdate() = 0;
         virtual void OnRender() = 0;
 
+        void LoadAssetsFile(const std::string& path);
         void LoadConfigFile(const std::string& path);
+        
         void Run();
         void Close();
 
@@ -42,6 +46,7 @@ namespace Relic
         inline uint32_t GetWindowWidth() const { return m_window->GetWidth(); }
         inline uint32_t GetWindowHeight() const { return m_window->GetHeight(); }
 
+        inline std::shared_ptr<Assets> GetAssets() const { return m_assets; }
         inline std::shared_ptr<Window> GetWindow() const { return m_window; }
         inline sf::RenderWindow& GetNativeWindow() const { return *m_window->GetHandle(); }
 
@@ -54,15 +59,12 @@ namespace Relic
         void Init();
         void Shutdown();
 
-        void InitEntityManager();
-        void UpdateEntityManager();
-        void RemoveInactiveEntities();
-
         bool IsInWindow(std::shared_ptr<Entity> entity);
 
     private:
         WindowData m_properties;
 
+        std::shared_ptr<Assets> m_assets;
         std::shared_ptr<Window> m_window;
         std::shared_ptr<EntityManager> m_entityManager;
     };

@@ -16,12 +16,14 @@ void SpaceShooterz::OnStart()
     // Log the app has started
     RL_TRACE("Playable Relic App has started!");
     
-    /*
-        Initialize the player and load the
-        configuration file from 'data/settings.cfg'
-    */
-    
+    //Initialize the player and the assets pointer
+    m_assets = GetAssets();
     m_player = SpawnPlayer();    
+
+    // Initialize the score ui
+    m_scoreText = AddEntity("ui");
+    m_scoreText->AddComponent<Transform>(Vector2(20.f, 20.f));
+    m_scoreText->AddComponent<Text>("Score: x", 36);
 }
 
 void SpaceShooterz::OnUpdate()
@@ -63,11 +65,11 @@ void SpaceShooterz::OnUpdate()
                 e->GetComponent<Lifetime>().lifetime--;
     }
 
-    m_currentFrame++;
+    m_currentFrame++; // Update the current frame
 }
 
 void SpaceShooterz::OnRender()
-{
+{ 
     // For every entitiy in the entity manager...
     for (auto& e : GetAllEntities())
     {
@@ -91,9 +93,15 @@ void SpaceShooterz::OnRender()
         // Set the entity's actual shape rotation at its transform's rotation
         e->GetComponent<Shape>().circle.setRotation(e->GetAngle());
         
-        // Draw every entity's shape
+        // Draw every entity's visual components
         if (e->IsInRenderView() && e->IsActive())
-            Draw(e->GetComponent<Shape>().circle);
+        {
+            if (e->HasComponent<Shape>())
+                Draw(e->GetComponent<Shape>().circle);
+
+            if (e->HasComponent<Text>())
+                Draw(e->GetComponent<Text>().text);
+        }
     }
 }
 
@@ -187,6 +195,7 @@ void SpaceShooterz::HandleEnemyCollision()
             m_playerDead = true;
         }
 
+        // If enemies are not in render view and their lifetime is 0, then destroy them
         if (!e->IsInRenderView() && e->GetLifetime() == 0.f)
             e->Destroy();
     }
@@ -209,7 +218,7 @@ std::shared_ptr<Entity> SpaceShooterz::SpawnPlayer()
 
     std::shared_ptr<Entity> entity = AddEntity("player");
     entity->AddComponent<Transform>(Vector2(200.f, 500.f), Vector2(), 0.f);
-    entity->AddComponent<Shape>(32.f, 3, sf::Color::Blue, sf::Color::White, 4.f);
+    entity->AddComponent<Shape>(32.f, 3, 0x0000FFFF, 0xFFFFFFFF, 4.f);
     entity->AddComponent<Collision>(32.f);
 
     entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
@@ -236,7 +245,8 @@ void SpaceShooterz::SpawnEnemy()
     uint8_t r = rand() % 0xFF + 0x50;
     uint8_t g = rand() % 0xFF + 0x50;
     uint8_t b = rand() % 0xFF + 0x50;
-    
+    uint32_t color = r | (g << 8) | (b << 16) | (0xFF << 24);
+
     Vector2 velocity = m_player->GetPosition() - Vector2(randPos.x, randPos.y);
     Vector2 normalizedVel = Normalize(velocity);
 
@@ -251,7 +261,7 @@ void SpaceShooterz::SpawnEnemy()
         randPos.y += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
 
     entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points) / 1.2f, 0.f);
-    entity->AddComponent<Shape>(32.f, points, sf::Color(r, g, b, 0xFF), sf::Color::White, 4.f);
+    entity->AddComponent<Shape>(32.f, points, color, 0xFFFFFFFF, 4.f);
     entity->AddComponent<Collision>(32.f);
     entity->AddComponent<Lifetime>(100);
 
@@ -274,7 +284,7 @@ void SpaceShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& t
 
     std::shared_ptr<Entity> bullet = AddEntity(tag);
     bullet->AddComponent<Transform>(entity->GetPosition(), Vector2(normalizedAim.x*speed, normalizedAim.y*speed), 0.f);
-    bullet->AddComponent<Shape>(10, 32, sf::Color::White, sf::Color::Blue, 2.f);
+    bullet->AddComponent<Shape>(10, 32, 0xFFFFFFFF, 0x0000FFFF, 2.f);
     bullet->AddComponent<Collision>(10.f);
 
     bullet->GetComponent<Shape>().circle.setOrigin(bullet->GetRadius(), bullet->GetRadius());

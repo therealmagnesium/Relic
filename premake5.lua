@@ -6,4 +6,4 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}"
 
 include "Relic"
 include "Examples/Logging"
-include "Examples/SpaceShooterz"
+include "Examples/ShapeShooterz"

@@ -1,4 +1,4 @@
-project "SpaceShooterz"
+project "ShapeShooterz"
     kind "ConsoleApp"
     language "C++"
     cppdialect "C++17"

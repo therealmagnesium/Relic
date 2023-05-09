@@ -64,5 +64,7 @@ private:
     int m_currentFrame;
     bool m_playerDead = false;
 
+    std::shared_ptr<Assets> m_assets;
     std::shared_ptr<Entity> m_player;
+    std::shared_ptr<Entity> m_scoreText;
 };

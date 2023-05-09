@@ -8,8 +8,9 @@ namespace Relic
         Transform,
         Shape,
         Collision,
-        Lifetime
-    > ComponentTuple;
+        Lifetime,
+        Text
+> ComponentTuple;
 
     class Entity
     {
