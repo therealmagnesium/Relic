@@ -8,6 +8,8 @@
 
 namespace Relic
 {
+    int Application::currentFrame = 0;
+
     Application::Application()
     {
         Init();
@@ -38,7 +40,7 @@ namespace Relic
 
         if (!in.is_open())
         {
-            RL_CORE_ERROR("Failed to open assets file - {}", path);
+            RL_CORE_CRITICAL("Failed to open assets file - {}!", path);
             return;
         }
 
@@ -58,7 +60,7 @@ namespace Relic
 
         if (!in.is_open())
         {
-            RL_CORE_ERROR("Failed to open config file - '{}'", path);
+            RL_CORE_CRITICAL("Failed to open config file - '{}'", path);
             return;
         }
 
@@ -87,18 +89,45 @@ namespace Relic
             OnUpdate();
 
             for (auto& entity : GetAllEntities())
-                if (IsInWindow(entity))
-                    entity->SetInRenderView(true);
-                else
-                    entity->SetInRenderView(false);
+            {
+                if (entity->GetTag() == "ui")
+                    break;
 
+                if (entity->IsInRenderView(WINDOW_WIDTH, WINDOW_HEIGHT))
+                    entity->Enable();
+                else
+                    entity->Disable();
+            }
             m_window->Clear(0x0A0A0AFF);
-            OnRender();
+            Render();
             m_window->Display();
+
+            currentFrame++;
         }
     }
 
-    void Application::Close() { m_window->EnableShouldClose(); }
+    void Application::Render()
+    {
+        for (auto& e : GetAllEntities())
+        {
+            e->GetComponent<Shape>().circle.setPosition(e->GetX(), e->GetY());
+            e->GetComponent<Shape>().circle.setRotation(e->GetAngle());
+
+            e->GetComponent<Text>().text.setPosition(e->GetX(), e->GetY());
+
+            if (e->IsInRenderView(WINDOW_WIDTH, WINDOW_HEIGHT) && e->IsEnabled())
+            {
+                if (e->HasComponent<Shape>())
+                    Draw(e->GetComponent<Shape>().circle);
+
+                if (e->HasComponent<Text>())
+                    Draw(e->GetComponent<Text>().text);
+            }
+        }
+    }
+
+    void Application::Close() 
+        { m_window->EnableShouldClose(); }
     
     void Application::Constrain(std::shared_ptr<Entity> entity, float x, float y)
     {
@@ -121,7 +150,12 @@ namespace Relic
 
     void Application::Draw(const sf::Drawable& drawable) { m_window->Draw(drawable); }
 
-    EntityVec& Application::GetAllEntities() { return m_entityManager->GetEntities(); }
-    EntityVec& Application::GetAllEntities(const std::string& tag) { return m_entityManager->GetEntities(tag); }
-    std::shared_ptr<Entity> Application::AddEntity(const std::string& tag) { return m_entityManager->AddEntity(tag); }
+    EntityVec& Application::GetAllEntities() 
+        { return m_entityManager->GetEntities(); }
+    
+    EntityVec& Application::GetAllEntities(const std::string& tag) 
+        { return m_entityManager->GetEntities(tag); }
+    
+    std::shared_ptr<Entity> Application::AddEntity(const std::string& tag) 
+        { return m_entityManager->AddEntity(tag); }
 }

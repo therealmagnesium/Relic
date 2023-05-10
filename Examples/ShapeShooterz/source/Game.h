@@ -3,10 +3,10 @@
 using namespace Relic;
 
 // Make an app class that inherits from Relic::Application
-class SpaceShooterz : public Application
+class ShapeShooterz : public Application
 {
 public:
-    SpaceShooterz();
+    ShapeShooterz();
 
     /* OnStart()
      *      - [REQUIRED]
@@ -24,15 +24,6 @@ public:
      */
     void OnUpdate() override;
 
-    /* OnRender()
-     *      - [REQUIRED]
-     *      - Called once per frame, after OnUpdate()
-     *      - Used for:
-     *              - Rendering entities
-     *              - Dynamic graphic properties
-     */
-    void OnRender() override;
-
 private:
     // A function to organize player movement code
     void HandlePlayerMovement();
@@ -43,6 +34,10 @@ private:
     // A function to organize enemy collision code
     void HandleEnemyCollision();
 
+    // A function to rotate all the entities
+    void RotateAllEntities();
+
+    void AddScore(int score);
 
     // A function to spawn all the enemies
     void SpawnAllEnemies();
@@ -61,10 +56,10 @@ private:
     int m_shootTime;
     int m_enemySpawnTime;
     int m_lastEnemySpawnTime;
-    int m_currentFrame;
     bool m_playerDead = false;
 
     std::shared_ptr<Assets> m_assets;
     std::shared_ptr<Entity> m_player;
     std::shared_ptr<Entity> m_scoreText;
+    std::shared_ptr<Entity> m_deathText;
 };

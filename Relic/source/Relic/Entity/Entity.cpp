@@ -12,6 +12,26 @@ namespace Relic
         RL_CORE_INFO("New entity created [{}, {}]", id, tag);
     }
 
+    bool Entity::IsInRenderView(float viewWidth, float viewHeight, float cullMargin)
+    {
+        if (HasComponent<Shape>())
+            return (GetX() - GetRadius() <= viewWidth + cullMargin && GetX() + GetRadius() >= 0.f - cullMargin &&
+                    GetY() - GetRadius() <= viewHeight + cullMargin && GetY() + GetRadius() >= 0.f - cullMargin);
+        else
+            return (GetX() < viewWidth + cullMargin && GetX() > 0.f - cullMargin &&
+                    GetY() < viewHeight + cullMargin && GetY() > 0.f - cullMargin);
+    }
+
+    bool Entity::IsInRenderView(float xOffset, float yOffset, float viewWidth, float viewHeight, float cullMargin)
+    {
+        if (HasComponent<Shape>())
+            return (GetX() - GetRadius() <= xOffset + viewWidth + cullMargin && GetX() + GetRadius() >= xOffset - cullMargin &&
+                    GetY() - GetRadius() <= yOffset + viewHeight + cullMargin && GetY() + GetRadius() >= yOffset - cullMargin);
+        else 
+            return (GetX() < xOffset + viewWidth + cullMargin && GetX() > xOffset - cullMargin &&
+                    GetY() < yOffset + viewHeight + cullMargin && GetY() > yOffset - cullMargin);
+    }
+
     void Entity::Move(float dx, float dy)
     {
         GetComponent<Transform>().position.x += dx;

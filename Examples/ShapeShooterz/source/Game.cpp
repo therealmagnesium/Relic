@@ -2,16 +2,18 @@
 #include "Relic/Entity/Components.h"
 #define MAX_SHOOT_TIME 16
 #define ENEMY_POS_OFFSET 200
-#define MIN_ENEMY_SPAWN_TIME 25
+#define MIN_ENEMY_SPAWN_TIME 20
 #define DEC_ENEMY_SPAWN_TIME 500
 
-SpaceShooterz::SpaceShooterz() :
-    m_score(0), m_shootTime(0), m_enemySpawnTime(51), m_lastEnemySpawnTime(0), m_currentFrame(0)
+static char scoreFormat[32];
+
+ShapeShooterz::ShapeShooterz() :
+    m_score(0), m_shootTime(0), m_enemySpawnTime(41), m_lastEnemySpawnTime(0)
 {
     srand(time(NULL));
 }
 
-void SpaceShooterz::OnStart()
+void ShapeShooterz::OnStart()
 {
     // Log the app has started
     RL_TRACE("Playable Relic App has started!");
@@ -20,28 +22,32 @@ void SpaceShooterz::OnStart()
     m_assets = GetAssets();
     m_player = SpawnPlayer();    
 
-    // Initialize the score ui
+
+    // Initialize the score format and score ui
+    sprintf(scoreFormat, "Score: %d", m_score);
     m_scoreText = AddEntity("ui");
     m_scoreText->AddComponent<Transform>(Vector2(20.f, 20.f));
-    m_scoreText->AddComponent<Text>("Score: x", 36);
+    m_scoreText->AddComponent<Text>(scoreFormat, 36);
+
+    m_deathText = AddEntity("ui");
+    m_deathText->AddComponent<Transform>(Vector2(WINDOW_WIDTH - 600.f, WINDOW_HEIGHT - 200.f));
+    m_deathText->AddComponent<Text>("You died lmao", 40);
+    m_deathText->Disable();
 }
 
-void SpaceShooterz::OnUpdate()
+void ShapeShooterz::OnUpdate()
 {
     // If ESC is pressed, close the game
     if (Input::IsKeyPressed(Key::Escape))
-    {
-        RL_TRACE("Score: {}", m_score);
         Close();
-    }
 
     // Call the gameplay functions
+    RotateAllEntities();
     if (!m_playerDead)
     {
         HandlePlayerMovement();
         HandleShooting();
     }
-
     SpawnAllEnemies();
     HandleEnemyCollision();
 
@@ -51,7 +57,7 @@ void SpaceShooterz::OnUpdate()
     // Decrease enemy spawn time and set the current frame
     if (m_enemySpawnTime > MIN_ENEMY_SPAWN_TIME)
     {
-        if (m_currentFrame % DEC_ENEMY_SPAWN_TIME == 0)
+        if (Application::currentFrame % DEC_ENEMY_SPAWN_TIME == 0)
             m_enemySpawnTime--;
     }
 
@@ -65,47 +71,9 @@ void SpaceShooterz::OnUpdate()
                 e->GetComponent<Lifetime>().lifetime--;
     }
 
-    m_currentFrame++; // Update the current frame
 }
 
-void SpaceShooterz::OnRender()
-{ 
-    // For every entitiy in the entity manager...
-    for (auto& e : GetAllEntities())
-    {
-        // Set the entity's actual shape position at its transform's position
-        e->GetComponent<Shape>().circle.setPosition(e->GetX(), e->GetY());
-
-        // Rotate the shape's angle
-        if (e->GetTag() == "player")
-            e->GetComponent<Transform>().angle -= 1.f;
-        else
-             e->GetComponent<Transform>().angle += 1.f;
-        
-        // If the angle goes above 360, set it back to 0
-        if (e->GetComponent<Transform>().angle > 360.f)
-            e->GetComponent<Transform>().angle = 0.f;
-        
-        // If the angle goes below 0, set it back to 360
-        if (e->GetComponent<Transform>().angle < 0.f)
-            e->GetComponent<Transform>().angle = 360.f;
-        
-        // Set the entity's actual shape rotation at its transform's rotation
-        e->GetComponent<Shape>().circle.setRotation(e->GetAngle());
-        
-        // Draw every entity's visual components
-        if (e->IsInRenderView() && e->IsActive())
-        {
-            if (e->HasComponent<Shape>())
-                Draw(e->GetComponent<Shape>().circle);
-
-            if (e->HasComponent<Text>())
-                Draw(e->GetComponent<Text>().text);
-        }
-    }
-}
-
-void SpaceShooterz::HandlePlayerMovement()
+void ShapeShooterz::HandlePlayerMovement()
 {
     static float playerAccel = 1.f;
     static float maxPlayerSpeed = 8.f;
@@ -151,7 +119,7 @@ void SpaceShooterz::HandlePlayerMovement()
 
 }
 
-void SpaceShooterz::HandleShooting()
+void ShapeShooterz::HandleShooting()
 {
     // Update shoot timer
     if (m_shootTime < MAX_SHOOT_TIME)
@@ -166,7 +134,7 @@ void SpaceShooterz::HandleShooting()
 
 }
 
-void SpaceShooterz::HandleEnemyCollision()
+void ShapeShooterz::HandleEnemyCollision()
 {
     // If the player's bullets collide...
     for (auto& b : GetAllEntities("player_bullet"))
@@ -175,14 +143,14 @@ void SpaceShooterz::HandleEnemyCollision()
         {
             if (GetDistance(b->GetPosition(), e->GetPosition()) <= b->GetCollisionRadius() + e->GetCollisionRadius())
             {
-                m_score++;
+                AddScore(e->GetComponent<Shape>().circle.getPointCount());
                 b->Destroy();
                 e->Destroy();
             }
         }
 
         // If bullets are not in render view, destroy them
-        if (!b->IsInRenderView())
+        if (!b->IsInRenderView(WINDOW_WIDTH, WINDOW_HEIGHT))
             b->Destroy();
     }
 
@@ -193,22 +161,50 @@ void SpaceShooterz::HandleEnemyCollision()
             e->Destroy();
             m_player->Destroy();
             m_playerDead = true;
+            m_deathText->Enable();
         }
 
         // If enemies are not in render view and their lifetime is 0, then destroy them
-        if (!e->IsInRenderView() && e->GetLifetime() == 0.f)
+        if (!e->IsInRenderView(WINDOW_WIDTH, WINDOW_HEIGHT) && e->GetLifetime() == 0.f)
             e->Destroy();
     }
 }
 
-void SpaceShooterz::SpawnAllEnemies()
+void ShapeShooterz::RotateAllEntities()
+{
+    for (auto& e : GetAllEntities())
+    {
+        // Rotate the shape's angle
+        if (e->GetTag() == "player")
+            e->GetComponent<Transform>().angle -= 1.f;
+        else
+             e->GetComponent<Transform>().angle += 1.f;
+        
+        // If the angle goes above 360, set it back to 0
+        if (e->GetComponent<Transform>().angle > 360.f)
+            e->GetComponent<Transform>().angle = 0.f;
+        
+        // If the angle goes below 0, set it back to 360
+        if (e->GetComponent<Transform>().angle < 0.f)
+            e->GetComponent<Transform>().angle = 360.f; 
+    }
+}
+
+void ShapeShooterz::AddScore(int score)
+{
+    m_score += score;
+    sprintf(scoreFormat, "Score: %d", m_score);
+    m_scoreText->GetComponent<Text>().text.setString(std::string(scoreFormat));    
+}
+
+void ShapeShooterz::SpawnAllEnemies()
 {
     // Spawn an enemy over m_enemySpawnTime
-    if (m_currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
+    if (Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
         SpawnEnemy();
 }
 
-std::shared_ptr<Entity> SpaceShooterz::SpawnPlayer()
+std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
 {
     /* 
         Create the player entity and give it a tag of 'player',
@@ -226,7 +222,7 @@ std::shared_ptr<Entity> SpaceShooterz::SpawnPlayer()
     return entity;   
 }
 
-void SpaceShooterz::SpawnEnemy()
+void ShapeShooterz::SpawnEnemy()
 {
     /* 
         Create an enemy and give it a tag of 'enemy',
@@ -245,10 +241,7 @@ void SpaceShooterz::SpawnEnemy()
     uint8_t r = rand() % 0xFF + 0x50;
     uint8_t g = rand() % 0xFF + 0x50;
     uint8_t b = rand() % 0xFF + 0x50;
-    uint32_t color = r | (g << 8) | (b << 16) | (0xFF << 24);
-
-    Vector2 velocity = m_player->GetPosition() - Vector2(randPos.x, randPos.y);
-    Vector2 normalizedVel = Normalize(velocity);
+    uint32_t color = 0xFF | (b << 8) | (g << 16) | (r << 24);
 
     if (randPos.x < m_player->GetX())
         randPos.x -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
@@ -260,17 +253,20 @@ void SpaceShooterz::SpawnEnemy()
     else if (randPos.y > m_player->GetY())
         randPos.y += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
 
+    Vector2 velocity = m_player->GetPosition() - Vector2(randPos.x, randPos.y);
+    Vector2 normalizedVel = Normalize(velocity);
+
     entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points) / 1.2f, 0.f);
     entity->AddComponent<Shape>(32.f, points, color, 0xFFFFFFFF, 4.f);
     entity->AddComponent<Collision>(32.f);
-    entity->AddComponent<Lifetime>(100);
+    entity->AddComponent<Lifetime>(300);
 
-    entity->GetComponent<Shape>().circle.setOrigin(32.f, 32.f);
+    entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
 
-    m_lastEnemySpawnTime = m_currentFrame;
+    m_lastEnemySpawnTime = currentFrame;
 }
 
-void SpaceShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target, const std::string& tag)
+void ShapeShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target, const std::string& tag)
 {
     /* 
         Create a bullet entity, which travels towards
@@ -298,7 +294,7 @@ Relic::Application* Relic::CreateApplication()
         return the instance to the application
     */
 
-    SpaceShooterz* game = new SpaceShooterz();
+    ShapeShooterz* game = new ShapeShooterz();
     game->OnStart();
     return game; 
 }

@@ -1,8 +1,11 @@
+#include "Application.h"
 #include "pch.h"
 #include "Input.h"
 #include "Util.h"
+
 #include <SFML/Graphics/RenderWindow.hpp>
 
+static bool repeat = false;
 namespace Relic
 {
     bool Input::IsKeyPressed(int16_t key) 

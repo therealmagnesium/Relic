@@ -31,7 +31,6 @@ namespace Relic
 
         virtual void OnStart() = 0;
         virtual void OnUpdate() = 0;
-        virtual void OnRender() = 0;
 
         void LoadAssetsFile(const std::string& path);
         void LoadConfigFile(const std::string& path);
@@ -41,6 +40,7 @@ namespace Relic
 
         void Constrain(std::shared_ptr<Entity> entity, float x, float y);
         void Draw(const sf::Drawable& drawable);
+        void Render();
 
         inline const std::string& GetTitle() const { return m_window->GetTitle(); }
         inline uint32_t GetWindowWidth() const { return m_window->GetWidth(); }
@@ -49,6 +49,9 @@ namespace Relic
         inline std::shared_ptr<Assets> GetAssets() const { return m_assets; }
         inline std::shared_ptr<Window> GetWindow() const { return m_window; }
         inline sf::RenderWindow& GetNativeWindow() const { return *m_window->GetHandle(); }
+
+    public:
+        static int currentFrame;
 
     protected:
         EntityVec& GetAllEntities();

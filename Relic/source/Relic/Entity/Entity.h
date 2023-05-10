@@ -33,6 +33,9 @@ namespace Relic
         }
 
     public:
+        bool IsInRenderView(float viewWidth, float viewHeight, float cullMargin = 50.f);
+        bool IsInRenderView(float xOffset, float yOffset, float viewWidth, float viewHeight, float cullMargin = 50.f);
+        
         void Move(float dx, float dy);
         void Destroy();
 
@@ -51,11 +54,13 @@ namespace Relic
         inline int GetLifetime() { return GetComponent<Lifetime>().lifetime; }
 
         inline bool IsActive() const { return m_active; };
-        inline bool IsInRenderView() const { return m_inRenderView; }
+        inline bool IsEnabled() const { return m_enabled; }
         inline size_t GetId() const { return m_id; };
         inline const std::string& GetTag() const { return m_tag; };
 
-        inline void SetInRenderView(bool inRenderView) { m_inRenderView = inRenderView; }
+        inline void SetActive(bool active) { m_active = active; }
+        inline void Enable() { m_enabled = true; }
+        inline void Disable() { m_enabled = false; }
 
     private:
         Entity(const size_t id, const std::string& tag);
@@ -64,7 +69,7 @@ namespace Relic
         friend class EntityManager;
 
         bool m_active = true;
-        bool m_inRenderView = true;
+        bool m_enabled = true;
         size_t m_id = 0;
         std::string m_tag = "default";
 

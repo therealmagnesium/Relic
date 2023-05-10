@@ -27,12 +27,8 @@ void LoggingApp::OnStart()
 
 void LoggingApp::OnUpdate() 
 {
-    RL_TRACE("{}, {}", Input::GetMouseX(GetNativeWindow()), Input::GetMouseY(GetNativeWindow()));
-}
-
-void LoggingApp::OnRender() 
-{
-
+    if (Input::IsKeyPressed(Key::Escape))
+        Close();
 }
 
 Relic::Application* Relic::CreateApplication()

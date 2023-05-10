@@ -22,13 +22,4 @@ public:
      *              - Movement
      */
     void OnUpdate() override;
-
-    /* OnRender()
-     *      - [REQUIRED]
-     *      - Called once per frame, after OnUpdate()
-     *      - Used for:
-     *              - Rendering entities
-     *              - Dynamic graphic properties
-     */
-    void OnRender() override;
 };
