@@ -49,7 +49,7 @@ private:
     void SpawnEnemy();
 
     // A helper function to spawn bullets
-    void SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target, const std::string& tag);
+    void SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& offset, const std::string& tag);
 
 private:
     int m_score;

@@ -97,7 +97,7 @@ void ShapeShooterz::HandlePlayerMovement()
         else if (m_player->GetXVel() < 0.f)
             m_player->GetComponent<Transform>().velocity.x += playerAccel;
     }
-    
+        
     // If the user isn't pressing any vertical input keys, slow the player down on the y axis
     if (!Input::IsKeyPressed(Key::W) && !Input::IsKeyPressed(Key::S))
     {
@@ -128,7 +128,9 @@ void ShapeShooterz::HandleShooting()
     // If the user clicks, spawn a bullet
     if (Input::IsMouseButtonPressed(sf::Mouse::Button::Left) && m_shootTime >= MAX_SHOOT_TIME)
     {
-        SpawnBullet(m_player, Input::GetMousePosition(GetNativeWindow()), "player_bullet");
+        SpawnBullet(m_player, Vector2(0.f, -200.f), "player_bullet");
+        SpawnBullet(m_player, Vector2(0, 0.f), "player_bullet");
+        SpawnBullet(m_player, Vector2(0, 200.f), "player_bullet");
         m_shootTime = 0;
     }
 
@@ -256,7 +258,7 @@ void ShapeShooterz::SpawnEnemy()
     Vector2 velocity = m_player->GetPosition() - Vector2(randPos.x, randPos.y);
     Vector2 normalizedVel = Normalize(velocity);
 
-    entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points) / 1.2f, 0.f);
+    entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points), 0.f);
     entity->AddComponent<Shape>(32.f, points, color, 0xFFFFFFFF, 4.f);
     entity->AddComponent<Collision>(32.f);
     entity->AddComponent<Lifetime>(300);
@@ -266,7 +268,7 @@ void ShapeShooterz::SpawnEnemy()
     m_lastEnemySpawnTime = currentFrame;
 }
 
-void ShapeShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& target, const std::string& tag)
+void ShapeShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& offset, const std::string& tag)
 {
     /* 
         Create a bullet entity, which travels towards
@@ -275,7 +277,7 @@ void ShapeShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& t
     */
 
     float speed = 16.f;
-    Vector2 aim = Input::GetMousePosition(GetNativeWindow()) - entity->GetPosition();
+    Vector2 aim = (Input::GetMousePosition(GetNativeWindow()) - entity->GetPosition()) + offset;
     Vector2 normalizedAim = Normalize(aim);
 
     std::shared_ptr<Entity> bullet = AddEntity(tag);
