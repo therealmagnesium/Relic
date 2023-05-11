@@ -7,7 +7,7 @@ namespace Relic
     Entity::Entity(const size_t id, const std::string& tag) :
         m_id(id), m_tag(tag), 
         m_components(Transform(Vector2(), Vector2(), 0.f), Shape(32.f, 8, 0xFFFFFFFF, 0xFFFFFFFF, 4),
-                    Collision(32.f), Lifetime(100), Text())
+                    Collision(32.f), Lifetime(100), Text(), SpriteRenderer())
     {
         RL_CORE_INFO("New entity created [{}, {}]", id, tag);
     }

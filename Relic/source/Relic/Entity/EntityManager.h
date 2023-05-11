@@ -12,6 +12,8 @@ namespace Relic
     public:
         EntityManager();
 
+        void CullEntities(uint32_t renderWidth, uint32_t renderHeight);
+        void HandleComponents();
         void Update();
         void RemoveInactiveEntities(EntityVec& entityVec);
 

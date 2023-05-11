@@ -1,6 +1,7 @@
 # Relic Game Engine
-Relic is a small, cross platform, 2d game engine developed in C++14 with sfml for handeling window events and rendering.
-Relic is currently supported for Windows and Linux.
+Relic is a small, cross platform, 2d game engine developed in C++17 with sfml for handeling window events and rendering.
+Relic is currently supported for Windows and Linux and currently has two sample projects.
+In the Examples folder, there is a game called 'ShapeShooterz' and a basic project to start logging.
 
 Magnus Ahlstromer V (mahlstromerv@gmail.com)
 
@@ -26,6 +27,5 @@ Magnus Ahlstromer V (mahlstromerv@gmail.com)
         - release
         - dist
 
-# Screenshots
-![LoggingRelicApp](screenshots/LoggingRelicApp.png)
-![PlayableRelicApp](screenshots/PlayableRelicApp.png)
+# Screenshot of Shape Shooterz
+![ShapeShooterz](screenshots/ShapeShooterz.png)

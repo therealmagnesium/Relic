@@ -35,8 +35,12 @@ namespace Relic
     {
         std::ifstream in(path);
         std::string temp;
+
         std::string fontName;
         std::string fontPath;
+
+        std::string textureName;
+        std::string texturePath;
 
         if (!in.is_open())
         {
@@ -48,9 +52,12 @@ namespace Relic
         {
             if (temp == "Font")
                 in >> fontName >> fontPath;
+            if (temp == "Texture")
+                in >> textureName >> texturePath; 
         }
 
         m_assets->AddFont(fontName, fontPath);
+        m_assets->AddTexture(textureName, texturePath);
     }
 
     void Application::LoadConfigFile(const std::string& path)
@@ -87,17 +94,9 @@ namespace Relic
 
             m_window->HandleEvents();
             OnUpdate();
+            m_entityManager->CullEntities(WINDOW_WIDTH, WINDOW_HEIGHT); 
+            m_entityManager->HandleComponents();
 
-            for (auto& entity : GetAllEntities())
-            {
-                if (entity->GetTag() == "ui")
-                    break;
-
-                if (entity->IsInRenderView(WINDOW_WIDTH, WINDOW_HEIGHT))
-                    entity->Enable();
-                else
-                    entity->Disable();
-            }
             m_window->Clear(0x0A0A0AFF);
             Render();
             m_window->Display();
@@ -109,19 +108,18 @@ namespace Relic
     void Application::Render()
     {
         for (auto& e : GetAllEntities())
-        {
-            e->GetComponent<Shape>().circle.setPosition(e->GetX(), e->GetY());
-            e->GetComponent<Shape>().circle.setRotation(e->GetAngle());
-
-            e->GetComponent<Text>().text.setPosition(e->GetX(), e->GetY());
-
+        { 
             if (e->IsInRenderView(WINDOW_WIDTH, WINDOW_HEIGHT) && e->IsEnabled())
             {
+                if (e->HasComponent<Text>())
+                    Draw(e->GetComponent<Text>().text);
+                
                 if (e->HasComponent<Shape>())
                     Draw(e->GetComponent<Shape>().circle);
 
-                if (e->HasComponent<Text>())
-                    Draw(e->GetComponent<Text>().text);
+                if (e->HasComponent<SpriteRenderer>())
+                    Draw(e->GetComponent<SpriteRenderer>().sprite);
+
             }
         }
     }

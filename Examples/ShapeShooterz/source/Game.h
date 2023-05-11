@@ -37,13 +37,24 @@ private:
     // A function to rotate all the entities
     void RotateAllEntities();
 
+    // A function to update score text
     void AddScore(int score);
 
-    // A function to spawn all the enemies
-    void SpawnAllEnemies();
+    // A function to create the background
+    std::shared_ptr<Entity> CreateBackground();
+
+    // A functino to spawn the score text
+    std::shared_ptr<Entity> SpawnScoreText();
+
+    // A function to spawn the death text
+    std::shared_ptr<Entity> SpawnDeathText();
 
     // A helper function to spawn the player
     std::shared_ptr<Entity> SpawnPlayer();
+    
+    // A function to spawn all the enemies
+    void SpawnAllEnemies();
+
 
     // A helper function to spawn enemies
     void SpawnEnemy();
@@ -59,7 +70,9 @@ private:
     bool m_playerDead = false;
 
     std::shared_ptr<Assets> m_assets;
+    
     std::shared_ptr<Entity> m_player;
     std::shared_ptr<Entity> m_scoreText;
     std::shared_ptr<Entity> m_deathText;
+    std::shared_ptr<Entity> m_background;
 };

@@ -8,6 +8,34 @@ namespace Relic
 
     }
 
+    void EntityManager::CullEntities(uint32_t renderWidth, uint32_t renderHeight)
+    {
+        for (auto& entity : m_entities)
+        {
+            if (entity->GetTag() == "ui")
+                break;
+
+            if (entity->IsInRenderView(renderWidth, renderHeight))
+                entity->Enable();
+            else
+                entity->Disable();
+        } 
+    }
+
+    void EntityManager::HandleComponents()
+    {
+        for (auto& e : m_entities)
+        {
+            e->GetComponent<Shape>().circle.setPosition(e->GetX(), e->GetY());
+            e->GetComponent<Shape>().circle.setRotation(e->GetAngle());
+
+            e->GetComponent<SpriteRenderer>().sprite.SetPosition(e->GetX(), e->GetY());
+            e->GetComponent<SpriteRenderer>().sprite.SetRotation(e->GetAngle());
+
+            e->GetComponent<Text>().text.setPosition(e->GetX(), e->GetY());
+        }
+    }
+
     void EntityManager::Update()
     {
         for (auto& entity : m_entitiesToAdd)

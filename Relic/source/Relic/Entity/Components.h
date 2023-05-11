@@ -1,4 +1,5 @@
 #pragma once
+#include "Sprite.h"
 #include "Vector2.h"
 #include "Relic/Core/Assets.h"
 #include "Relic/Core/Log.h"
@@ -58,8 +59,19 @@ namespace Relic
         bool has = false;
         sf::Text text;
 
-        Text(const std::string& msg = "default", uint8_t fontSize = 24, uint32_t color = 0xFFFFFFFF) :
-            text(msg, Assets::defaultFont, fontSize) 
+        Text(const sf::Font& font = Assets::defaultFont, const std::string& msg = "default", uint8_t fontSize = 24, uint32_t color = 0xFFFFFFFF) :
+            text(msg, font, fontSize) 
             { text.setFillColor(sf::Color(color)); }
+    };
+
+    struct SpriteRenderer
+    {
+        bool has = false;       
+        Sprite sprite; 
+
+        SpriteRenderer(const sf::Texture& texture = Assets::defaultTexture, 
+                        const Vector2& pos = Vector2(), const Vector2& scale = Vector2(1.f, 1.f), 
+                        float angle = 0.f) :
+            sprite(texture, pos.x, pos.y, angle) { sprite.SetScale(scale.x, scale.y); }
     };
 }

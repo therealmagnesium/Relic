@@ -9,8 +9,8 @@ namespace Relic
         Shape,
         Collision,
         Lifetime,
-        Text
-> ComponentTuple;
+        Text,
+        SpriteRenderer> ComponentTuple;
 
     class Entity
     {

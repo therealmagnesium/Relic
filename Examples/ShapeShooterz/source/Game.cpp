@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Relic/Entity/Components.h"
+
 #define MAX_SHOOT_TIME 16
 #define ENEMY_POS_OFFSET 200
 #define MIN_ENEMY_SPAWN_TIME 20
@@ -8,7 +9,7 @@
 static char scoreFormat[32];
 
 ShapeShooterz::ShapeShooterz() :
-    m_score(0), m_shootTime(0), m_enemySpawnTime(41), m_lastEnemySpawnTime(0)
+    m_score(0), m_shootTime(0), m_enemySpawnTime(46), m_lastEnemySpawnTime(0)
 {
     srand(time(NULL));
 }
@@ -18,21 +19,14 @@ void ShapeShooterz::OnStart()
     // Log the app has started
     RL_TRACE("Playable Relic App has started!");
     
-    //Initialize the player and the assets pointer
+    //Initialize the assets pointer
     m_assets = GetAssets();
+
+    m_background = CreateBackground();
     m_player = SpawnPlayer();    
+    m_scoreText = SpawnScoreText();
+    m_deathText = SpawnDeathText();
 
-
-    // Initialize the score format and score ui
-    sprintf(scoreFormat, "Score: %d", m_score);
-    m_scoreText = AddEntity("ui");
-    m_scoreText->AddComponent<Transform>(Vector2(20.f, 20.f));
-    m_scoreText->AddComponent<Text>(scoreFormat, 36);
-
-    m_deathText = AddEntity("ui");
-    m_deathText->AddComponent<Transform>(Vector2(WINDOW_WIDTH - 600.f, WINDOW_HEIGHT - 200.f));
-    m_deathText->AddComponent<Text>("You died lmao", 40);
-    m_deathText->Disable();
 }
 
 void ShapeShooterz::OnUpdate()
@@ -128,9 +122,7 @@ void ShapeShooterz::HandleShooting()
     // If the user clicks, spawn a bullet
     if (Input::IsMouseButtonPressed(sf::Mouse::Button::Left) && m_shootTime >= MAX_SHOOT_TIME)
     {
-        SpawnBullet(m_player, Vector2(0.f, -200.f), "player_bullet");
-        SpawnBullet(m_player, Vector2(0, 0.f), "player_bullet");
-        SpawnBullet(m_player, Vector2(0, 200.f), "player_bullet");
+        SpawnBullet(m_player, Vector2(), "player_bullet");
         m_shootTime = 0;
     }
 
@@ -179,9 +171,11 @@ void ShapeShooterz::RotateAllEntities()
         // Rotate the shape's angle
         if (e->GetTag() == "player")
             e->GetComponent<Transform>().angle -= 1.f;
+        else if (e->GetTag() == "ui" || e->GetTag() == "bg")
+            e->GetComponent<Transform>().angle = 0.f;
         else
              e->GetComponent<Transform>().angle += 1.f;
-        
+
         // If the angle goes above 360, set it back to 0
         if (e->GetComponent<Transform>().angle > 360.f)
             e->GetComponent<Transform>().angle = 0.f;
@@ -199,20 +193,43 @@ void ShapeShooterz::AddScore(int score)
     m_scoreText->GetComponent<Text>().text.setString(std::string(scoreFormat));    
 }
 
-void ShapeShooterz::SpawnAllEnemies()
+std::shared_ptr<Entity> ShapeShooterz::CreateBackground()
 {
-    // Spawn an enemy over m_enemySpawnTime
-    if (Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
-        SpawnEnemy();
+    std::shared_ptr<Entity> entity = AddEntity("ui");
+    entity->AddComponent<Transform>();
+    entity->AddComponent<SpriteRenderer>(m_assets->GetTexture("background"));
+    return entity;
+}
+
+std::shared_ptr<Entity> ShapeShooterz::SpawnScoreText()
+{
+    // Initialize the score format
+    sprintf(scoreFormat, "Score: %d", m_score);
+    
+    std::shared_ptr<Entity> entity = AddEntity("ui");
+    entity->AddComponent<Transform>(Vector2(20.f, 20.f));
+    entity->AddComponent<Text>(m_assets->GetFont("main"), scoreFormat, 36);
+    
+    return entity;
+}
+
+std::shared_ptr<Entity> ShapeShooterz::SpawnDeathText()
+{
+    std::shared_ptr<Entity> entity = AddEntity("ui");
+    entity->AddComponent<Transform>(Vector2(WINDOW_WIDTH - 600.f, WINDOW_HEIGHT - 200.f));
+    entity->AddComponent<Text>(m_assets->GetFont("main"), "You died", 40);
+    entity->Disable();
+
+    return entity;
 }
 
 std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
 {
     /* 
-        Create the player entity and give it a tag of 'player',
-        then set the components for the player, and finally return
-        the new entity.
-    */
+       Create the player entity and give it a tag of 'player',
+       then set the components for the player, and finally return
+       the new entity.
+       */
 
     std::shared_ptr<Entity> entity = AddEntity("player");
     entity->AddComponent<Transform>(Vector2(200.f, 500.f), Vector2(), 0.f);
@@ -223,6 +240,14 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
 
     return entity;   
 }
+
+void ShapeShooterz::SpawnAllEnemies()
+{
+    // Spawn an enemy over m_enemySpawnTime
+    if (Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
+        SpawnEnemy();
+}
+
 
 void ShapeShooterz::SpawnEnemy()
 {
