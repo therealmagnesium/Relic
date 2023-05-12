@@ -26,14 +26,14 @@ namespace Relic
         bool has = false;
         sf::CircleShape circle;
 
-        Shape(float radius, int points, uint32_t fill, uint32_t outline, float thickness) :
+        Shape(float radius = 32.f, int points = 4, uint32_t fill = 0x00FF00FF, uint32_t outline = 0x00FF00FF, float thickness = 4.f) :
             circle(radius, points)
         {
             circle.setFillColor(sf::Color(fill));
             circle.setOutlineColor(sf::Color(outline));
             circle.setOutlineThickness(thickness);
             circle.setOrigin(radius, radius);
-        }       
+        } 
     };
 
     struct Collision

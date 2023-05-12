@@ -55,11 +55,13 @@ private:
     // A function to spawn all the enemies
     void SpawnAllEnemies();
 
-
-    // A helper function to spawn enemies
+    // A function to spawn enemies
     void SpawnEnemy();
 
-    // A helper function to spawn bullets
+    // A function to spawn particles
+    void SpawnParticles(const Vector2& pos, int count, std::shared_ptr<Entity> entity);
+
+    // A function to spawn bullets
     void SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& offset, const std::string& tag);
 
 private:

@@ -15,6 +15,17 @@ namespace Relic
         return sqrt((dx*dx) + (dy*dy));
     }
 
+    int ReplaceByte(int num, int bytePos, uint8_t newByte)
+    {
+        int shiftAmount = bytePos * 8;
+        int mask = ~(0xFF << shiftAmount);
+        int clearedNum = num & mask;
+        int shiftedByte = newByte << shiftAmount;
+        int result = clearedNum | shiftedByte;
+
+        return result;
+    }
+
     Vector2 Normalize(const Vector2& p)
     {
         float magnitude = GetMagnitude(p);

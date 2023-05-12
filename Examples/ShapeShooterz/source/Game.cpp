@@ -1,5 +1,7 @@
 #include "Game.h"
+#include "Relic/Core/Util.h"
 #include "Relic/Entity/Components.h"
+#include <memory>
 
 #define MAX_SHOOT_TIME 16
 #define ENEMY_POS_OFFSET 200
@@ -45,6 +47,18 @@ void ShapeShooterz::OnUpdate()
     SpawnAllEnemies();
     HandleEnemyCollision();
 
+    for (auto& e : GetAllEntities("particle"))
+    {
+        if (e->GetComponent<Lifetime>().lifetime == 0)
+            e->Destroy(); 
+    
+        uint32_t fillColor = e->GetComponent<Shape>().circle.getFillColor().toInteger();
+        uint32_t borderColor = e->GetComponent<Shape>().circle.getOutlineColor().toInteger();
+
+        e->GetComponent<Shape>().circle.setFillColor(sf::Color(ReplaceByte(fillColor, 0, e->GetComponent<Lifetime>().lifetime)));
+        e->GetComponent<Shape>().circle.setOutlineColor(sf::Color(ReplaceByte(borderColor, 0, e->GetComponent<Lifetime>().lifetime)));
+    }
+
     // Constrain the player into the window
     Constrain(m_player, WINDOW_WIDTH, WINDOW_HEIGHT);
 
@@ -64,7 +78,6 @@ void ShapeShooterz::OnUpdate()
             if (e->GetComponent<Lifetime>().lifetime > 0)
                 e->GetComponent<Lifetime>().lifetime--;
     }
-
 }
 
 void ShapeShooterz::HandlePlayerMovement()
@@ -130,7 +143,7 @@ void ShapeShooterz::HandleShooting()
 
 void ShapeShooterz::HandleEnemyCollision()
 {
-    // If the player's bullets collide...
+    // If the player's bullets collide with an enemy...
     for (auto& b : GetAllEntities("player_bullet"))
     {
         for (auto& e : GetAllEntities("enemy"))
@@ -140,6 +153,7 @@ void ShapeShooterz::HandleEnemyCollision()
                 AddScore(e->GetComponent<Shape>().circle.getPointCount());
                 b->Destroy();
                 e->Destroy();
+                SpawnParticles(e->GetPosition(), e->GetPointCount(), e);
             }
         }
 
@@ -148,6 +162,7 @@ void ShapeShooterz::HandleEnemyCollision()
             b->Destroy();
     }
 
+    // If an enemy collides with the player
     for (auto& e: GetAllEntities("enemy"))
     {
         if (!m_playerDead && GetDistance(e->GetPosition(), m_player->GetPosition()) <= e->GetCollisionRadius() + m_player->GetCollisionRadius())
@@ -188,6 +203,10 @@ void ShapeShooterz::RotateAllEntities()
 
 void ShapeShooterz::AddScore(int score)
 {
+    /* Increment the score, then set the 
+     * score format, and then set the 
+     * score text's text to be the score format */
+
     m_score += score;
     sprintf(scoreFormat, "Score: %d", m_score);
     m_scoreText->GetComponent<Text>().text.setString(std::string(scoreFormat));    
@@ -195,6 +214,10 @@ void ShapeShooterz::AddScore(int score)
 
 std::shared_ptr<Entity> ShapeShooterz::CreateBackground()
 {
+    /* Create an entity with the tag 'ui', then add a
+     * transform and sprite renderer component. Finally
+     * return the entity. */
+
     std::shared_ptr<Entity> entity = AddEntity("ui");
     entity->AddComponent<Transform>();
     entity->AddComponent<SpriteRenderer>(m_assets->GetTexture("background"));
@@ -206,6 +229,10 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnScoreText()
     // Initialize the score format
     sprintf(scoreFormat, "Score: %d", m_score);
     
+    /* Create an entity with the tag 'ui', then add a
+     * transform and a text component. Finally return
+     * the entity. */
+    
     std::shared_ptr<Entity> entity = AddEntity("ui");
     entity->AddComponent<Transform>(Vector2(20.f, 20.f));
     entity->AddComponent<Text>(m_assets->GetFont("main"), scoreFormat, 36);
@@ -215,9 +242,13 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnScoreText()
 
 std::shared_ptr<Entity> ShapeShooterz::SpawnDeathText()
 {
+    /* Create an entity with the tag 'ui', then add a
+     * transform and a text component. Afterwards,
+     * disable the entity, then finally return it. */
+
     std::shared_ptr<Entity> entity = AddEntity("ui");
-    entity->AddComponent<Transform>(Vector2(WINDOW_WIDTH - 600.f, WINDOW_HEIGHT - 200.f));
-    entity->AddComponent<Text>(m_assets->GetFont("main"), "You died", 40);
+    entity->AddComponent<Transform>(Vector2(WINDOW_WIDTH - 800.f, WINDOW_HEIGHT - 400.f));
+    entity->AddComponent<Text>(m_assets->GetFont("main"), "You died", 50);
     entity->Disable();
 
     return entity;
@@ -225,11 +256,10 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnDeathText()
 
 std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
 {
-    /* 
-       Create the player entity and give it a tag of 'player',
-       then set the components for the player, and finally return
-       the new entity.
-       */
+    /* Create the player entity and give it a tag of 'player',
+     * then set the components for the player, and finally return
+     * the new entity. */
+     
 
     std::shared_ptr<Entity> entity = AddEntity("player");
     entity->AddComponent<Transform>(Vector2(200.f, 500.f), Vector2(), 0.f);
@@ -251,13 +281,12 @@ void ShapeShooterz::SpawnAllEnemies()
 
 void ShapeShooterz::SpawnEnemy()
 {
-    /* 
-        Create an enemy and give it a tag of 'enemy',
-        then get random values for the x and y position,
-        and the amount of points. Then get random
-        color values, after that set the components
-        for the enemy. Then set the last enemy spawn
-        time to the current frame.
+    /* Create an enemy and give it a tag of 'enemy',
+     * then get random values for the x and y position,
+     * and the amount of points. Then get random
+     * color values, after that set the components
+     * for the enemy. Then set the last enemy spawn
+     * time to the current frame.
     */
 
     std::shared_ptr<Entity> entity = AddEntity("enemy");
@@ -265,9 +294,9 @@ void ShapeShooterz::SpawnEnemy()
     Vector2 randPos = Vector2(rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT);
     int points = rand() % 4 + 4;
 
-    uint8_t r = rand() % 0xFF + 0x50;
-    uint8_t g = rand() % 0xFF + 0x50;
-    uint8_t b = rand() % 0xFF + 0x50;
+    uint8_t r = rand() % 0xFF + 0x80;
+    uint8_t g = rand() % 0xFF + 0x80;
+    uint8_t b = rand() % 0xFF + 0x80;
     uint32_t color = 0xFF | (b << 8) | (g << 16) | (r << 24);
 
     if (randPos.x < m_player->GetX())
@@ -280,7 +309,7 @@ void ShapeShooterz::SpawnEnemy()
     else if (randPos.y > m_player->GetY())
         randPos.y += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
 
-    Vector2 velocity = m_player->GetPosition() - Vector2(randPos.x, randPos.y);
+    Vector2 velocity = m_player->GetPosition() - randPos;
     Vector2 normalizedVel = Normalize(velocity);
 
     entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points), 0.f);
@@ -291,6 +320,23 @@ void ShapeShooterz::SpawnEnemy()
     entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
 
     m_lastEnemySpawnTime = currentFrame;
+}
+
+void ShapeShooterz::SpawnParticles(const Vector2& pos, int count, std::shared_ptr<Entity> entity)
+{
+    float speed = 4.f;
+
+    for (int i = 0; i < count; i++)
+    {
+        Vector2 targetPos = Vector2(rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT);
+        Vector2 velocity = targetPos - pos;
+        Vector2 normalizedVel = Normalize(velocity); 
+
+        std::shared_ptr<Entity> particle = AddEntity("particle");
+        particle->AddComponent<Transform>(pos, normalizedVel * speed);
+        particle->AddComponent<Shape>(28.f, entity->GetPointCount(), entity->GetFillColor(), entity->GetBorderColor(), 4.f);
+        particle->AddComponent<Lifetime>(100);
+    }
 }
 
 void ShapeShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& offset, const std::string& tag)

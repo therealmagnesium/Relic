@@ -51,6 +51,10 @@ namespace Relic
         inline float GetRadius() { return GetComponent<Shape>().circle.getRadius(); }
         inline float GetCollisionRadius() { return GetComponent<Collision>().radius; }
 
+        inline int GetPointCount() { return GetComponent<Shape>().circle.getPointCount(); }
+        inline uint32_t GetFillColor() { return GetComponent<Shape>().circle.getFillColor().toInteger(); }
+        inline uint32_t GetBorderColor() { return GetComponent<Shape>().circle.getOutlineColor().toInteger(); }
+
         inline int GetLifetime() { return GetComponent<Lifetime>().lifetime; }
 
         inline bool IsActive() const { return m_active; };
