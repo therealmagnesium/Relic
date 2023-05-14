@@ -11,7 +11,7 @@
 static char scoreFormat[32];
 
 ShapeShooterz::ShapeShooterz() :
-    m_score(0), m_shootTime(0), m_enemySpawnTime(46), m_lastEnemySpawnTime(0)
+    m_score(0), m_shootTime(0), m_enemySpawnTime(51), m_lastEnemySpawnTime(0)
 {
     srand(time(NULL));
 }
@@ -86,8 +86,7 @@ void ShapeShooterz::HandlePlayerMovement()
     static float maxPlayerSpeed = 8.f;
 
     // Get a direction on both axis to be multiplied by accelereation
-    Vector2 input = Vector2((Input::IsKeyPressed(Key::D) - Input::IsKeyPressed(Key::A)), 
-                            (Input::IsKeyPressed(Key::S) - Input::IsKeyPressed(Key::W)));
+    Vector2 input = Vector2(Input::GetAxis("horizontal"), Input::GetAxis("vertical"));
     float inputDist = GetMagnitude(input);
     if (inputDist > 0.f)
         input = input / inputDist;
@@ -273,6 +272,8 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
 
 void ShapeShooterz::SpawnAllEnemies()
 {
+    RL_TRACE("Debug - {}, {}", Application::currentFrame - m_lastEnemySpawnTime, m_enemySpawnTime);
+
     // Spawn an enemy over m_enemySpawnTime
     if (Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
         SpawnEnemy();
