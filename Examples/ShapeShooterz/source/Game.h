@@ -25,6 +25,9 @@ public:
     void OnUpdate() override;
 
 private:
+    // A function to reset everything when the player dies
+    void Reset();
+
     // A function to organize player movement code
     void HandlePlayerMovement();
 

@@ -1,6 +1,8 @@
 #include "Game.h"
+#include "Relic/Core/KeyCodes.h"
 #include "Relic/Core/Util.h"
 #include "Relic/Entity/Components.h"
+
 #include <memory>
 
 #define MAX_SHOOT_TIME 16
@@ -24,6 +26,7 @@ void ShapeShooterz::OnStart()
     //Initialize the assets pointer
     m_assets = GetAssets();
 
+    // Initialize the entities
     m_background = CreateBackground();
     m_player = SpawnPlayer();    
     m_scoreText = SpawnScoreText();
@@ -37,24 +40,34 @@ void ShapeShooterz::OnUpdate()
     if (Input::IsKeyPressed(Key::Escape))
         Close();
 
+    
     // Call the gameplay functions
+    SpawnAllEnemies();
+    HandleEnemyCollision();
     RotateAllEntities();
     if (!m_playerDead)
     {
         HandlePlayerMovement();
         HandleShooting();
     }
-    SpawnAllEnemies();
-    HandleEnemyCollision();
+    else
+    {
+        if (Input::IsKeyPressed(Key::Space))
+            Reset();
+    }
+
 
     for (auto& e : GetAllEntities("particle"))
     {
+        // Destroy particles if needed
         if (e->GetComponent<Lifetime>().lifetime == 0)
             e->Destroy(); 
-    
+   
+        // Set the fill and border color for the particles
         uint32_t fillColor = e->GetComponent<Shape>().circle.getFillColor().toInteger();
         uint32_t borderColor = e->GetComponent<Shape>().circle.getOutlineColor().toInteger();
 
+        // Give the particles transparent effect
         e->GetComponent<Shape>().circle.setFillColor(sf::Color(ReplaceByte(fillColor, 0, e->GetComponent<Lifetime>().lifetime)));
         e->GetComponent<Shape>().circle.setOutlineColor(sf::Color(ReplaceByte(borderColor, 0, e->GetComponent<Lifetime>().lifetime)));
     }
@@ -78,6 +91,25 @@ void ShapeShooterz::OnUpdate()
             if (e->GetComponent<Lifetime>().lifetime > 0)
                 e->GetComponent<Lifetime>().lifetime--;
     }
+}
+
+void ShapeShooterz::Reset()
+{
+    // Reset variables
+    m_score = 0;    
+    m_enemySpawnTime = 51;  
+
+    // Destroy all the current enemies
+    for (auto& entity : GetAllEntities("enemy"))
+        entity->Destroy();
+    
+    sprintf(scoreFormat, "Score: %d", m_score);
+    m_scoreText->GetComponent<Text>().text.setString(scoreFormat);
+    m_deathText->Disable(); 
+
+    // Reset player and set m_playerDead to false
+    m_player = SpawnPlayer(); 
+    m_playerDead = false;
 }
 
 void ShapeShooterz::HandlePlayerMovement()
@@ -122,7 +154,6 @@ void ShapeShooterz::HandlePlayerMovement()
     if (abs(m_player->GetYVel()) > maxPlayerSpeed)
         m_player->GetComponent<Transform>().velocity.y = (m_player->GetYVel() > 0.f) 
                                         ? maxPlayerSpeed : -maxPlayerSpeed;
-
 }
 
 void ShapeShooterz::HandleShooting()
@@ -137,7 +168,6 @@ void ShapeShooterz::HandleShooting()
         SpawnBullet(m_player, Vector2(), "player_bullet");
         m_shootTime = 0;
     }
-
 }
 
 void ShapeShooterz::HandleEnemyCollision()
@@ -247,7 +277,7 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnDeathText()
 
     std::shared_ptr<Entity> entity = AddEntity("ui");
     entity->AddComponent<Transform>(Vector2(WINDOW_WIDTH - 800.f, WINDOW_HEIGHT - 400.f));
-    entity->AddComponent<Text>(m_assets->GetFont("main"), "You died", 50);
+    entity->AddComponent<Text>(m_assets->GetFont("main"), "You died\nPress space to restart", 50);
     entity->Disable();
 
     return entity;
@@ -261,7 +291,7 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
      
 
     std::shared_ptr<Entity> entity = AddEntity("player");
-    entity->AddComponent<Transform>(Vector2(200.f, 500.f), Vector2(), 0.f);
+    entity->AddComponent<Transform>(Vector2(WINDOW_WIDTH /2.f, WINDOW_HEIGHT / 2.f), Vector2(), 0.f);
     entity->AddComponent<Shape>(32.f, 3, 0x0000FFFF, 0xFFFFFFFF, 4.f);
     entity->AddComponent<Collision>(32.f);
 
@@ -272,8 +302,6 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
 
 void ShapeShooterz::SpawnAllEnemies()
 {
-    RL_TRACE("Debug - {}, {}", Application::currentFrame - m_lastEnemySpawnTime, m_enemySpawnTime);
-
     // Spawn an enemy over m_enemySpawnTime
     if (Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
         SpawnEnemy();
@@ -320,7 +348,7 @@ void ShapeShooterz::SpawnEnemy()
 
     entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
 
-    m_lastEnemySpawnTime = currentFrame;
+    m_lastEnemySpawnTime = Application::currentFrame;
 }
 
 void ShapeShooterz::SpawnParticles(const Vector2& pos, int count, std::shared_ptr<Entity> entity)

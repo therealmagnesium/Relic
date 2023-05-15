@@ -94,6 +94,8 @@ namespace Relic
 
             m_window->HandleEvents();
             OnUpdate();
+            currentFrame++;
+
             m_entityManager->CullEntities(WINDOW_WIDTH, WINDOW_HEIGHT); 
             m_entityManager->HandleComponents();
 
@@ -101,7 +103,6 @@ namespace Relic
             Render();
             m_window->Display();
 
-            currentFrame++;
         }
     }
 
