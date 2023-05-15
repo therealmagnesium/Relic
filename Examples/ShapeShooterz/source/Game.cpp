@@ -1,4 +1,5 @@
 #include "Game.h"
+#include "Relic/Core/Application.h"
 #include "Relic/Core/KeyCodes.h"
 #include "Relic/Core/Util.h"
 #include "Relic/Entity/Components.h"
@@ -31,7 +32,6 @@ void ShapeShooterz::OnStart()
     m_player = SpawnPlayer();    
     m_scoreText = SpawnScoreText();
     m_deathText = SpawnDeathText();
-
 }
 
 void ShapeShooterz::OnUpdate()
@@ -39,16 +39,16 @@ void ShapeShooterz::OnUpdate()
     // If ESC is pressed, close the game
     if (Input::IsKeyPressed(Key::Escape))
         Close();
-
     
     // Call the gameplay functions
-    SpawnAllEnemies();
-    HandleEnemyCollision();
     RotateAllEntities();
+    HandleEnemyCollision();
     if (!m_playerDead)
     {
         HandlePlayerMovement();
         HandleShooting();
+        
+        SpawnAllEnemies();
     }
     else
     {
@@ -95,13 +95,17 @@ void ShapeShooterz::OnUpdate()
 
 void ShapeShooterz::Reset()
 {
-    // Reset variables
-    m_score = 0;    
-    m_enemySpawnTime = 51;  
-
     // Destroy all the current enemies
     for (auto& entity : GetAllEntities("enemy"))
+    {
         entity->Destroy();
+        SpawnParticles(entity->GetPosition(), entity->GetPointCount(), entity);  
+    }
+
+    // Reset variables
+    m_score = 0;
+    m_lastEnemySpawnTime = Application::currentFrame;
+    m_enemySpawnTime = 51;
     
     sprintf(scoreFormat, "Score: %d", m_score);
     m_scoreText->GetComponent<Text>().text.setString(scoreFormat);
@@ -276,7 +280,7 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnDeathText()
      * disable the entity, then finally return it. */
 
     std::shared_ptr<Entity> entity = AddEntity("ui");
-    entity->AddComponent<Transform>(Vector2(WINDOW_WIDTH - 800.f, WINDOW_HEIGHT - 400.f));
+    entity->AddComponent<Transform>(Vector2(WINDOW_WIDTH / 2.f - 300.f, WINDOW_HEIGHT / 2.f));
     entity->AddComponent<Text>(m_assets->GetFont("main"), "You died\nPress space to restart", 50);
     entity->Disable();
 
@@ -302,6 +306,8 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
 
 void ShapeShooterz::SpawnAllEnemies()
 {
+    RL_TRACE("{} - {} = {}", Application::currentFrame, m_lastEnemySpawnTime, Application::currentFrame - m_lastEnemySpawnTime);
+
     // Spawn an enemy over m_enemySpawnTime
     if (Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
         SpawnEnemy();
@@ -344,7 +350,7 @@ void ShapeShooterz::SpawnEnemy()
     entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points), 0.f);
     entity->AddComponent<Shape>(32.f, points, color, 0xFFFFFFFF, 4.f);
     entity->AddComponent<Collision>(32.f);
-    entity->AddComponent<Lifetime>(300);
+    entity->AddComponent<Lifetime>(100);
 
     entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
 
