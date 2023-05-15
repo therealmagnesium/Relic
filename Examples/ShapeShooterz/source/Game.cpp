@@ -13,6 +13,19 @@
 
 static char scoreFormat[32];
 
+Relic::Application* Relic::CreateApplication()
+{
+    /*
+        Create an instance of your application,
+        call the OnStart() method for it, then
+        return the instance to the application
+    */
+
+    ShapeShooterz* game = new ShapeShooterz();
+    game->OnStart();
+    return game; 
+}
+
 ShapeShooterz::ShapeShooterz() :
     m_score(0), m_shootTime(0), m_enemySpawnTime(51), m_lastEnemySpawnTime(0)
 {
@@ -32,6 +45,8 @@ void ShapeShooterz::OnStart()
     m_player = SpawnPlayer();    
     m_scoreText = SpawnScoreText();
     m_deathText = SpawnDeathText();
+
+    SpawnPowerUp();
 }
 
 void ShapeShooterz::OnUpdate()
@@ -55,7 +70,6 @@ void ShapeShooterz::OnUpdate()
         if (Input::IsKeyPressed(Key::Space))
             Reset();
     }
-
 
     for (auto& e : GetAllEntities("particle"))
     {
@@ -99,7 +113,7 @@ void ShapeShooterz::Reset()
     for (auto& entity : GetAllEntities("enemy"))
     {
         entity->Destroy();
-        SpawnParticles(entity->GetPosition(), entity->GetPointCount(), entity);  
+        SpawnParticles(entity->GetPointCount(), entity);  
     }
 
     // Reset variables
@@ -186,7 +200,7 @@ void ShapeShooterz::HandleEnemyCollision()
                 AddScore(e->GetComponent<Shape>().circle.getPointCount());
                 b->Destroy();
                 e->Destroy();
-                SpawnParticles(e->GetPosition(), e->GetPointCount(), e);
+                SpawnParticles(e->GetPointCount(), e);
             }
         }
 
@@ -243,6 +257,111 @@ void ShapeShooterz::AddScore(int score)
     m_score += score;
     sprintf(scoreFormat, "Score: %d", m_score);
     m_scoreText->GetComponent<Text>().text.setString(std::string(scoreFormat));    
+}
+
+
+void ShapeShooterz::SpawnAllEnemies()
+{
+    RL_TRACE("{} - {} = {}", Application::currentFrame, m_lastEnemySpawnTime, Application::currentFrame - m_lastEnemySpawnTime);
+
+    // Spawn an enemy over m_enemySpawnTime
+    if (Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
+        SpawnEnemy();
+}
+
+void ShapeShooterz::SpawnEnemy()
+{
+    /* Create an enemy and give it a tag of 'enemy',
+     * then get random values for the x and y position,
+     * and the amount of points. Then get random
+     * color values, after that set the components
+     * for the enemy. Then set the last enemy spawn
+     * time to the current frame.
+     */
+
+    std::shared_ptr<Entity> entity = AddEntity("enemy");
+
+    Vector2 randPos = Vector2(rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT);
+    int points = rand() % 4 + 4;
+
+    uint8_t r = rand() % 0xFF + 0x80;
+    uint8_t g = rand() % 0xFF + 0x80;
+    uint8_t b = rand() % 0xFF + 0x80;
+    uint32_t color = 0xFF | (b << 8) | (g << 16) | (r << 24);
+
+    if (randPos.x < m_player->GetX())
+        randPos.x -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+    else if (randPos.x > m_player->GetX())
+        randPos.x += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+
+    if (randPos.y < m_player->GetY())
+        randPos.y -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+    else if (randPos.y > m_player->GetY())
+        randPos.y += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+
+    Vector2 velocity = m_player->GetPosition() - randPos;
+    Vector2 normalizedVel = Normalize(velocity);
+
+    entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points), 0.f);
+    entity->AddComponent<Shape>(32.f, points, color, 0xFFFFFFFF, 4.f);
+    entity->AddComponent<Collision>(32.f);
+    entity->AddComponent<Lifetime>(100);
+
+    entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
+
+    m_lastEnemySpawnTime = Application::currentFrame;
+}
+
+void ShapeShooterz::SpawnPowerUp()
+{
+    Vector2 position = Vector2(rand() % 100 + 200, rand() % 100 + 200);
+
+    std::shared_ptr<Entity> powerup = AddEntity("power_up");
+    powerup->AddComponent<Transform>(position);
+    powerup->AddComponent<SpriteRenderer>(Assets::defaultTexture, position);  
+    
+    auto& sr = powerup->GetComponent<SpriteRenderer>();
+    
+    Vector2 origin = Vector2(sr.sprite.GetSize().x / 2, sr.sprite.GetSize().y / 2);
+    sr.sprite.SetOrigin(origin.x, origin.y);
+    sr.sprite.SetScale(2.f, 2.f);
+}
+
+void ShapeShooterz::SpawnParticles(int count, std::shared_ptr<Entity> entity)
+{
+    float speed = 4.f;
+
+    for (int i = 0; i < count; i++)
+    {
+        Vector2 targetPos = Vector2(rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT);
+        Vector2 velocity = targetPos - entity->GetPosition();
+        Vector2 normalizedVel = Normalize(velocity); 
+
+        std::shared_ptr<Entity> particle = AddEntity("particle");
+        particle->AddComponent<Transform>(entity->GetPosition(), normalizedVel * speed);
+        particle->AddComponent<Shape>(28.f, entity->GetPointCount(), entity->GetFillColor(), entity->GetBorderColor(), 4.f);
+        particle->AddComponent<Lifetime>(100);
+    }
+}
+
+void ShapeShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& offset, const std::string& tag)
+{
+    /* 
+       Create a bullet entity, which travels towards
+       the target parameter; then give the entity
+       its components
+       */
+
+    float speed = 16.f;
+    Vector2 aim = (Input::GetMousePosition(GetNativeWindow()) - entity->GetPosition()) + offset;
+    Vector2 normalizedAim = Normalize(aim);
+
+    std::shared_ptr<Entity> bullet = AddEntity(tag);
+    bullet->AddComponent<Transform>(entity->GetPosition(), Vector2(normalizedAim.x*speed, normalizedAim.y*speed), 0.f);
+    bullet->AddComponent<Shape>(10, 32, 0xFFFFFFFF, 0x0000FFFF, 2.f);
+    bullet->AddComponent<Collision>(10.f);
+
+    bullet->GetComponent<Shape>().circle.setOrigin(bullet->GetRadius(), bullet->GetRadius());
 }
 
 std::shared_ptr<Entity> ShapeShooterz::CreateBackground()
@@ -302,107 +421,4 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
     entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
 
     return entity;   
-}
-
-void ShapeShooterz::SpawnAllEnemies()
-{
-    RL_TRACE("{} - {} = {}", Application::currentFrame, m_lastEnemySpawnTime, Application::currentFrame - m_lastEnemySpawnTime);
-
-    // Spawn an enemy over m_enemySpawnTime
-    if (Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
-        SpawnEnemy();
-}
-
-
-void ShapeShooterz::SpawnEnemy()
-{
-    /* Create an enemy and give it a tag of 'enemy',
-     * then get random values for the x and y position,
-     * and the amount of points. Then get random
-     * color values, after that set the components
-     * for the enemy. Then set the last enemy spawn
-     * time to the current frame.
-    */
-
-    std::shared_ptr<Entity> entity = AddEntity("enemy");
-
-    Vector2 randPos = Vector2(rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT);
-    int points = rand() % 4 + 4;
-
-    uint8_t r = rand() % 0xFF + 0x80;
-    uint8_t g = rand() % 0xFF + 0x80;
-    uint8_t b = rand() % 0xFF + 0x80;
-    uint32_t color = 0xFF | (b << 8) | (g << 16) | (r << 24);
-
-    if (randPos.x < m_player->GetX())
-        randPos.x -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
-    else if (randPos.x > m_player->GetX())
-        randPos.x += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
-    
-    if (randPos.y < m_player->GetY())
-        randPos.y -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
-    else if (randPos.y > m_player->GetY())
-        randPos.y += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
-
-    Vector2 velocity = m_player->GetPosition() - randPos;
-    Vector2 normalizedVel = Normalize(velocity);
-
-    entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points), 0.f);
-    entity->AddComponent<Shape>(32.f, points, color, 0xFFFFFFFF, 4.f);
-    entity->AddComponent<Collision>(32.f);
-    entity->AddComponent<Lifetime>(100);
-
-    entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
-
-    m_lastEnemySpawnTime = Application::currentFrame;
-}
-
-void ShapeShooterz::SpawnParticles(const Vector2& pos, int count, std::shared_ptr<Entity> entity)
-{
-    float speed = 4.f;
-
-    for (int i = 0; i < count; i++)
-    {
-        Vector2 targetPos = Vector2(rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT);
-        Vector2 velocity = targetPos - pos;
-        Vector2 normalizedVel = Normalize(velocity); 
-
-        std::shared_ptr<Entity> particle = AddEntity("particle");
-        particle->AddComponent<Transform>(pos, normalizedVel * speed);
-        particle->AddComponent<Shape>(28.f, entity->GetPointCount(), entity->GetFillColor(), entity->GetBorderColor(), 4.f);
-        particle->AddComponent<Lifetime>(100);
-    }
-}
-
-void ShapeShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& offset, const std::string& tag)
-{
-    /* 
-        Create a bullet entity, which travels towards
-        the target parameter; then give the entity
-        its components
-    */
-
-    float speed = 16.f;
-    Vector2 aim = (Input::GetMousePosition(GetNativeWindow()) - entity->GetPosition()) + offset;
-    Vector2 normalizedAim = Normalize(aim);
-
-    std::shared_ptr<Entity> bullet = AddEntity(tag);
-    bullet->AddComponent<Transform>(entity->GetPosition(), Vector2(normalizedAim.x*speed, normalizedAim.y*speed), 0.f);
-    bullet->AddComponent<Shape>(10, 32, 0xFFFFFFFF, 0x0000FFFF, 2.f);
-    bullet->AddComponent<Collision>(10.f);
-
-    bullet->GetComponent<Shape>().circle.setOrigin(bullet->GetRadius(), bullet->GetRadius());
-}
-
-Relic::Application* Relic::CreateApplication()
-{
-    /*
-        Create an instance of your application,
-        call the OnStart() method for it, then
-        return the instance to the application
-    */
-
-    ShapeShooterz* game = new ShapeShooterz();
-    game->OnStart();
-    return game; 
 }

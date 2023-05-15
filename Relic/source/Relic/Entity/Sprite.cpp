@@ -19,6 +19,9 @@ namespace Relic
     void Sprite::SetScale(float xScale, float yScale)
         { m_sprite.scale(xScale, yScale); }
 
+    void Sprite::SetOrigin(float xOffset, float yOffset)
+        { m_sprite.setOrigin(xOffset, yOffset); }
+
     void Sprite::draw(sf::RenderTarget& target, sf::RenderStates states) const
         { target.draw(m_sprite); }
 }
