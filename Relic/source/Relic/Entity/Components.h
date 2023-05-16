@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 namespace Relic
 {
@@ -73,5 +74,14 @@ namespace Relic
                         const Vector2& pos = Vector2(), const Vector2& scale = Vector2(1.f, 1.f), 
                         float angle = 0.f) :
             sprite(texture, pos.x, pos.y, angle) { sprite.SetScale(scale.x, scale.y); }
+    };
+
+    struct MusicSource
+    {
+        bool has = false;
+        sf::Music music;
+
+        MusicSource(const sf::Music& musicIn = Assets::defaultMusic)
+            {}
     };
 }

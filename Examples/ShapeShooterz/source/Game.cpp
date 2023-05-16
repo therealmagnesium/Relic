@@ -4,7 +4,9 @@
 #include "Relic/Core/Util.h"
 #include "Relic/Entity/Components.h"
 
+#include <SFML/System/Time.hpp>
 #include <memory>
+#include <SFML/Audio/Music.hpp>
 
 #define ENEMY_POS_OFFSET 200
 #define MIN_ENEMY_SPAWN_TIME 20
@@ -15,6 +17,9 @@
 static char scoreFormat[32];
 static uint8_t powerUpType = 0;
 static bool hasPowerUp = false;
+
+// TEMPORARY - REALLY BAD CODE!!!!
+static sf::Music music;
 
 Relic::Application* Relic::CreateApplication()
 {
@@ -48,6 +53,18 @@ void ShapeShooterz::OnStart()
     m_scoreText = SpawnScoreText();
     m_deathText = SpawnDeathText();
     m_powerUpText = SpawnPowerUpText();
+
+    std::shared_ptr<Entity> backgroundMusic = AddEntity("music");
+    
+    if (!music.openFromFile("assets/sounds/main.ogg"))
+    {
+        RL_TRACE("Couldn't load music");
+        return;
+    }
+
+    music.setLoop(true);
+    music.setPlayingOffset(sf::seconds(16.f));
+    music.play();
 }
 
 void ShapeShooterz::OnUpdate()
@@ -62,8 +79,8 @@ void ShapeShooterz::OnUpdate()
     HandlePowerUpCollision();
     if (!m_playerDead)
     {
-        HandlePlayerMovement();
         HandleShooting();
+        HandlePlayerMovement();
  
         SpawnAllPowerUps();
         HandlePowerUpActiveTime();
@@ -93,7 +110,7 @@ void ShapeShooterz::OnUpdate()
     // Constrain the player into the window
     Constrain(m_player, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    // Decrease enemy spawn time and set the current frame
+    // Decrease enemy spawn time
     if (m_enemySpawnTime > MIN_ENEMY_SPAWN_TIME)
     {
         if (Application::currentFrame % DEC_ENEMY_SPAWN_TIME == 0)
@@ -124,20 +141,24 @@ void ShapeShooterz::Reset()
     for (auto& pu : GetAllEntities("power_up"))
         pu->Destroy();
 
-    // Reset variables
+    // Reset genearal variables
+    hasPowerUp = false;
     m_score = 0;
     m_lastPowerUpSpawnTime = Application::currentFrame;
     m_lastEnemySpawnTime = Application::currentFrame;
+    m_powerUpActiveTime = 0;
     m_enemySpawnTime = 50;
-  
+ 
     // Reset ui
     sprintf(scoreFormat, "Score: %d", m_score);
     m_scoreText->GetComponent<Text>().text.setString(scoreFormat);
     m_deathText->Disable(); 
+    m_powerUpText->Disable();
 
-    // Reset player and set m_playerDead to false
+    // Reset player related variables 
     m_player = SpawnPlayer(); 
     m_playerDead = false;
+    m_shootTime = 0;
     m_maxShootTime = 16;
 }
 
@@ -251,9 +272,7 @@ void ShapeShooterz::HandlePowerUpCollision()
 }
 
 void ShapeShooterz::HandlePowerUpActiveTime()
-{
-    RL_TRACE("{}, {}, {}", m_powerUpActiveTime, MAX_ACTIVE_POWER_UP_TIME, m_maxShootTime);
-    
+{ 
     if (hasPowerUp)
     {
         m_powerUpText->Enable();
@@ -308,6 +327,8 @@ void ShapeShooterz::AddScore(int score)
 
 void ShapeShooterz::SpawnAllEnemies()
 {
+    RL_TRACE("[DEBUG] {} - {} = {}", Application::currentFrame, m_lastEnemySpawnTime, m_enemySpawnTime);
+
     // Spawn an enemy over m_enemySpawnTime
     if (Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
         SpawnEnemy();
@@ -315,6 +336,7 @@ void ShapeShooterz::SpawnAllEnemies()
 
 void ShapeShooterz::SpawnAllPowerUps()
 {
+    // Spawn a power up over POWER_UP_SPAWN_TIME
     if (Application::currentFrame - m_lastPowerUpSpawnTime == POWER_UP_SPAWN_TIME)
         SpawnPowerUp();
 }

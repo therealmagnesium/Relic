@@ -30,11 +30,18 @@ project "Logging"
             "Relic",
             "sfml-graphics-s",
             "sfml-window-s",
+            "sfml-audio-s",
             "sfml-system-s",
             "opengl32",
             "winmm",
             "freetype",
-            "gdi32"
+            "gdi32",
+            "openal32",
+            "FLAC",
+            "vorbisenc",
+            "vorbisfile",
+            "vorbis",
+            "ogg"
         } 
         systemversion "latest"   
     
@@ -44,6 +51,7 @@ project "Logging"
             "Relic",
             "sfml-graphics",
             "sfml-window",
+            "sfml-audio",
             "sfml-system"
         } 
         systemversion "latest"

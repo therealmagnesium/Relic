@@ -1,3 +1,4 @@
+#include "Core/Log.h"
 #include "pch.h"
 #include "Assets.h"
 
@@ -5,6 +6,7 @@ namespace Relic
 {
     sf::Font Assets::defaultFont = sf::Font();
     sf::Texture Assets::defaultTexture = sf::Texture();
+    sf::Music Assets::defaultMusic;
 
     Assets::Assets()
     {
@@ -17,6 +19,12 @@ namespace Relic
         if (!defaultTexture.loadFromFile("assets/textures/default.png"))
         {
             RL_CORE_ERROR("Failed to load default texture file!");
+            return;
+        }
+    
+        if (!defaultMusic.openFromFile("assets/sounds/default.ogg"))
+        {
+            RL_CORE_CRITICAL("Failed to load default audio file!");
             return;
         }
     }
@@ -43,6 +51,18 @@ namespace Relic
         }
 
         m_textures[name] = texture;
+    }
+
+    void Assets::AddMusic(const std::string &name, const std::string &path)
+    {
+        sf::Music music;
+        music.setLoop(true);
+
+        if (!music.openFromFile(path))
+        {
+            RL_CORE_CRITICAL("Failed to load sound - {}");
+            return;
+        }
     }
 
     sf::Font& Assets::GetFont(const std::string &name)

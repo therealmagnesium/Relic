@@ -42,6 +42,9 @@ namespace Relic
         std::string textureName;
         std::string texturePath;
 
+        std::string musicName;
+        std::string musicPath;
+
         if (!in.is_open())
         {
             RL_CORE_CRITICAL("Failed to open assets file - {}!", path);
@@ -60,8 +63,12 @@ namespace Relic
                 in >> textureName >> texturePath;
                 m_assets->AddTexture(textureName, texturePath);
             }
+            if (temp == "Music")
+            {
+                in >> musicName >> musicPath;
+                m_assets->AddMusic(musicName, musicPath);
+            }
         }
-
     }
 
     void Application::LoadConfigFile(const std::string& path)
