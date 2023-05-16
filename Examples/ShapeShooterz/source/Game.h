@@ -1,4 +1,5 @@
 #include <Relic.h>
+#include <memory>
 
 using namespace Relic;
 
@@ -37,6 +38,12 @@ private:
     // A function to organize enemy collision code
     void HandleEnemyCollision();
 
+    // A function to organize all power up collision code
+    void HandlePowerUpCollision();
+
+    // A function to update power up active time
+    void HandlePowerUpActiveTime();
+
     // A function to rotate all the entities
     void RotateAllEntities();
 
@@ -45,6 +52,9 @@ private:
 
     // A function to spawn all the enemies
     void SpawnAllEnemies();
+
+    // A function to spawn all the power ups
+    void SpawnAllPowerUps();
 
     // A function to spawn enemies
     void SpawnEnemy();
@@ -70,17 +80,27 @@ private:
     // A function to spawn the death text
     std::shared_ptr<Entity> SpawnDeathText();
 
+    // A function to spawn the power up text
+    std::shared_ptr<Entity> SpawnPowerUpText();
+
 private:
-    int m_score;
-    int m_shootTime;
-    int m_enemySpawnTime;
-    int m_lastEnemySpawnTime;
     bool m_playerDead = false;
+    uint32_t m_maxShootTime = 16;
+    uint32_t m_shootTime = 0;
+    
+    int m_score = 0;
+   
+    uint32_t m_enemySpawnTime = 50;
+    int m_lastEnemySpawnTime = 0;
+
+    uint32_t m_powerUpActiveTime = 0; 
+    int m_lastPowerUpSpawnTime = 0;
 
     std::shared_ptr<Assets> m_assets;
     
     std::shared_ptr<Entity> m_player;
     std::shared_ptr<Entity> m_scoreText;
     std::shared_ptr<Entity> m_deathText;
+    std::shared_ptr<Entity> m_powerUpText;
     std::shared_ptr<Entity> m_background;
 };

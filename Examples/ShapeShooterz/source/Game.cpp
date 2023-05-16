@@ -6,12 +6,15 @@
 
 #include <memory>
 
-#define MAX_SHOOT_TIME 16
 #define ENEMY_POS_OFFSET 200
 #define MIN_ENEMY_SPAWN_TIME 20
 #define DEC_ENEMY_SPAWN_TIME 500
+#define POWER_UP_SPAWN_TIME 1500
+#define MAX_ACTIVE_POWER_UP_TIME 500
 
 static char scoreFormat[32];
+static uint8_t powerUpType = 0;
+static bool hasPowerUp = false;
 
 Relic::Application* Relic::CreateApplication()
 {
@@ -26,8 +29,7 @@ Relic::Application* Relic::CreateApplication()
     return game; 
 }
 
-ShapeShooterz::ShapeShooterz() :
-    m_score(0), m_shootTime(0), m_enemySpawnTime(51), m_lastEnemySpawnTime(0)
+ShapeShooterz::ShapeShooterz()
 {
     srand(time(NULL));
 }
@@ -45,8 +47,7 @@ void ShapeShooterz::OnStart()
     m_player = SpawnPlayer();    
     m_scoreText = SpawnScoreText();
     m_deathText = SpawnDeathText();
-
-    SpawnPowerUp();
+    m_powerUpText = SpawnPowerUpText();
 }
 
 void ShapeShooterz::OnUpdate()
@@ -58,11 +59,14 @@ void ShapeShooterz::OnUpdate()
     // Call the gameplay functions
     RotateAllEntities();
     HandleEnemyCollision();
+    HandlePowerUpCollision();
     if (!m_playerDead)
     {
         HandlePlayerMovement();
         HandleShooting();
-        
+ 
+        SpawnAllPowerUps();
+        HandlePowerUpActiveTime();
         SpawnAllEnemies();
     }
     else
@@ -116,11 +120,17 @@ void ShapeShooterz::Reset()
         SpawnParticles(entity->GetPointCount(), entity);  
     }
 
+    // Destroy all the power ups
+    for (auto& pu : GetAllEntities("power_up"))
+        pu->Destroy();
+
     // Reset variables
     m_score = 0;
+    m_lastPowerUpSpawnTime = Application::currentFrame;
     m_lastEnemySpawnTime = Application::currentFrame;
-    m_enemySpawnTime = 51;
-    
+    m_enemySpawnTime = 50;
+  
+    // Reset ui
     sprintf(scoreFormat, "Score: %d", m_score);
     m_scoreText->GetComponent<Text>().text.setString(scoreFormat);
     m_deathText->Disable(); 
@@ -128,6 +138,7 @@ void ShapeShooterz::Reset()
     // Reset player and set m_playerDead to false
     m_player = SpawnPlayer(); 
     m_playerDead = false;
+    m_maxShootTime = 16;
 }
 
 void ShapeShooterz::HandlePlayerMovement()
@@ -177,11 +188,11 @@ void ShapeShooterz::HandlePlayerMovement()
 void ShapeShooterz::HandleShooting()
 {
     // Update shoot timer
-    if (m_shootTime < MAX_SHOOT_TIME)
+    if (m_shootTime < m_maxShootTime)
         m_shootTime++;
 
     // If the user clicks, spawn a bullet
-    if (Input::IsMouseButtonPressed(sf::Mouse::Button::Left) && m_shootTime >= MAX_SHOOT_TIME)
+    if (Input::IsMouseButtonPressed(sf::Mouse::Button::Left) && m_shootTime >= m_maxShootTime)
     {
         SpawnBullet(m_player, Vector2(), "player_bullet");
         m_shootTime = 0;
@@ -226,6 +237,41 @@ void ShapeShooterz::HandleEnemyCollision()
     }
 }
 
+void ShapeShooterz::HandlePowerUpCollision()
+{
+    for (auto& pu : GetAllEntities("power_up"))
+    {
+        if (GetDistance(pu->GetPosition(), m_player->GetPosition()) <= pu->GetCollisionRadius() + m_player->GetCollisionRadius()) 
+        {
+            pu->Destroy();
+            m_maxShootTime = 8; 
+            hasPowerUp = true;
+        }
+    }
+}
+
+void ShapeShooterz::HandlePowerUpActiveTime()
+{
+    RL_TRACE("{}, {}, {}", m_powerUpActiveTime, MAX_ACTIVE_POWER_UP_TIME, m_maxShootTime);
+    
+    if (hasPowerUp)
+    {
+        m_powerUpText->Enable();
+
+        if (m_powerUpActiveTime < MAX_ACTIVE_POWER_UP_TIME)
+            m_powerUpActiveTime++;
+
+        if (m_powerUpActiveTime >= MAX_ACTIVE_POWER_UP_TIME)
+        {
+            m_powerUpActiveTime = 0;
+            m_maxShootTime = 16;
+            hasPowerUp = false;
+        }
+    }
+    else
+        m_powerUpText->Disable();
+}
+
 void ShapeShooterz::RotateAllEntities()
 {
     for (auto& e : GetAllEntities())
@@ -262,11 +308,15 @@ void ShapeShooterz::AddScore(int score)
 
 void ShapeShooterz::SpawnAllEnemies()
 {
-    RL_TRACE("{} - {} = {}", Application::currentFrame, m_lastEnemySpawnTime, Application::currentFrame - m_lastEnemySpawnTime);
-
     // Spawn an enemy over m_enemySpawnTime
     if (Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
         SpawnEnemy();
+}
+
+void ShapeShooterz::SpawnAllPowerUps()
+{
+    if (Application::currentFrame - m_lastPowerUpSpawnTime == POWER_UP_SPAWN_TIME)
+        SpawnPowerUp();
 }
 
 void ShapeShooterz::SpawnEnemy()
@@ -314,17 +364,19 @@ void ShapeShooterz::SpawnEnemy()
 
 void ShapeShooterz::SpawnPowerUp()
 {
-    Vector2 position = Vector2(rand() % 100 + 200, rand() % 100 + 200);
+    Vector2 position = Vector2(rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT);
 
     std::shared_ptr<Entity> powerup = AddEntity("power_up");
     powerup->AddComponent<Transform>(position);
-    powerup->AddComponent<SpriteRenderer>(Assets::defaultTexture, position);  
-    
+    powerup->AddComponent<SpriteRenderer>(m_assets->GetTexture("power_up"), position);  
+     
     auto& sr = powerup->GetComponent<SpriteRenderer>();
     
     Vector2 origin = Vector2(sr.sprite.GetSize().x / 2, sr.sprite.GetSize().y / 2);
     sr.sprite.SetOrigin(origin.x, origin.y);
     sr.sprite.SetScale(2.f, 2.f);
+
+    m_lastPowerUpSpawnTime = Application::currentFrame;
 }
 
 void ShapeShooterz::SpawnParticles(int count, std::shared_ptr<Entity> entity)
@@ -362,6 +414,23 @@ void ShapeShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& o
     bullet->AddComponent<Collision>(10.f);
 
     bullet->GetComponent<Shape>().circle.setOrigin(bullet->GetRadius(), bullet->GetRadius());
+}
+
+std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
+{
+    /* Create the player entity and give it a tag of 'player',
+     * then set the components for the player, and finally return
+     * the new entity. */
+     
+
+    std::shared_ptr<Entity> entity = AddEntity("player");
+    entity->AddComponent<Transform>(Vector2(WINDOW_WIDTH /2.f, WINDOW_HEIGHT / 2.f), Vector2(), 0.f);
+    entity->AddComponent<Shape>(32.f, 3, 0x0000FFFF, 0xFFFFFFFF, 4.f);
+    entity->AddComponent<Collision>(32.f);
+
+    entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
+
+    return entity;   
 }
 
 std::shared_ptr<Entity> ShapeShooterz::CreateBackground()
@@ -406,19 +475,16 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnDeathText()
     return entity;
 }
 
-std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
+std::shared_ptr<Entity> ShapeShooterz::SpawnPowerUpText()
 {
-    /* Create the player entity and give it a tag of 'player',
-     * then set the components for the player, and finally return
-     * the new entity. */
-     
+    /* Create an entity with the tag 'ui', then add a
+     * transform and a text component. Afterwards,
+     * disable the entity, then finally return it. */
 
-    std::shared_ptr<Entity> entity = AddEntity("player");
-    entity->AddComponent<Transform>(Vector2(WINDOW_WIDTH /2.f, WINDOW_HEIGHT / 2.f), Vector2(), 0.f);
-    entity->AddComponent<Shape>(32.f, 3, 0x0000FFFF, 0xFFFFFFFF, 4.f);
-    entity->AddComponent<Collision>(32.f);
+    std::shared_ptr<Entity> entity = AddEntity("ui");
+    entity->AddComponent<Transform>(Vector2(20.f, WINDOW_HEIGHT - 50.f));
+    entity->AddComponent<Text>(m_assets->GetFont("main"), "Faster shooting", 36);
+    entity->Disable();
 
-    entity->GetComponent<Shape>().circle.setOrigin(entity->GetRadius(), entity->GetRadius());
-
-    return entity;   
+    return entity;
 }

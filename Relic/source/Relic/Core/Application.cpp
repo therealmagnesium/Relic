@@ -51,13 +51,17 @@ namespace Relic
         while (in >> temp)
         {
             if (temp == "Font")
+            {
                 in >> fontName >> fontPath;
+                m_assets->AddFont(fontName, fontPath);
+            }
             if (temp == "Texture")
-                in >> textureName >> texturePath; 
+            {
+                in >> textureName >> texturePath;
+                m_assets->AddTexture(textureName, texturePath);
+            }
         }
 
-        m_assets->AddFont(fontName, fontPath);
-        m_assets->AddTexture(textureName, texturePath);
     }
 
     void Application::LoadConfigFile(const std::string& path)
