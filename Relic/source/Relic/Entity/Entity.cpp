@@ -8,7 +8,7 @@ namespace Relic
         m_id(id), m_tag(tag), 
         m_components(Transform(), Shape(),
                     Collision(32.f), Lifetime(100), 
-                    Text(), SpriteRenderer())
+                    Text(), SpriteRenderer(), AudioSource())
     {
         RL_CORE_INFO("New entity created [{}, {}]", id, tag);
     }

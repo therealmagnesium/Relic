@@ -10,7 +10,8 @@ namespace Relic
         Collision,
         Lifetime,
         Text,
-        SpriteRenderer> ComponentTuple;
+        SpriteRenderer,
+        AudioSource> ComponentTuple;
 
     class Entity
     {

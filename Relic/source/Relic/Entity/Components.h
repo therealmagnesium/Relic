@@ -2,6 +2,7 @@
 #include "Sprite.h"
 #include "Vector2.h"
 #include "Relic/Core/Assets.h"
+#include "Relic/Core/Audio.h"
 #include "Relic/Core/Log.h"
 
 #include <memory>
@@ -76,12 +77,12 @@ namespace Relic
             sprite(texture, pos.x, pos.y, angle) { sprite.SetScale(scale.x, scale.y); }
     };
 
-    struct MusicSource
+    struct AudioSource
     {
         bool has = false;
-        sf::Music music;
+        Audio audio; 
 
-        MusicSource(const sf::Music& musicIn = Assets::defaultMusic)
-            {}
+        AudioSource(const std::string& path = std::string("assets/sounds/default.ogg")) :
+            audio(path) {}
     };
 }
