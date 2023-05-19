@@ -18,9 +18,6 @@ static char scoreFormat[32];
 static uint8_t powerUpType = 0;
 static bool hasPowerUp = false;
 
-// TEMPORARY - REALLY BAD CODE!!!!
-static sf::Music music;
-
 Relic::Application* Relic::CreateApplication()
 {
     /*
@@ -55,16 +52,9 @@ void ShapeShooterz::OnStart()
     m_powerUpText = SpawnPowerUpText();
 
     std::shared_ptr<Entity> backgroundMusic = AddEntity("music");
-    
-    if (!music.openFromFile("assets/sounds/main.ogg"))
-    {
-        RL_TRACE("Couldn't load music");
-        return;
-    }
-
-    music.setLoop(true);
-    music.setPlayingOffset(sf::seconds(16.f));
-    music.play();
+    backgroundMusic->AddComponent<AudioSource>(m_assets->GetMusic("main"));
+    //backgroundMusic->GetComponent<AudioSource>().audio.SetStartOffset(16.f);
+    //backgroundMusic->GetComponent<AudioSource>().audio.Play();
 }
 
 void ShapeShooterz::OnUpdate()

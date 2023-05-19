@@ -8,19 +8,16 @@ namespace Relic
 {
     Audio::Audio(const std::string& path)
     {
-        sf::SoundBuffer buff;
-        buff.loadFromFile(path);
-
-        m_sound.setBuffer(buff);
-        m_sound.setLoop(false);
+        m_music.openFromFile(path);
+        m_music.setLoop(true);
     }
 
     void Audio::SetLoop(bool loop)
-        { m_sound.setLoop(loop); }
+        { m_music.setLoop(loop); }
 
     void Audio::SetStartOffset(float secs)
-        { m_sound.setPlayingOffset(sf::seconds(secs)); }
+        { m_music.setPlayingOffset(sf::seconds(secs)); }
 
     void Audio::Play()
-        { m_sound.play(); }
+        { m_music.play(); }
 }

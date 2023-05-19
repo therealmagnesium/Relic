@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <tuple>
 #include <string>
 #include <vector>
 #include <memory>

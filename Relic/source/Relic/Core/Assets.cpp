@@ -6,7 +6,6 @@ namespace Relic
 {
     sf::Font Assets::defaultFont = sf::Font();
     sf::Texture Assets::defaultTexture = sf::Texture();
-    sf::Music Assets::defaultMusic;
 
     Assets::Assets()
     {
@@ -20,14 +19,8 @@ namespace Relic
         {
             RL_CORE_ERROR("Failed to load default texture file!");
             return;
-        }
-    
-        if (!defaultMusic.openFromFile("assets/sounds/default.ogg"))
-        {
-            RL_CORE_CRITICAL("Failed to load default audio file!");
-            return;
-        }
-    }
+        }    
+   }
 
     void Assets::AddFont(const std::string &name, const std::string &path)
     {
@@ -55,23 +48,15 @@ namespace Relic
 
     void Assets::AddMusic(const std::string &name, const std::string &path)
     {
-        sf::Music music;
-        music.setLoop(true);
-
-        if (!music.openFromFile(path))
-        {
-            RL_CORE_CRITICAL("Failed to load sound - {}");
-            return;
-        }
+        m_musics[name] = path; 
     }
 
     sf::Font& Assets::GetFont(const std::string &name)
-    {
-        return m_fonts[name];
-    }
+    { return m_fonts[name]; } 
 
     sf::Texture& Assets::GetTexture(const std::string &name)
-    {
-        return m_textures[name];
-    }
+    { return m_textures[name]; }
+
+    std::string& Assets::GetMusic(const std::string& name)
+    { return m_musics[name]; }
 }

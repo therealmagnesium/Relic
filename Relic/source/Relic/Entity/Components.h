@@ -74,15 +74,17 @@ namespace Relic
         SpriteRenderer(const sf::Texture& texture = Assets::defaultTexture, 
                         const Vector2& pos = Vector2(), const Vector2& scale = Vector2(1.f, 1.f), 
                         float angle = 0.f) :
-            sprite(texture, pos.x, pos.y, angle) { sprite.SetScale(scale.x, scale.y); }
+            sprite(texture, pos.x, pos.y, angle) 
+            { sprite.SetScale(scale.x, scale.y); }
     };
 
     struct AudioSource
     {
         bool has = false;
-        Audio audio; 
+        //Audio audio; 
 
-        AudioSource(const std::string& path = std::string("assets/sounds/default.ogg")) :
-            audio(path) {}
+        AudioSource(const std::string& path = "assets/sounds/default.ogg")
+            {}
+        //    audio(path) {}
     };
 }
