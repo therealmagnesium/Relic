@@ -68,6 +68,9 @@ private:
     // A function to spawn bullets
     void SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& offset, const std::string& tag);
 
+    // A function to play music
+    void SetupAndPlayAudio();
+
     // A helper function to spawn the player
     std::shared_ptr<Entity> SpawnPlayer();
 

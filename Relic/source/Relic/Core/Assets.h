@@ -18,11 +18,12 @@ namespace Relic
 
         sf::Font& GetFont(const std::string& name);
         sf::Texture& GetTexture(const std::string& name);
-        std::string& GetMusic(const std::string& name);
+        std::string& GetMusicPath(const std::string& name);
 
     public:
         static sf::Font defaultFont;
         static sf::Texture defaultTexture;
+        static std::string defaultMusicPath;
 
     private:
         std::unordered_map<std::string, sf::Font> m_fonts;

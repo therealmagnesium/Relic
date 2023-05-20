@@ -2,6 +2,7 @@
 #include "Relic/Entity/Vector2.h"
 
 #include <string>
+#include <memory>
 #include <SFML/Audio/Music.hpp>
 #include <SFML/Audio/Sound.hpp>
 
@@ -17,7 +18,7 @@ namespace Relic
         void Play();
     
     private:
-        sf::Music m_music;
+        std::shared_ptr<sf::Music> m_music;
     };
 }
 

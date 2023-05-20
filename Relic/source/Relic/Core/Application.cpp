@@ -4,6 +4,7 @@
 #include "Log.h"
 #include "Entity/EntityManager.h"
 
+#include <fstream>
 #include <SFML/Graphics.hpp>
 
 namespace Relic

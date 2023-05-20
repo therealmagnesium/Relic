@@ -81,10 +81,9 @@ namespace Relic
     struct AudioSource
     {
         bool has = false;
-        //Audio audio; 
+        Audio audio; 
 
-        AudioSource(const std::string& path = "assets/sounds/default.ogg")
-            {}
-        //    audio(path) {}
+        AudioSource(const std::string& path = "assets/sounds/default.ogg") :
+            audio(path) {}
     };
 }

@@ -15,16 +15,13 @@
 #define MAX_ACTIVE_POWER_UP_TIME 500
 
 static char scoreFormat[32];
-static uint8_t powerUpType = 0;
 static bool hasPowerUp = false;
 
 Relic::Application* Relic::CreateApplication()
 {
-    /*
-        Create an instance of your application,
-        call the OnStart() method for it, then
-        return the instance to the application
-    */
+    /* Create an instance of your application,
+     * then call the OnStart() method for it. Finally,
+     * return the instance to the application. */
 
     ShapeShooterz* game = new ShapeShooterz();
     game->OnStart();
@@ -51,10 +48,7 @@ void ShapeShooterz::OnStart()
     m_deathText = SpawnDeathText();
     m_powerUpText = SpawnPowerUpText();
 
-    std::shared_ptr<Entity> backgroundMusic = AddEntity("music");
-    backgroundMusic->AddComponent<AudioSource>(m_assets->GetMusic("main"));
-    //backgroundMusic->GetComponent<AudioSource>().audio.SetStartOffset(16.f);
-    //backgroundMusic->GetComponent<AudioSource>().audio.Play();
+    SetupAndPlayAudio();
 }
 
 void ShapeShooterz::OnUpdate()
@@ -250,6 +244,7 @@ void ShapeShooterz::HandleEnemyCollision()
 
 void ShapeShooterz::HandlePowerUpCollision()
 {
+    // Handle when the player collides with a power up
     for (auto& pu : GetAllEntities("power_up"))
     {
         if (GetDistance(pu->GetPosition(), m_player->GetPosition()) <= pu->GetCollisionRadius() + m_player->GetCollisionRadius()) 
@@ -262,7 +257,11 @@ void ShapeShooterz::HandlePowerUpCollision()
 }
 
 void ShapeShooterz::HandlePowerUpActiveTime()
-{ 
+{
+    /* Handle the power up text showing and
+     * handle how long the player's power up is
+     * active */
+
     if (hasPowerUp)
     {
         m_powerUpText->Enable();
@@ -338,8 +337,7 @@ void ShapeShooterz::SpawnEnemy()
      * and the amount of points. Then get random
      * color values, after that set the components
      * for the enemy. Then set the last enemy spawn
-     * time to the current frame.
-     */
+     * time to the current frame. */
 
     std::shared_ptr<Entity> entity = AddEntity("enemy");
 
@@ -376,6 +374,11 @@ void ShapeShooterz::SpawnEnemy()
 
 void ShapeShooterz::SpawnPowerUp()
 {
+    /* Genearate a random position, then create an entity
+     * with a transform and sprite renderer component. Then
+     * set the properties for the sprite and
+     * then we can set the last power up spawn time. */
+
     Vector2 position = Vector2(rand() % WINDOW_WIDTH, rand() % WINDOW_HEIGHT);
 
     std::shared_ptr<Entity> powerup = AddEntity("power_up");
@@ -393,6 +396,10 @@ void ShapeShooterz::SpawnPowerUp()
 
 void ShapeShooterz::SpawnParticles(int count, std::shared_ptr<Entity> entity)
 {
+    /* For however many particles we want to spawn, send the particle
+     * to a random location. Give the particles a transform, shape,
+     * and lifetime component. */
+
     float speed = 4.f;
 
     for (int i = 0; i < count; i++)
@@ -426,6 +433,18 @@ void ShapeShooterz::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& o
     bullet->AddComponent<Collision>(10.f);
 
     bullet->GetComponent<Shape>().circle.setOrigin(bullet->GetRadius(), bullet->GetRadius());
+}
+
+void ShapeShooterz::SetupAndPlayAudio()
+{
+    /* Create an entity to play background music, 
+     * and give it an AudioSource component. Then we can set 
+     * the start offset and then finally play the music. */
+
+    std::shared_ptr<Entity> backgroundMusic = AddEntity("music");
+    backgroundMusic->AddComponent<AudioSource>(m_assets->GetMusicPath("main"));
+    backgroundMusic->GetComponent<AudioSource>().audio.SetStartOffset(16.f);
+    backgroundMusic->GetComponent<AudioSource>().audio.Play();
 }
 
 std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()
