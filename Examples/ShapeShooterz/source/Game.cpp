@@ -58,17 +58,21 @@ void ShapeShooterz::OnUpdate()
         Close();
     
     // Call the gameplay functions
+    HandleEnemySpawnTime();
     RotateAllEntities();
-    HandleEnemyCollision();
-    HandlePowerUpCollision();
     if (!m_playerDead)
     {
+        SpawnAllEnemies();
+
+        HandleEnemyCollision();
+        HandlePowerUpCollision();
+        
         HandleShooting();
         HandlePlayerMovement();
  
         SpawnAllPowerUps();
         HandlePowerUpActiveTime();
-        SpawnAllEnemies();
+        
     }
     else
     {
@@ -92,14 +96,7 @@ void ShapeShooterz::OnUpdate()
     }
 
     // Constrain the player into the window
-    Constrain(m_player, WINDOW_WIDTH, WINDOW_HEIGHT);
-
-    // Decrease enemy spawn time
-    if (m_enemySpawnTime > MIN_ENEMY_SPAWN_TIME)
-    {
-        if (Application::currentFrame % DEC_ENEMY_SPAWN_TIME == 0)
-            m_enemySpawnTime--;
-    }
+    Constrain(m_player, WINDOW_WIDTH, WINDOW_HEIGHT); 
 
     // Move the entities based on their velocity and update their lifetime
     for (auto& e : GetAllEntities())
@@ -445,6 +442,16 @@ void ShapeShooterz::SetupAndPlayAudio()
     backgroundMusic->AddComponent<AudioSource>(m_assets->GetMusicPath("main"));
     backgroundMusic->GetComponent<AudioSource>().audio.SetStartOffset(16.f);
     backgroundMusic->GetComponent<AudioSource>().audio.Play();
+}
+
+void ShapeShooterz::HandleEnemySpawnTime()
+{
+    // Decrease enemy spawn time
+    if (m_enemySpawnTime > MIN_ENEMY_SPAWN_TIME)
+    {
+        if (Application::currentFrame % DEC_ENEMY_SPAWN_TIME == 0)
+            m_enemySpawnTime--;
+    }
 }
 
 std::shared_ptr<Entity> ShapeShooterz::SpawnPlayer()

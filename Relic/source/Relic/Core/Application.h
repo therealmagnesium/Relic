@@ -52,6 +52,7 @@ namespace Relic
 
     public:
         static int currentFrame;
+        static int frameLimit;
 
     protected:
         EntityVec& GetAllEntities();

@@ -71,6 +71,9 @@ private:
     // A function to play music
     void SetupAndPlayAudio();
 
+    // A function to decrease enemy spawn time
+    void HandleEnemySpawnTime();
+
     // A helper function to spawn the player
     std::shared_ptr<Entity> SpawnPlayer();
 

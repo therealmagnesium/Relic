@@ -10,6 +10,7 @@
 namespace Relic
 {
     int Application::currentFrame = 0;
+    int Application::frameLimit = 60;
 
     Application::Application()
     {
@@ -87,6 +88,9 @@ namespace Relic
         {
             if (temp == "Window")
                 in >> m_properties.width >> m_properties.height >> m_properties.title >> m_properties.style;
+            
+            if (temp == "FPS")
+                in >> frameLimit;
         }
 
         RL_CORE_TRACE("Application properties: {}, {}, {}", m_properties.title, m_properties.width, m_properties.height);

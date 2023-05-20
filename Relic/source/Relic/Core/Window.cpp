@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Window.h"
+#include "Application.h"
 
 #include <SFML/Graphics.hpp>
 
@@ -25,7 +26,7 @@ namespace Relic
             RL_CORE_ERROR("Failed to make window!");
             return;
         }
-        m_windowHandle->setFramerateLimit(60);
+        m_windowHandle->setFramerateLimit(Application::frameLimit);
         
         sf::FloatRect visibleArea(0, 0, m_data.width, m_data.height);
         m_windowHandle->setView(sf::View(visibleArea));
