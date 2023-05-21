@@ -6,7 +6,7 @@ namespace Relic
 {
     sf::Font Assets::defaultFont = sf::Font();
     sf::Texture Assets::defaultTexture = sf::Texture();
-    std::string Assets::defaultMusicPath = "assets/sounds/default.ogg";
+    std::string Assets::defaultMusicPath = "assets/sounds/default.wav";
 
     Assets::Assets()
     {

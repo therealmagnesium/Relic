@@ -58,8 +58,6 @@ void ShapeShooterz::OnUpdate()
         Close();
     
     // Call the gameplay functions
-    HandleEnemySpawnTime();
-    RotateAllEntities();
     if (!m_playerDead)
     {
         SpawnAllEnemies();
@@ -79,6 +77,8 @@ void ShapeShooterz::OnUpdate()
         if (Input::IsKeyPressed(Key::Space))
             Reset();
     }
+    HandleEnemySpawnTime();
+    RotateAllEntities();
 
     for (auto& e : GetAllEntities("particle"))
     {
@@ -279,15 +279,17 @@ void ShapeShooterz::HandlePowerUpActiveTime()
 
 void ShapeShooterz::RotateAllEntities()
 {
+    int rotationSpeed = 2.f;
+
     for (auto& e : GetAllEntities())
     {
         // Rotate the shape's angle
         if (e->GetTag() == "player")
-            e->GetComponent<Transform>().angle -= 1.f;
+            e->GetComponent<Transform>().angle -= rotationSpeed;
         else if (e->GetTag() == "ui" || e->GetTag() == "bg")
             e->GetComponent<Transform>().angle = 0.f;
         else
-             e->GetComponent<Transform>().angle += 1.f;
+             e->GetComponent<Transform>().angle += rotationSpeed;
 
         // If the angle goes above 360, set it back to 0
         if (e->GetComponent<Transform>().angle > 360.f)
@@ -439,8 +441,8 @@ void ShapeShooterz::SetupAndPlayAudio()
      * the start offset and then finally play the music. */
 
     std::shared_ptr<Entity> backgroundMusic = AddEntity("music");
-    backgroundMusic->AddComponent<AudioSource>(m_assets->GetMusicPath("main"));
-    backgroundMusic->GetComponent<AudioSource>().audio.SetStartOffset(16.f);
+    backgroundMusic->AddComponent<AudioSource>(Assets::defaultMusicPath);
+    backgroundMusic->GetComponent<AudioSource>().audio.SetStartOffset(0.f);
     backgroundMusic->GetComponent<AudioSource>().audio.Play();
 }
 
