@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "Relic/Core/Application.h"
+#include "Relic/Core/IO.h"
 #include "Relic/Core/KeyCodes.h"
 #include "Relic/Core/Util.h"
 #include "Relic/Entity/Components.h"
@@ -15,6 +16,7 @@
 #define MAX_ACTIVE_POWER_UP_TIME 500
 
 static char scoreFormat[32];
+static char highScoreFormat[32];
 static bool hasPowerUp = false;
 
 Relic::Application* Relic::CreateApplication()
@@ -37,7 +39,12 @@ void ShapeShooterz::OnStart()
 {
     // Log the app has started
     RL_TRACE("Playable Relic App has started!");
-    
+
+    // Set the high score 
+    if (!IO::DoesFileExist("highscores.bin"))
+        IO::WriteNumberToFile(200, "highscores.bin");   
+    m_highScore = IO::ReadNumberFromFile("highscores.bin"); 
+
     //Initialize the assets pointer
     m_assets = GetAssets();
 
@@ -45,6 +52,7 @@ void ShapeShooterz::OnStart()
     m_background = CreateBackground();
     m_player = SpawnPlayer();    
     m_scoreText = SpawnScoreText();
+    m_highScoreText = SpawnHighScoreText(); 
     m_deathText = SpawnDeathText();
     m_powerUpText = SpawnPowerUpText();
 
@@ -61,6 +69,7 @@ void ShapeShooterz::OnUpdate()
     if (!m_playerDead)
     {
         SpawnAllEnemies();
+        HandleEnemySpawnTime();
 
         HandleEnemyCollision();
         HandlePowerUpCollision();
@@ -73,11 +82,10 @@ void ShapeShooterz::OnUpdate()
         
     }
     else
-    {
+    { 
         if (Input::IsKeyPressed(Key::Space))
-            Reset();
+            Reset(); 
     }
-    HandleEnemySpawnTime();
     RotateAllEntities();
 
     for (auto& e : GetAllEntities("particle"))
@@ -121,6 +129,10 @@ void ShapeShooterz::Reset()
     // Destroy all the power ups
     for (auto& pu : GetAllEntities("power_up"))
         pu->Destroy();
+
+    // Set high score if a new record was set
+    if (m_score > m_highScore)
+        SaveHighScore(m_score);
 
     // Reset genearal variables
     hasPowerUp = false;
@@ -312,6 +324,13 @@ void ShapeShooterz::AddScore(int score)
     m_scoreText->GetComponent<Text>().text.setString(std::string(scoreFormat));    
 }
 
+void ShapeShooterz::SaveHighScore(int highScore)
+{
+    m_highScore = highScore;
+    IO::WriteNumberToFile(m_highScore, "highscores.bin");
+    sprintf(highScoreFormat, "High score: %d", m_highScore);
+    m_highScoreText->GetComponent<Text>().text.setString(std::string(highScoreFormat));
+}
 
 void ShapeShooterz::SpawnAllEnemies()
 {
@@ -441,7 +460,7 @@ void ShapeShooterz::SetupAndPlayAudio()
      * the start offset and then finally play the music. */
 
     std::shared_ptr<Entity> backgroundMusic = AddEntity("music");
-    backgroundMusic->AddComponent<AudioSource>(Assets::defaultMusicPath);
+    backgroundMusic->AddComponent<AudioSource>(m_assets->GetMusicPath("main"));
     backgroundMusic->GetComponent<AudioSource>().audio.SetStartOffset(0.f);
     backgroundMusic->GetComponent<AudioSource>().audio.Play();
 }
@@ -451,7 +470,7 @@ void ShapeShooterz::HandleEnemySpawnTime()
     // Decrease enemy spawn time
     if (m_enemySpawnTime > MIN_ENEMY_SPAWN_TIME)
     {
-        if (Application::currentFrame % DEC_ENEMY_SPAWN_TIME == 0)
+        if (Application::currentFrame % DEC_ENEMY_SPAWN_TIME == 0 && Application::currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
             m_enemySpawnTime--;
     }
 }
@@ -498,6 +517,25 @@ std::shared_ptr<Entity> ShapeShooterz::SpawnScoreText()
     entity->AddComponent<Transform>(Vector2(20.f, 20.f));
     entity->AddComponent<Text>(m_assets->GetFont("main"), scoreFormat, 36);
     
+    return entity;
+}
+
+std::shared_ptr<Entity> ShapeShooterz::SpawnHighScoreText()
+{
+    // Initialize high score format
+    RL_TRACE("{}", m_highScore);
+    sprintf(highScoreFormat, "High score: %d", m_highScore);
+
+    /* Create an entity with the tag 'ui', then add a
+     * transform and a text component. Finally return
+     * the entity */
+
+    std::shared_ptr<Entity> entity = AddEntity("ui");
+    entity->AddComponent<Text>(m_assets->GetFont("main"), highScoreFormat, 36);  
+    auto& text = entity->GetComponent<Text>().text;
+    entity->AddComponent<Transform>(Vector2(WINDOW_WIDTH - text.getGlobalBounds().width * 1.5,
+                                    text.getGlobalBounds().height));
+
     return entity;
 }
 

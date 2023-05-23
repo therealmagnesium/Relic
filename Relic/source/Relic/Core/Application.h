@@ -7,8 +7,6 @@
 #define WINDOW_WIDTH GetWindowWidth()
 #define WINDOW_HEIGHT GetWindowHeight()
 
-namespace sf { class Drawable; }
-
 namespace Relic
 {
     class Entity;

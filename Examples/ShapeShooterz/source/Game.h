@@ -50,6 +50,9 @@ private:
     // A function to update score text
     void AddScore(int score);
 
+    // A function to save the high score
+    void SaveHighScore(int highScore);
+
     // A function to spawn all the enemies
     void SpawnAllEnemies();
 
@@ -80,8 +83,11 @@ private:
     // A function to create the background
     std::shared_ptr<Entity> CreateBackground();
 
-    // A functino to spawn the score text
+    // A function to spawn the score text
     std::shared_ptr<Entity> SpawnScoreText();
+
+    // A function to spawn the high score text
+    std::shared_ptr<Entity> SpawnHighScoreText();
 
     // A function to spawn the death text
     std::shared_ptr<Entity> SpawnDeathText();
@@ -95,8 +101,9 @@ private:
     uint32_t m_shootTime = 0;
     
     int m_score = 0;
-   
-    uint32_t m_enemySpawnTime = 50;
+    int m_highScore = 0;
+
+    uint32_t m_enemySpawnTime = 45;
     int m_lastEnemySpawnTime = 0;
 
     uint32_t m_powerUpActiveTime = 0; 
@@ -106,6 +113,7 @@ private:
     
     std::shared_ptr<Entity> m_player;
     std::shared_ptr<Entity> m_scoreText;
+    std::shared_ptr<Entity> m_highScoreText; 
     std::shared_ptr<Entity> m_deathText;
     std::shared_ptr<Entity> m_powerUpText;
     std::shared_ptr<Entity> m_background;

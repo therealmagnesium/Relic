@@ -24,11 +24,11 @@ namespace Relic
 
     void Application::Init()
     {
-        LoadConfigFile("data/settings.cfg");
+        LoadConfigFile("data/preload/settings.cfg");
         m_window = std::make_shared<Window>(m_properties);
 
         m_assets = std::make_shared<Assets>();
-        LoadAssetsFile("data/assets.cfg");
+        LoadAssetsFile("data/preload/assets.cfg");
 
         m_entityManager = std::make_shared<EntityManager>();
     }

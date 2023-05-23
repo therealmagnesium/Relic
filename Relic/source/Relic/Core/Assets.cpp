@@ -6,24 +6,24 @@ namespace Relic
 {
     sf::Font Assets::defaultFont = sf::Font();
     sf::Texture Assets::defaultTexture = sf::Texture();
-    std::string Assets::defaultMusicPath = "assets/sounds/default.wav";
+    std::string Assets::defaultMusicPath = "assets/preload/sounds/default.wav";
 
     Assets::Assets()
     {
-        if (!defaultFont.loadFromFile("assets/fonts/default.ttf"))
+        if (!defaultFont.loadFromFile("assets/preload/fonts/default.ttf"))
         {
             RL_CORE_ERROR("Failed to load default font file!");
             return; 
         }
 
-        if (!defaultTexture.loadFromFile("assets/textures/default.png"))
+        if (!defaultTexture.loadFromFile("assets/preload/textures/default.png"))
         {
             RL_CORE_ERROR("Failed to load default texture file!");
             return;
         } 
    }
 
-    void Assets::AddFont(const std::string &name, const std::string &path)
+    void Assets::AddFont(const std::string& name, const std::string& path)
     {
         sf::Font font;
         if (!font.loadFromFile(path))
@@ -35,7 +35,7 @@ namespace Relic
         m_fonts[name] = font;
     }
 
-    void Assets::AddTexture(const std::string &name, const std::string &path)
+    void Assets::AddTexture(const std::string& name, const std::string& path)
     {
         sf::Texture texture;
         if (!texture.loadFromFile(path))
@@ -47,15 +47,15 @@ namespace Relic
         m_textures[name] = texture;
     }
 
-    void Assets::AddMusic(const std::string &name, const std::string &path)
+    void Assets::AddMusic(const std::string& name, const std::string& path)
     {
         m_musics[name] = path; 
     }
 
-    sf::Font& Assets::GetFont(const std::string &name)
+    sf::Font& Assets::GetFont(const std::string&name)
     { return m_fonts[name]; } 
 
-    sf::Texture& Assets::GetTexture(const std::string &name)
+    sf::Texture& Assets::GetTexture(const std::string&name)
     { return m_textures[name]; }
 
     std::string& Assets::GetMusicPath(const std::string& name)
