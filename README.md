@@ -12,7 +12,9 @@ Magnus Ahlstromer V (mahlstromerv@gmail.com)
     2) cd Relic
     3) chmod +x build.sh
     4) ./build.sh windows (config)
-    5) open bin folder and run some example apps!
+    5) copy assets and data folder from Example projects to the folder with the executable
+    6) copy dlls in vendor/windows/bin to folder with executable
+    7) run some example apps from the bin folder!
     + config:
         - debug
         - release
@@ -22,8 +24,9 @@ Magnus Ahlstromer V (mahlstromerv@gmail.com)
     1) git clone --recursive git@github.com:therealmagnesium/Relic.git
     2) cd Relic
     3) chmod +x build.sh vendor/linux/premake5
-    4) ./build.sh linux (config)
-    5) open bin folder and run some example apps!
+    4) ./build.sh linux (config) 
+    5) copy assets and data folder from Example projects to the folder with the executable
+    6) open bin folder and run some example apps!
     + config:
         - debug
         - release
