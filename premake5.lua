@@ -5,5 +5,5 @@ workspace "RelicWorkspace"
 outputdir = "%{cfg.buildcfg}-%{cfg.system}"
 
 include "Relic"
-include "Examples/Logging"
+include "Examples/Basic"
 include "Examples/ShapeShooterz"

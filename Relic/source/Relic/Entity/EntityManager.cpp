@@ -1,8 +1,12 @@
 #include "pch.h"
+#include "Entity.h"
 #include "EntityManager.h"
 
 namespace Relic
 {
+    typedef std::vector<std::shared_ptr<Entity>> EntityVec;
+    typedef std::unordered_map<std::string, std::vector<std::shared_ptr<Entity>>> EntityMap;
+
     EntityManager::EntityManager()
     {
 
@@ -26,13 +30,13 @@ namespace Relic
     {
         for (auto& e : m_entities)
         {
-            e->GetComponent<Shape>().circle.setPosition(e->GetX(), e->GetY());
-            e->GetComponent<Shape>().circle.setRotation(e->GetAngle());
+            e->GetComponent<Shape>().shape.SetPosition(e->GetX(), e->GetY());
+            e->GetComponent<Shape>().shape.SetRotation(e->GetAngle());
 
             e->GetComponent<SpriteRenderer>().sprite.SetPosition(e->GetX(), e->GetY());
             e->GetComponent<SpriteRenderer>().sprite.SetRotation(e->GetAngle());
 
-            e->GetComponent<Text>().text.setPosition(e->GetX(), e->GetY());
+            e->GetComponent<Text>().text.SetPosition(e->GetX(), e->GetY());
         }
     }
 

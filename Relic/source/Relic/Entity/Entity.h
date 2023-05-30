@@ -1,17 +1,9 @@
 #pragma once
 #include "Components.h"
+#include "Vector2.h"
 
 namespace Relic
 {
-    typedef std::tuple<
-        Transform,
-        Shape,
-        Collision,
-        Lifetime,
-        Text,
-        SpriteRenderer,
-        AudioSource> ComponentTuple;
-
     class Entity
     {
     public:
@@ -39,28 +31,27 @@ namespace Relic
         void Move(float dx, float dy);
         void Destroy();
 
-        inline float GetX() { return GetComponent<Transform>().position.x; }
-        inline float GetY() { return GetComponent<Transform>().position.y; }
-        inline Vector2 GetPosition() { return GetComponent<Transform>().position; }
+        float GetX(); 
+        float GetY(); 
+        Vector2& GetPosition(); 
+        float GetXVel(); 
+        float GetYVel();
+        Vector2& GetVel(); 
+        float GetAngle(); 
 
-        inline float GetXVel() { return GetComponent<Transform>().velocity.x; }
-        inline float GetYVel() { return GetComponent<Transform>().velocity.y; }
-        inline Vector2 GetVel() { return GetComponent<Transform>().velocity; }
-        
-        inline float GetAngle() { return GetComponent<Transform>().angle; }
-        inline float GetRadius() { return GetComponent<Shape>().circle.getRadius(); }
-        inline float GetCollisionRadius() { return GetComponent<Collision>().radius; }
+        float GetRadius();
+        int GetPointCount(); 
+        uint32_t GetFillColor(); 
+        uint32_t GetBorderColor(); 
 
-        inline int GetPointCount() { return GetComponent<Shape>().circle.getPointCount(); }
-        inline uint32_t GetFillColor() { return GetComponent<Shape>().circle.getFillColor().toInteger(); }
-        inline uint32_t GetBorderColor() { return GetComponent<Shape>().circle.getOutlineColor().toInteger(); }
+        float GetCollisionRadius();
 
-        inline int GetLifetime() { return GetComponent<Lifetime>().lifetime; }
+        int GetLifetime(); 
 
-        inline bool IsActive() const { return m_active; };
-        inline bool IsEnabled() const { return m_enabled; }
-        inline size_t GetId() const { return m_id; };
-        inline const std::string& GetTag() const { return m_tag; };
+        bool IsActive() const { return m_active; };
+        bool IsEnabled() const { return m_enabled; }
+        size_t GetId() const { return m_id; };
+        const std::string& GetTag() const { return m_tag; };
 
         inline void SetActive(bool active) { m_active = active; }
         inline void Enable() { m_enabled = true; }
@@ -77,6 +68,13 @@ namespace Relic
         size_t m_id = 0;
         std::string m_tag = "default";
 
-        ComponentTuple m_components;
+        std::tuple<
+        Transform,
+        Shape,
+        Collision,
+        Lifetime,
+        Text,
+        SpriteRenderer,
+        AudioSource> m_components;
     };
 }

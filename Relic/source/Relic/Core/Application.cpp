@@ -1,15 +1,18 @@
-#include "Entity/Components.h"
 #include "pch.h"
 #include "Application.h"
 #include "Log.h"
-#include "Entity/EntityManager.h"
+#include "Scene.h"
+#include "Window.h"
+
+#include "Relic/Entity/Components.h"
+#include "Relic/Entity/Entity.h"
+#include "Relic/Entity/EntityManager.h"
 
 #include <fstream>
 #include <SFML/Graphics.hpp>
 
 namespace Relic
 {
-    int Application::currentFrame = 0;
     int Application::frameLimit = 60;
 
     Application::Application()
@@ -27,10 +30,8 @@ namespace Relic
         LoadConfigFile("data/preload/settings.cfg");
         m_window = std::make_shared<Window>(m_properties);
 
-        m_assets = std::make_shared<Assets>();
+        m_assets = std::make_shared<Assets>(); 
         LoadAssetsFile("data/preload/assets.cfg");
-
-        m_entityManager = std::make_shared<EntityManager>();
     }
 
     void Application::LoadAssetsFile(const std::string& path)
@@ -91,6 +92,9 @@ namespace Relic
             
             if (temp == "FPS")
                 in >> frameLimit;
+       
+            if (temp == "StartScene")
+                in >> m_currentScene;
         }
 
         RL_CORE_TRACE("Application properties: {}, {}, {}", m_properties.title, m_properties.width, m_properties.height);
@@ -106,71 +110,60 @@ namespace Relic
     {        
         while (!m_window->ShouldClose())
         {
-            m_entityManager->Update();
+            m_scenes[m_currentScene]->UpdateEntityManager();
 
             m_window->HandleEvents();
-            OnUpdate();
-            currentFrame++;
+            m_scenes[m_currentScene]->OnUpdate(); 
 
-            m_entityManager->CullEntities(WINDOW_WIDTH, WINDOW_HEIGHT); 
-            m_entityManager->HandleComponents();
+            m_scenes[m_currentScene]->CullEntities(GetWindowWidth(), GetWindowHeight());
+            m_scenes[m_currentScene]->HandleComponents();
 
             m_window->Clear(0x0A0A0AFF);
             Render();
             m_window->Display();
-
         }
+    }
+
+    void Application::ChangeScene(const std::string& name, std::shared_ptr<Scene> newScene, bool onEnd)
+    { 
+        if (onEnd)
+            m_scenes[m_currentScene]->OnEnd();
+
+        m_currentScene = name;
+        m_scenes[m_currentScene] = newScene;
     }
 
     void Application::Render()
     {
-        for (auto& e : GetAllEntities())
+        for (auto& e : m_scenes[m_currentScene]->GetEntityManager().GetEntities())
         { 
-            if (e->IsInRenderView(WINDOW_WIDTH, WINDOW_HEIGHT) && e->IsEnabled())
+            if (e->IsInRenderView(GetWindowWidth(), GetWindowHeight()) && e->IsEnabled())
             {
                 if (e->HasComponent<Text>())
-                    Draw(e->GetComponent<Text>().text);
+                    m_window->Draw(e->GetComponent<Text>().text);
                 
                 if (e->HasComponent<Shape>())
-                    Draw(e->GetComponent<Shape>().circle);
+                    m_window->Draw(e->GetComponent<Shape>().shape);
 
                 if (e->HasComponent<SpriteRenderer>())
-                    Draw(e->GetComponent<SpriteRenderer>().sprite);
-
+                    m_window->Draw(e->GetComponent<SpriteRenderer>().sprite);
             }
         }
     }
 
     void Application::Close() 
-        { m_window->EnableShouldClose(); }
-    
-    void Application::Constrain(std::shared_ptr<Entity> entity, float x, float y)
-    {
-        if (entity->GetComponent<Transform>().position.x < entity->GetRadius()) 
-            entity->GetComponent<Transform>().position.x = entity->GetRadius();
-        if (entity->GetComponent<Transform>().position.x + entity->GetRadius() > x)
-            entity->GetComponent<Transform>().position.x = x - entity->GetRadius();
+    { m_window->EnableShouldClose(); }  
 
-        if (entity->GetComponent<Transform>().position.y < entity->GetRadius())
-            entity->GetComponent<Transform>().position.y = entity->GetRadius();
-        if (entity->GetComponent<Transform>().position.y + entity->GetRadius() > y)
-            entity->GetComponent<Transform>().position.y = y - entity->GetRadius();
-    }
+    uint32_t Application::GetWindowWidth() const
+    { return m_window->GetWidth(); }
 
-    bool Application::IsInWindow(std::shared_ptr<Entity> entity)
-    {
-        return (entity->GetX() + entity->GetRadius() >= 0.f && entity->GetX() - entity->GetRadius() < WINDOW_WIDTH && 
-            entity->GetY() + entity->GetRadius() >= 0.f && entity->GetY() - entity->GetRadius() < WINDOW_HEIGHT);
-    }
+    uint32_t Application::GetWindowHeight() const
+    { return m_window->GetHeight(); } 
 
-    void Application::Draw(const sf::Drawable& drawable) { m_window->Draw(drawable); }
+    const std::string& Application::GetTitle() const
+    { return m_window->GetTitle(); }    
 
-    EntityVec& Application::GetAllEntities() 
-        { return m_entityManager->GetEntities(); }
-    
-    EntityVec& Application::GetAllEntities(const std::string& tag) 
-        { return m_entityManager->GetEntities(tag); }
-    
-    std::shared_ptr<Entity> Application::AddEntity(const std::string& tag) 
-        { return m_entityManager->AddEntity(tag); }
+    RenderWindow& Application::GetNativeWindow() const
+    { return *m_window->GetHandle(); }
+
 }

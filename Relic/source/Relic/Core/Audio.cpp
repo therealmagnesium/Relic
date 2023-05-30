@@ -21,4 +21,7 @@ namespace Relic
 
     void Audio::Play()
         { m_music->play(); }
+
+    void Audio::Stop()
+        { m_music->stop(); }
 }

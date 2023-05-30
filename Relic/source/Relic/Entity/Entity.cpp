@@ -45,4 +45,43 @@ namespace Relic
        RL_CORE_WARN("Entity destroyed [{}, {}]", m_id, m_tag); 
        m_active = false;
     }
+
+    float Entity::GetX()
+    { return GetComponent<Transform>().position.x; }
+
+    float Entity::GetY()
+    { return GetComponent<Transform>().position.y; }
+
+    Vector2& Entity::GetPosition()
+    { return GetComponent<Transform>().position; }
+ 
+    float Entity::GetXVel()
+    { return GetComponent<Transform>().velocity.x; }
+
+    float Entity::GetYVel()
+    { return GetComponent<Transform>().velocity.y; }
+
+    Vector2& Entity::GetVel()
+    { return GetComponent<Transform>().velocity; }
+ 
+    float Entity::GetAngle()
+    { return GetComponent<Transform>().angle; }
+
+    float Entity::GetRadius()
+    { return GetComponent<Shape>().shape.GetRadius(); }
+
+    int Entity::GetPointCount()
+    { return GetComponent<Shape>().shape.GetPointCount(); }
+
+    uint32_t Entity::GetFillColor()
+    { return GetComponent<Shape>().shape.GetFillColor(); }
+
+    uint32_t Entity::GetBorderColor()
+    { return GetComponent<Shape>().shape.GetOutlineColor(); }
+
+    float Entity::GetCollisionRadius()
+    { return GetComponent<Collision>().radius; }
+
+    int Entity::GetLifetime()
+    { return GetComponent<Lifetime>().lifetime; }
 }

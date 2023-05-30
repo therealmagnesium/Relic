@@ -14,11 +14,11 @@ namespace Relic
         static bool IsMouseButtonPressed(uint8_t button);
         static float GetMouseX();                               // Pixel mouse x coordinate
         static float GetMouseY();                               // Pixel mouse y coordinate
-        static float GetMouseX(const sf::RenderWindow& window);       // World mouse x coordinate
-        static float GetMouseY(const sf::RenderWindow& window);       // World mouse y coordinate
+        static float GetMouseX(const RenderWindow& window);       // World mouse x coordinate
+        static float GetMouseY(const RenderWindow& window);       // World mouse y coordinate
 
 
         static Vector2 GetMousePosition();
-        static Vector2 GetMousePosition(const sf::RenderWindow& window);
+        static Vector2 GetMousePosition(const RenderWindow& window);
     };
 }

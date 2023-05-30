@@ -1,17 +1,11 @@
 #pragma once
-#include <SFML/Graphics/Drawable.hpp>
-#include <SFML/Graphics/RenderWindow.hpp>
-#include <SFML/Window/WindowStyle.hpp>
+#include <string>
+#include <memory>
 
 namespace Relic
 {
-    enum WindowStyle
-    {
-        None = sf::Style::None,
-        Unresizable = sf::Style::Close | sf::Style::Titlebar,
-        Default = sf::Style::Default,
-        Fullscreen = sf::Style::Fullscreen       
-    };
+    struct Drawable;
+    struct RenderWindow;
 
     struct WindowData
     {
@@ -38,15 +32,15 @@ namespace Relic
         inline uint32_t GetWidth() const { return m_data.width; }
         inline uint32_t GetHeight() const { return m_data.height; }
         inline bool ShouldClose() const { return m_data.shouldClose; }
-        inline sf::RenderWindow* GetHandle() const { return m_windowHandle; }
+        std::shared_ptr<RenderWindow> GetHandle() const; 
 
         inline void EnableShouldClose() { m_data.shouldClose = true; }
 
-        void Draw(const sf::Drawable& drawable);
+        void Draw(const Drawable& drawable);
         void Close();
 
     private:
         WindowData m_data;
-        sf::RenderWindow* m_windowHandle;
+        std::shared_ptr<RenderWindow> m_windowHandle;
     };
 }

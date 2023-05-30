@@ -1,11 +1,14 @@
-#include "Application.h"
 #include "pch.h"
 #include "Input.h"
+#include "Graphics.h"
 #include "Util.h"
 
+#include <SFML/Window/Mouse.hpp>
+#include <SFML/Window/Keyboard.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 
 static bool repeat = false;
+
 namespace Relic
 {
     bool Input::IsKeyPressed(int16_t key) 
@@ -32,17 +35,17 @@ namespace Relic
     float Input::GetMouseY()
         { return sf::Mouse::getPosition().y; }
 
-    float Input::GetMouseX(const sf::RenderWindow& window)
+    float Input::GetMouseX(const RenderWindow& window)
     {
-        float pixelX = sf::Mouse::getPosition(window).x;
-        float worldCordsX = window.mapPixelToCoords(sf::Vector2i(pixelX, 0)).x;
+        float pixelX = sf::Mouse::getPosition(*window.handle).x;
+        float worldCordsX = window.handle->mapPixelToCoords(sf::Vector2i(pixelX, 0)).x;
         return worldCordsX;
     }
 
-    float Input::GetMouseY(const sf::RenderWindow& window)
+    float Input::GetMouseY(const RenderWindow& window)
     { 
-        float pixelY = sf::Mouse::getPosition(window).y;
-        float worldCordsY = window.mapPixelToCoords(sf::Vector2i(0, pixelY)).y;
+        float pixelY = sf::Mouse::getPosition(*window.handle).y;
+        float worldCordsY = window.handle->mapPixelToCoords(sf::Vector2i(0, pixelY)).y;
         return worldCordsY;
     }
 
@@ -50,10 +53,10 @@ namespace Relic
     Vector2 Input::GetMousePosition()
         { return Vector2(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y); }
 
-    Vector2 Input::GetMousePosition(const sf::RenderWindow& window)
+    Vector2 Input::GetMousePosition(const RenderWindow& window)
     { 
-        Vector2 pixelPos = Vector2(sf::Mouse::getPosition(window).x, sf::Mouse::getPosition(window).y);
-        auto worldCoords = window.mapPixelToCoords(sf::Vector2i(pixelPos.x, pixelPos.y));
+        Vector2 pixelPos = Vector2(sf::Mouse::getPosition(*window.handle).x, sf::Mouse::getPosition(*window.handle).y);
+        auto worldCoords = window.handle->mapPixelToCoords(sf::Vector2i(pixelPos.x, pixelPos.y));
         return Vector2(worldCoords.x, worldCoords.y);
     }
 }

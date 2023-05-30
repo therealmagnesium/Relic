@@ -1,6 +1,6 @@
 #pragma once
-#include "Relic/Entity/Entity.h"
 #include "Relic/Entity/Vector2.h"
+#include <cstdint>
 
 namespace Relic
 {

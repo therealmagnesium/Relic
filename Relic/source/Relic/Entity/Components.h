@@ -1,13 +1,10 @@
 #pragma once
-#include "Sprite.h"
+#include "Drawables.h"
 #include "Vector2.h"
 #include "Relic/Core/Assets.h"
 #include "Relic/Core/Audio.h"
-#include "Relic/Core/Log.h"
 
 #include <memory>
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
 
 namespace Relic
 {
@@ -26,16 +23,15 @@ namespace Relic
     struct Shape
     {
         bool has = false;
-        sf::CircleShape circle;
+        Polygon shape;
 
-        Shape(float radius = 32.f, int points = 4, uint32_t fill = 0x00FF00FF, uint32_t outline = 0x00FF00FF, float thickness = 4.f) :
-            circle(radius, points)
+       Shape(float radius = 32.f, int points = 4, uint32_t fill = 0xF1FAEEFF, uint32_t outline = 0xE63946FF, float thickness = 4.f) :
+            shape(radius, points) 
         {
-            circle.setFillColor(sf::Color(fill));
-            circle.setOutlineColor(sf::Color(outline));
-            circle.setOutlineThickness(thickness);
-            circle.setOrigin(radius, radius);
-        } 
+            shape.SetFillColor(fill);
+            shape.SetOutlineColor(outline);
+            shape.SetStrokeThickness(thickness); 
+        }
     };
 
     struct Collision
@@ -59,19 +55,19 @@ namespace Relic
     struct Text
     {
         bool has = false;
-        sf::Text text;
+        TextDrawable text;
 
-        Text(const sf::Font& font = Assets::defaultFont, const std::string& msg = "default", uint8_t fontSize = 24, uint32_t color = 0xFFFFFFFF) :
-            text(msg, font, fontSize) 
-            { text.setFillColor(sf::Color(color)); }
+        Text(const Font& font = Assets::defaultFont, const std::string& msg = "default", uint8_t fontSize = 24, uint32_t color = 0xFFFFFFFF) :
+            text(font, msg, fontSize) 
+            { text.SetFillColor(color); }
     };
 
     struct SpriteRenderer
     {
         bool has = false;       
         Sprite sprite; 
-
-        SpriteRenderer(const sf::Texture& texture = Assets::defaultTexture, 
+ 
+        SpriteRenderer(const Texture& texture = Assets::defaultTexture, 
                         const Vector2& pos = Vector2(), const Vector2& scale = Vector2(1.f, 1.f), 
                         float angle = 0.f) :
             sprite(texture, pos.x, pos.y, angle) 
@@ -83,7 +79,7 @@ namespace Relic
         bool has = false;
         Audio audio; 
 
-        AudioSource(const std::string& path = "assets/sounds/default.ogg") :
+        AudioSource(const std::string& path = Assets::defaultMusicPath) :
             audio(path) {}
     };
 }

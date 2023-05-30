@@ -1,11 +1,11 @@
 #pragma once
-#include "Entity.h"
+#include <vector>
+#include <memory>
 #include <unordered_map>
 
 namespace Relic
 {
-    typedef std::vector<std::shared_ptr<Entity>> EntityVec;
-    typedef std::unordered_map<std::string, std::vector<std::shared_ptr<Entity>>> EntityMap;
+    class Entity;
 
     class EntityManager
     {
@@ -15,16 +15,16 @@ namespace Relic
         void CullEntities(uint32_t renderWidth, uint32_t renderHeight);
         void HandleComponents();
         void Update();
-        void RemoveInactiveEntities(EntityVec& entityVec);
+        void RemoveInactiveEntities(std::vector<std::shared_ptr<Entity>>& entityVec);
 
-        EntityVec& GetEntities();
-        EntityVec& GetEntities(const std::string& tag);
+        std::vector<std::shared_ptr<Entity>>& GetEntities();
+        std::vector<std::shared_ptr<Entity>>& GetEntities(const std::string& tag);
         
         std::shared_ptr<Entity> AddEntity(const std::string& tag);
     private:
-        EntityVec m_entities;
-        EntityVec m_entitiesToAdd;
-        EntityMap m_entityMap;
+        std::vector<std::shared_ptr<Entity>> m_entities;
+        std::vector<std::shared_ptr<Entity>> m_entitiesToAdd;
+        std::unordered_map<std::string, std::vector<std::shared_ptr<Entity>>> m_entityMap;
         size_t m_totalEntities = 0;
     };
 }

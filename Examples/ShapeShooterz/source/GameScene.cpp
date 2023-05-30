@@ -1,0 +1,572 @@
+#include "GameScene.h"
+#include "MainMenuScene.h"
+
+#define ENEMY_POS_OFFSET 200
+#define MIN_ENEMY_SPAWN_TIME 20
+#define DEC_ENEMY_SPAWN_TIME 500
+#define POWER_UP_SPAWN_TIME 1500
+#define MAX_ACTIVE_POWER_UP_TIME 500
+
+static char scoreFormat[32];
+static char highScoreFormat[32];
+static bool hasPowerUp = false;
+
+GameScene::GameScene(Application* app) :
+    Scene(app)
+{
+    srand(time(NULL));
+
+    // Log the app has started
+    RL_TRACE("Playable Relic App has started!");
+
+    // Set the high score 
+    if (!IO::DoesFileExist("highscores.bin"))
+        IO::WriteNumberToFile(0, "highscores.bin");   
+    m_highScore = IO::ReadNumberFromFile("highscores.bin"); 
+
+    //Initialize the assets pointer
+    m_assets = m_app->GetAssets();
+
+    // Initialize the entities
+    CreateBackground();
+    m_player = SpawnPlayer();    
+    m_scoreText = SpawnScoreText();
+    m_highScoreText = SpawnHighScoreText(); 
+    m_deathText = SpawnDeathText();
+    m_powerUpText = SpawnPowerUpText();
+    m_backgroundMusic = SetupAndPlayAudio();
+}
+
+void GameScene::OnUpdate()
+{
+    // If ESC is pressed, close the game
+    if (Input::IsKeyPressed(Key::Escape))
+        m_app->Close();
+
+    if (Input::IsKeyPressed(Key::Num1))
+        m_app->ChangeScene("main_menu", std::make_shared<MainMenuScene>(m_app), true);
+
+    // Call the gameplay functions
+    if (!m_playerDead)
+    {
+        SpawnAllEnemies();
+        HandleEnemySpawnTime();
+
+        HandleEnemyCollision();
+        HandlePowerUpCollision();
+        
+        HandleShooting();
+        HandlePlayerMovement();
+ 
+        SpawnAllPowerUps();
+        HandlePowerUpActiveTime();
+        
+    }
+    else
+    { 
+        if (Input::IsKeyPressed(Key::Space))
+            Reset(); 
+    }
+    RotateAllEntities();
+
+    for (auto& e : m_entityManager.GetEntities("particle"))
+    {
+        // Destroy particles if needed
+        if (e->GetComponent<Lifetime>().lifetime == 0)
+            e->Destroy(); 
+   
+        // Set the fill and border color for the particles
+        uint32_t fillColor = e->GetComponent<Shape>().shape.GetFillColor();
+        uint32_t borderColor = e->GetComponent<Shape>().shape.GetOutlineColor();
+
+        // Give the particles transparent effect
+        e->GetComponent<Shape>().shape.SetFillColor(ReplaceByte(fillColor, 0, e->GetComponent<Lifetime>().lifetime));
+        e->GetComponent<Shape>().shape.SetOutlineColor(ReplaceByte(borderColor, 0, e->GetComponent<Lifetime>().lifetime));
+    }
+
+    // Move the entities based on their velocity and update their lifetime
+    for (auto& e : m_entityManager.GetEntities())
+    {
+        e->Move(e->GetXVel(), e->GetYVel());
+
+        if (e->HasComponent<Lifetime>())
+            if (e->GetComponent<Lifetime>().lifetime > 0)
+                e->GetComponent<Lifetime>().lifetime--;
+    }
+
+    ConstrainPlayer();
+
+    m_currentFrame++;
+}
+
+void GameScene::OnEnd()
+{
+    RL_INFO("Ending scene [{}]", m_app->GetCurrentScene());
+    m_backgroundMusic->GetComponent<AudioSource>().audio.Stop(); 
+}
+
+void GameScene::Reset()
+{
+    // Destroy all the current enemies
+    for (auto& entity : m_entityManager.GetEntities("enemy"))
+    {
+        entity->Destroy();
+        SpawnParticles(entity->GetPointCount(), entity);  
+    }
+
+    // Destroy all the power ups
+    for (auto& pu : m_entityManager.GetEntities("power_up"))
+        pu->Destroy();
+
+    // Set high score if a new record was set
+    if (m_score > m_highScore)
+        SaveHighScore(m_score);
+
+    // Reset genearal variables
+    hasPowerUp = false;
+    m_score = 0;
+    m_lastPowerUpSpawnTime = m_currentFrame;
+    m_lastEnemySpawnTime = m_currentFrame;
+    m_powerUpActiveTime = 0;
+    m_enemySpawnTime = 50;
+ 
+    // Reset ui
+    sprintf(scoreFormat, "Score: %d", m_score);
+    m_scoreText->GetComponent<Text>().text.SetMessage(scoreFormat);
+    m_deathText->Disable(); 
+    m_powerUpText->Disable();
+
+    // Reset player related variables 
+    m_player = SpawnPlayer(); 
+    m_playerDead = false;
+    m_shootTime = 0;
+    m_maxShootTime = 16;
+}
+
+void GameScene::ConstrainPlayer()
+{ 
+    // Restrict the player from moving out ouf bounds 
+    if (m_player->GetX() < m_player->GetRadius())
+        m_player->GetComponent<Transform>().position.x = m_player->GetRadius();
+    if (m_player->GetX() + m_player->GetRadius() > m_app->GetWindowWidth())
+        m_player->GetComponent<Transform>().position.x = m_app->GetWindowWidth() - m_player->GetRadius(); 
+
+    if (m_player->GetY() < m_player->GetRadius())
+        m_player->GetComponent<Transform>().position.y = m_player->GetRadius();
+    if (m_player->GetY() + m_player->GetRadius() > m_app->GetWindowHeight())
+        m_player->GetComponent<Transform>().position.y = m_app->GetWindowHeight() - m_player->GetRadius();
+}
+
+void GameScene::HandlePlayerMovement()
+{
+    static float playerAccel = 1.f;
+    static float maxPlayerSpeed = 8.f;
+
+    // Get a direction on both axis to be multiplied by accelereation
+    Vector2 input = Vector2(Input::GetAxis("horizontal"), Input::GetAxis("vertical"));
+    float inputDist = GetMagnitude(input);
+    if (inputDist > 0.f)
+        input = input / inputDist;
+
+    // Update the player's velocity
+    m_player->GetComponent<Transform>().velocity.x += (playerAccel * input.x);
+    m_player->GetComponent<Transform>().velocity.y += (playerAccel * input.y);
+
+    // If the user isn't pressing any horizontal input keys, slow the player down on the x axis
+    if (!Input::IsKeyPressed(Key::A) && !Input::IsKeyPressed(Key::D))
+    {
+        if (m_player->GetXVel() > 0.f)
+            m_player->GetComponent<Transform>().velocity.x -= playerAccel;
+        else if (m_player->GetXVel() < 0.f)
+            m_player->GetComponent<Transform>().velocity.x += playerAccel;
+    }
+        
+    // If the user isn't pressing any vertical input keys, slow the player down on the y axis
+    if (!Input::IsKeyPressed(Key::W) && !Input::IsKeyPressed(Key::S))
+    {
+        if (m_player->GetYVel() > 0.f)
+            m_player->GetComponent<Transform>().velocity.y -= playerAccel;
+        else if (m_player->GetYVel() < 0.f)
+            m_player->GetComponent<Transform>().velocity.y += playerAccel; 
+    }
+
+    // Cap the player's X velocity
+    if (abs(m_player->GetXVel()) > maxPlayerSpeed)
+        m_player->GetComponent<Transform>().velocity.x = (m_player->GetXVel() > 0.f)
+                                        ? maxPlayerSpeed : -maxPlayerSpeed;
+    
+    // Cap the player's Y velocity
+    if (abs(m_player->GetYVel()) > maxPlayerSpeed)
+        m_player->GetComponent<Transform>().velocity.y = (m_player->GetYVel() > 0.f) 
+                                        ? maxPlayerSpeed : -maxPlayerSpeed;
+}
+
+void GameScene::HandleShooting()
+{
+    // Update shoot timer
+    if (m_shootTime < m_maxShootTime)
+        m_shootTime++;
+
+    // If the user clicks, spawn a bullet
+    if (Input::IsMouseButtonPressed(0) && m_shootTime >= m_maxShootTime)
+    {
+        SpawnBullet(m_player, Vector2(), "player_bullet");
+        m_shootTime = 0;
+    }
+}
+
+void GameScene::HandleEnemyCollision()
+{
+    // If the player's bullets collide with an enemy...
+    for (auto& b : m_entityManager.GetEntities("player_bullet"))
+    {
+        for (auto& e : m_entityManager.GetEntities("enemy"))
+        {
+            if (GetDistance(b->GetPosition(), e->GetPosition()) <= b->GetCollisionRadius() + e->GetCollisionRadius())
+            {
+                AddScore(e->GetComponent<Shape>().shape.GetPointCount());
+                SpawnParticles(e->GetPointCount(), e);
+                b->Destroy();
+                e->Destroy();
+            }
+        }
+
+        // If bullets are not in render view, destroy them
+        if (!b->IsInRenderView(m_app->GetWindowWidth(), m_app->GetWindowHeight()))
+            b->Destroy();
+    }
+
+    // If an enemy collides with the player
+    for (auto& e: m_entityManager.GetEntities("enemy"))
+    {
+        if (!m_playerDead && GetDistance(e->GetPosition(), m_player->GetPosition()) <= e->GetCollisionRadius() + m_player->GetCollisionRadius())
+        {
+            e->Destroy();
+            m_player->Destroy();
+            m_playerDead = true;
+            m_deathText->Enable();
+        }
+
+        // If enemies are not in render view and their lifetime is 0, then destroy them
+        if (!e->IsInRenderView(m_app->GetWindowWidth(), m_app->GetWindowHeight()) && e->GetLifetime() == 0.f)
+            e->Destroy();
+    }
+}
+
+void GameScene::HandlePowerUpCollision()
+{
+    // Handle when the player collides with a power up
+    for (auto& pu : m_entityManager.GetEntities("power_up"))
+    {
+        if (GetDistance(pu->GetPosition(), m_player->GetPosition()) <= pu->GetCollisionRadius() + m_player->GetCollisionRadius()) 
+        {
+            pu->Destroy();
+            m_maxShootTime = 8; 
+            hasPowerUp = true;
+        }
+    }
+}
+
+void GameScene::HandlePowerUpActiveTime()
+{
+    /* Handle the power up text showing and
+     * handle how long the player's power up is
+     * active */
+
+    if (hasPowerUp)
+    {
+        m_powerUpText->Enable();
+
+        if (m_powerUpActiveTime < MAX_ACTIVE_POWER_UP_TIME)
+            m_powerUpActiveTime++;
+
+        if (m_powerUpActiveTime >= MAX_ACTIVE_POWER_UP_TIME)
+        {
+            m_powerUpActiveTime = 0;
+            m_maxShootTime = 16;
+            hasPowerUp = false;
+        }
+    }
+    else
+        m_powerUpText->Disable();
+}
+
+void GameScene::RotateAllEntities()
+{
+    int rotationSpeed = 2.f;
+
+    for (auto& e : m_entityManager.GetEntities())
+    {
+        // Rotate the shape's angle
+        if (e->GetTag() == "player")
+            e->GetComponent<Transform>().angle -= rotationSpeed;
+        else if (e->GetTag() == "ui" || e->GetTag() == "bg")
+            e->GetComponent<Transform>().angle = 0.f;
+        else
+             e->GetComponent<Transform>().angle += rotationSpeed;
+
+        // If the angle goes above 360, set it back to 0
+        if (e->GetComponent<Transform>().angle > 360.f)
+            e->GetComponent<Transform>().angle = 0.f;
+        
+        // If the angle goes below 0, set it back to 360
+        if (e->GetComponent<Transform>().angle < 0.f)
+            e->GetComponent<Transform>().angle = 360.f; 
+    }
+}
+
+void GameScene::AddScore(int score)
+{
+    /* Increment the score, then set the 
+     * score format, and then set the 
+     * score text's text to be the score format */
+
+    m_score += score;
+    sprintf(scoreFormat, "Score: %d", m_score);
+    m_scoreText->GetComponent<Text>().text.SetMessage(std::string(scoreFormat));    
+}
+
+void GameScene::SaveHighScore(int highScore)
+{
+    m_highScore = highScore;
+    IO::WriteNumberToFile(m_highScore, "highscores.bin");
+    sprintf(highScoreFormat, "High score: %d", m_highScore);
+    m_highScoreText->GetComponent<Text>().text.SetMessage(std::string(highScoreFormat));
+}
+
+void GameScene::SpawnAllEnemies()
+{
+    RL_TRACE("[DEBUG] {} - {} = {}", m_currentFrame, m_lastEnemySpawnTime, m_enemySpawnTime);
+
+    // Spawn an enemy over m_enemySpawnTime
+    if (m_currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
+        SpawnEnemy();
+}
+
+void GameScene::SpawnAllPowerUps()
+{
+    // Spawn a power up over POWER_UP_SPAWN_TIME
+    if (m_currentFrame - m_lastPowerUpSpawnTime == POWER_UP_SPAWN_TIME)
+        SpawnPowerUp();
+}
+
+void GameScene::SpawnEnemy()
+{
+    /* Create an enemy and give it a tag of 'enemy',
+     * then get random values for the x and y position,
+     * and the amount of points. Then get random
+     * color values, after that set the components
+     * for the enemy. Then set the last enemy spawn
+     * time to the current frame. */
+
+    std::shared_ptr<Entity> entity = m_entityManager.AddEntity("enemy");
+
+    Vector2 randPos = Vector2(rand() % m_app->GetWindowWidth(), rand() % m_app->GetWindowHeight());
+    int points = rand() % 4 + 4;
+
+    uint8_t r = rand() % 0xFF + 0x80;
+    uint8_t g = rand() % 0xFF + 0x80;
+    uint8_t b = rand() % 0xFF + 0x80;
+    uint32_t color = 0xFF | (b << 8) | (g << 16) | (r << 24);
+
+    if (randPos.x < m_player->GetX())
+        randPos.x -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+    else if (randPos.x > m_player->GetX())
+        randPos.x += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+
+    if (randPos.y < m_player->GetY())
+        randPos.y -= rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+    else if (randPos.y > m_player->GetY())
+        randPos.y += rand() % ENEMY_POS_OFFSET + ENEMY_POS_OFFSET;
+
+    Vector2 velocity = m_player->GetPosition() - randPos;
+    Vector2 normalizedVel = Normalize(velocity);
+
+    entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points), 0.f);
+    entity->AddComponent<Shape>(32.f, points, color, 0xFFFFFFFF, 4.f);
+    entity->AddComponent<Collision>(32.f);
+    entity->AddComponent<Lifetime>(100);
+
+    entity->GetComponent<Shape>().shape.SetOrigin(entity->GetRadius(), entity->GetRadius());
+
+    m_lastEnemySpawnTime = m_currentFrame;
+}
+
+void GameScene::SpawnPowerUp()
+{
+    /* Genearate a random position, then create an entity
+     * with a transform and sprite renderer component. Then
+     * set the properties for the sprite and
+     * then we can set the last power up spawn time. */
+
+    Vector2 position = Vector2(rand() % m_app->GetWindowWidth(), rand() % m_app->GetWindowHeight());
+
+    std::shared_ptr<Entity> powerup = m_entityManager.AddEntity("power_up");
+    powerup->AddComponent<Transform>(position);
+    powerup->AddComponent<SpriteRenderer>(m_assets->GetTexture("power_up"), position);  
+     
+    auto& sr = powerup->GetComponent<SpriteRenderer>();
+    
+    Vector2 origin = Vector2(sr.sprite.GetSize().x / 2, sr.sprite.GetSize().y / 2);
+    sr.sprite.SetOrigin(origin.x, origin.y);
+    sr.sprite.SetScale(4.f, 4.f);
+
+    m_lastPowerUpSpawnTime = m_currentFrame;
+}
+
+void GameScene::SpawnParticles(int count, std::shared_ptr<Entity> entity)
+{
+    /* For however many particles we want to spawn, send the particle
+     * to a random location. Give the particles a transform, shape,
+     * and lifetime component. */
+
+    float speed = 4.f;
+
+    for (int i = 0; i < count; i++)
+    {
+        Vector2 targetPos = Vector2(rand() % m_app->GetWindowWidth(), rand() % m_app->GetWindowHeight());
+        Vector2 velocity = targetPos - entity->GetPosition();
+        Vector2 normalizedVel = Normalize(velocity); 
+
+        std::shared_ptr<Entity> particle = m_entityManager.AddEntity("particle");
+        particle->AddComponent<Transform>(entity->GetPosition(), normalizedVel * speed);
+        particle->AddComponent<Shape>(28.f, entity->GetPointCount(), entity->GetFillColor(), entity->GetBorderColor(), 4.f);
+        particle->AddComponent<Lifetime>(150);
+        
+        particle->GetComponent<Shape>().shape.SetOrigin(particle->GetRadius(), particle->GetRadius());
+    }
+}
+
+void GameScene::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& offset, const std::string& tag)
+{
+    /* 
+       Create a bullet entity, which travels towards
+       the target parameter; then give the entity
+       its components
+       */
+
+    float speed = 16.f;
+    Vector2 aim = (Input::GetMousePosition(m_app->GetNativeWindow()) - entity->GetPosition()) + offset;
+    Vector2 normalizedAim = Normalize(aim);
+
+    std::shared_ptr<Entity> bullet = m_entityManager.AddEntity(tag);
+    bullet->AddComponent<Transform>(entity->GetPosition(), Vector2(normalizedAim.x*speed, normalizedAim.y*speed), 0.f);
+    bullet->AddComponent<Shape>(10, 32, 0xFFFFFFFF, 0x0000FFFF, 2.f);
+    bullet->AddComponent<Collision>(10.f);
+
+    bullet->GetComponent<Shape>().shape.SetOrigin(bullet->GetRadius(), bullet->GetRadius());
+}
+
+std::shared_ptr<Entity> GameScene::SetupAndPlayAudio()
+{
+    /* Create an entity to play background music, 
+     * and give it an AudioSource component. Then we can set 
+     * the start offset and then finally play the music. */
+
+    std::shared_ptr<Entity> backgroundMusic = m_entityManager.AddEntity("music");
+    backgroundMusic->AddComponent<AudioSource>(m_assets->GetMusicPath("main"));
+    backgroundMusic->GetComponent<AudioSource>().audio.SetStartOffset(0.f);
+    backgroundMusic->GetComponent<AudioSource>().audio.Play();
+
+    return backgroundMusic;
+}
+
+void GameScene::HandleEnemySpawnTime()
+{
+    // Decrease enemy spawn time
+    if (m_enemySpawnTime > MIN_ENEMY_SPAWN_TIME)
+    {
+        if (m_currentFrame % DEC_ENEMY_SPAWN_TIME == 0 && m_currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
+            m_enemySpawnTime--;
+    }
+}
+
+std::shared_ptr<Entity> GameScene::SpawnPlayer()
+{
+    /* Create the player entity and give it a tag of 'player',
+     * then set the components for the player, and finally return
+     * the new entity. */
+     
+
+    std::shared_ptr<Entity> entity = m_entityManager.AddEntity("player");
+    entity->AddComponent<Transform>(Vector2(m_app->GetWindowWidth() /2.f, m_app->GetWindowHeight() / 2.f), Vector2(), 0.f);
+    entity->AddComponent<Shape>(32.f, 3, 0x0000FFFF, 0xFFFFFFFF, 4.f);
+    entity->AddComponent<Collision>(32.f);
+
+    entity->GetComponent<Shape>().shape.SetOrigin(entity->GetRadius(), entity->GetRadius());
+
+    return entity;   
+}
+
+void GameScene::CreateBackground()
+{
+    /* Create an entity with the tag 'ui', then add a
+     * transform and sprite renderer component. Finally
+     * return the entity. */
+
+    std::shared_ptr<Entity> entity = m_entityManager.AddEntity("bg");
+    entity->AddComponent<Transform>();
+    entity->AddComponent<SpriteRenderer>(m_assets->GetTexture("game_bg"));
+}
+
+std::shared_ptr<Entity> GameScene::SpawnScoreText()
+{
+    // Initialize the score format
+    sprintf(scoreFormat, "Score: %d", m_score);
+    
+    /* Create an entity with the tag 'ui', then add a
+     * transform and a text component. Finally return
+     * the entity. */
+    
+    std::shared_ptr<Entity> entity = m_entityManager.AddEntity("ui");
+    entity->AddComponent<Transform>(Vector2(20.f, 20.f));
+    entity->AddComponent<Text>(m_assets->GetFont("main"), scoreFormat, 36);
+    
+    return entity;
+}
+
+std::shared_ptr<Entity> GameScene::SpawnHighScoreText()
+{
+    // Initialize high score format
+    RL_TRACE("{}", m_highScore);
+    sprintf(highScoreFormat, "High score: %d", m_highScore);
+
+    /* Create an entity with the tag 'ui', then add a
+     * transform and a text component. Finally return
+     * the entity */
+
+    std::shared_ptr<Entity> entity = m_entityManager.AddEntity("ui");
+    entity->AddComponent<Text>(m_assets->GetFont("main"), highScoreFormat, 36);  
+    auto& text = entity->GetComponent<Text>().text;
+    entity->AddComponent<Transform>(Vector2(m_app->GetWindowWidth() - text.GetWidth() * 1.5, text.GetHeight()));
+
+    return entity;
+}
+
+std::shared_ptr<Entity> GameScene::SpawnDeathText()
+{
+    /* Create an entity with the tag 'ui', then add a
+     * transform and a text component. Afterwards,
+     * disable the entity, then finally return it. */
+
+    std::shared_ptr<Entity> entity = m_entityManager.AddEntity("ui");
+    entity->AddComponent<Transform>(Vector2(m_app->GetWindowWidth() / 2.f - 300.f, m_app->GetWindowHeight() / 2.f));
+    entity->AddComponent<Text>(m_assets->GetFont("main"), "You died\nPress space to restart", 50);
+    entity->Disable();
+
+    return entity;
+}
+
+std::shared_ptr<Entity> GameScene::SpawnPowerUpText()
+{
+    /* Create an entity with the tag 'ui', then add a
+     * transform and a text component. Afterwards,
+     * disable the entity, then finally return it. */
+
+    std::shared_ptr<Entity> entity = m_entityManager.AddEntity("ui");
+    entity->AddComponent<Transform>(Vector2(20.f, m_app->GetWindowHeight() - 50.f));
+    entity->AddComponent<Text>(m_assets->GetFont("main"), "Faster shooting", 36);
+    entity->Disable();
+
+    return entity;
+}

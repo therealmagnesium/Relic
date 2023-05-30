@@ -1,22 +1,23 @@
-#include "Core/Log.h"
 #include "pch.h"
 #include "Assets.h"
+#include "Log.h"
+#include "Graphics.h"
 
 namespace Relic
 {
-    sf::Font Assets::defaultFont = sf::Font();
-    sf::Texture Assets::defaultTexture = sf::Texture();
+    Font Assets::defaultFont = Font();
+    Texture Assets::defaultTexture = Texture();
     std::string Assets::defaultMusicPath = "assets/preload/sounds/default.wav";
 
     Assets::Assets()
     {
-        if (!defaultFont.loadFromFile("assets/preload/fonts/default.ttf"))
+        if (!defaultFont.font.loadFromFile("assets/preload/fonts/default.ttf"))
         {
             RL_CORE_ERROR("Failed to load default font file!");
             return; 
         }
 
-        if (!defaultTexture.loadFromFile("assets/preload/textures/default.png"))
+        if (!defaultTexture.texture.loadFromFile("assets/preload/textures/default.png"))
         {
             RL_CORE_ERROR("Failed to load default texture file!");
             return;
@@ -32,7 +33,8 @@ namespace Relic
             return;
         }
 
-        m_fonts[name] = font;
+        m_fonts[name].font = font;
+        m_fonts[name].path = path; 
     }
 
     void Assets::AddTexture(const std::string& name, const std::string& path)
@@ -44,20 +46,19 @@ namespace Relic
             return;
         }
 
-        m_textures[name] = texture;
+        m_textures[name].texture = texture;
+        m_textures[name].path = path;
     }
 
     void Assets::AddMusic(const std::string& name, const std::string& path)
-    {
-        m_musics[name] = path; 
-    }
+        { m_musics[name] = path; }
 
-    sf::Font& Assets::GetFont(const std::string&name)
-    { return m_fonts[name]; } 
+    Font& Assets::GetFont(const std::string&name)
+        { return m_fonts[name]; } 
 
-    sf::Texture& Assets::GetTexture(const std::string&name)
-    { return m_textures[name]; }
+    Texture& Assets::GetTexture(const std::string&name)
+        { return m_textures[name]; }
 
     std::string& Assets::GetMusicPath(const std::string& name)
-    { return m_musics[name]; }
+        { return m_musics[name]; }
 }

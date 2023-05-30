@@ -7,8 +7,6 @@ project "ShapeShooterz"
     targetdir ("../../bin/" .. outputdir .. "/%{prj.name}")
     objdir ("../../build/" .. outputdir .. "/%{prj.name}")
 
-    pchheader "pch.h"
-
     files 
     {
         "source/**.h", 
@@ -41,10 +39,10 @@ project "ShapeShooterz"
             "vorbisenc",
             "vorbisfile",
             "vorbis",
-            "ogg"
-      } 
+            "ogg" 
+        } 
         systemversion "latest"   
-    
+
     filter "system:linux"
         links
         {
