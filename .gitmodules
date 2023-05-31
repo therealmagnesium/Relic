@@ -1,3 +1,6 @@
 [submodule "vendor/spdlog"]
 	path = vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
+[submodule "Relic/vendor/imgui-sfml"]
+	path = Relic/vendor/imgui-sfml
+	url = https://github.com/SFML/imgui-sfml.git
