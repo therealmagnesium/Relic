@@ -21,15 +21,23 @@ project "Relic"
         "source/Relic",
 
         "vendor/sfml/include",
-        "vendor/spdlog/include"
+        "vendor/spdlog/include",
+        "vendor/imgui/include",
+        "vendor/imgui-sfml"
     }
 
-    libdirs { "vendor/sfml/lib" }
+    libdirs 
+    { 
+        "vendor/sfml/lib",
+        "vendor/imgui/lib",
+        "vendor/imgui-sfml/bin/Release-windows/imgui-sfml"
+    }
 
     filter "system:windows"
         defines { "SFML_STATIC" }
         links
         {
+            "ImGui",
             "sfml-graphics-s",
             "sfml-window-s",
             "sfml-audio-s",

@@ -10,6 +10,8 @@
 static char scoreFormat[32];
 static char highScoreFormat[32];
 static bool hasPowerUp = false;
+static uint8_t powerUpType = 0;
+static std::string powerUpString; 
 
 GameScene::GameScene(Application* app) :
     Scene(app)
@@ -59,8 +61,7 @@ void GameScene::OnUpdate()
         HandlePlayerMovement();
  
         SpawnAllPowerUps();
-        HandlePowerUpActiveTime();
-        
+        HandlePowerUpActiveTime(); 
     }
     else
     { 
@@ -275,6 +276,7 @@ void GameScene::HandlePowerUpActiveTime()
 
     if (hasPowerUp)
     {
+        m_powerUpText->GetComponent<Text>().text.SetMessage(powerUpString);
         m_powerUpText->Enable();
 
         if (m_powerUpActiveTime < MAX_ACTIVE_POWER_UP_TIME)
@@ -293,7 +295,7 @@ void GameScene::HandlePowerUpActiveTime()
 
 void GameScene::RotateAllEntities()
 {
-    int rotationSpeed = 2.f;
+    float rotationSpeed = 2.f;
 
     for (auto& e : m_entityManager.GetEntities())
     {
@@ -302,6 +304,8 @@ void GameScene::RotateAllEntities()
             e->GetComponent<Transform>().angle -= rotationSpeed;
         else if (e->GetTag() == "ui" || e->GetTag() == "bg")
             e->GetComponent<Transform>().angle = 0.f;
+        else if (e->GetTag() == "power_up")
+            e->GetComponent<Transform>().angle++;
         else
              e->GetComponent<Transform>().angle += rotationSpeed;
 
@@ -399,11 +403,27 @@ void GameScene::SpawnPowerUp()
      * set the properties for the sprite and
      * then we can set the last power up spawn time. */
 
+    powerUpType = rand() % 2;
+    
     Vector2 position = Vector2(rand() % m_app->GetWindowWidth(), rand() % m_app->GetWindowHeight());
 
     std::shared_ptr<Entity> powerup = m_entityManager.AddEntity("power_up");
     powerup->AddComponent<Transform>(position);
-    powerup->AddComponent<SpriteRenderer>(m_assets->GetTexture("power_up"), position);  
+    
+    switch (powerUpType)
+    {
+    case 0:
+    {
+        powerUpString = "2x shooting speed";
+        powerup->AddComponent<SpriteRenderer>(m_assets->GetTexture("faster_shooting"), position);  
+        break;
+    } 
+    case 1:
+    {
+        powerUpString = "Multiple bullets";
+        powerup->AddComponent<SpriteRenderer>(m_assets->GetTexture("multi_bullet"), position);  
+        break; 
+    }}
      
     auto& sr = powerup->GetComponent<SpriteRenderer>();
     
@@ -565,7 +585,7 @@ std::shared_ptr<Entity> GameScene::SpawnPowerUpText()
 
     std::shared_ptr<Entity> entity = m_entityManager.AddEntity("ui");
     entity->AddComponent<Transform>(Vector2(20.f, m_app->GetWindowHeight() - 50.f));
-    entity->AddComponent<Text>(m_assets->GetFont("main"), "Faster shooting", 36);
+    entity->AddComponent<Text>(m_assets->GetFont("main"), "None", 36);
     entity->Disable();
 
     return entity;

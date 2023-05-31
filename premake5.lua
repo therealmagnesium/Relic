@@ -7,3 +7,5 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}"
 include "Relic"
 include "Examples/Basic"
 include "Examples/ShapeShooterz"
+
+include "Relic/vendor/imgui-sfml"

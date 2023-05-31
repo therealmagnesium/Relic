@@ -40,7 +40,13 @@ project "ShapeShooterz"
             "vorbisfile",
             "vorbis",
             "ogg" 
-        } 
+        }
+        postbuildcommands
+        {
+            "cp -rf assets ../../bin/" .. outputdir .. "/%{prj.name}",
+            "cp -rf data ../../bin/" .. outputdir .. "/%{prj.name}",
+            "cp -f %{wks.location}/vendor/windows/bin/* ../../bin/" .. outputdir .. "/%{prj.name}"
+        }
         systemversion "latest"   
 
     filter "system:linux"
