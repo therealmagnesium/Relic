@@ -4,10 +4,13 @@
 bin/
 build/
 compile_commands/
+Relic/vendor/imgui-sfml/bin
+Relic/vendor/imgui-sfml/build
 
 # Files
 Makefile
 compile_commands.json
 Relic/Makefile
+Relic/vendor/imgui-sfml/Makefile
 Examples/BasicRelicApp/Makefile
 Examples/PlayableRelicApp/Makefile
