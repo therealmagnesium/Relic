@@ -9,6 +9,7 @@ public:
     {
         // Set the first scene shown to be the main menu scene
         ChangeScene("main_menu", std::make_shared<MainMenuScene>(this), false);  
+        
     }
 
 private:

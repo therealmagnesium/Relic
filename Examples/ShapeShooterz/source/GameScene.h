@@ -1,8 +1,6 @@
 #pragma once
-#include <Relic.h>
-#include <memory>
-
 #include "States.h"
+#include "DebugLayer.h"
 
 using namespace Relic;
 
@@ -31,6 +29,9 @@ public:
     void OnEnd() override;
 
 private: 
+    // A function to handle the debug menu
+    void HandleDebugMenu();
+
     // A function to reset everything when the player dies
     void Reset();
 
@@ -116,6 +117,7 @@ private:
     int m_lastEnemySpawnTime = 0;
 
     PowerUpState m_powerUpState;
+    DebugLayer* m_debugLayer;
 
     std::shared_ptr<Assets> m_assets;
     

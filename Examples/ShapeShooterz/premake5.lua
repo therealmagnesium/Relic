@@ -16,7 +16,8 @@ project "ShapeShooterz"
     includedirs
     {
         "../../Relic/source",
-        "../../Relic/vendor/spdlog/include"
+        "../../Relic/vendor/spdlog/include",
+        "../../Relic/vendor/imgui/include"
     }
 
     libdirs 

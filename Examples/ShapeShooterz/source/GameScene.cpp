@@ -1,5 +1,6 @@
 #include "GameScene.h"
 #include "MainMenuScene.h"
+#include "DebugLayer.h"
 
 #define ENEMY_POS_OFFSET 200
 #define MIN_ENEMY_SPAWN_TIME 20
@@ -14,7 +15,7 @@ GameScene::GameScene(Application* app) :
     Scene(app)
 {
     srand(time(NULL));
-
+      
     // Log the app has started
     RL_TRACE("Playable Relic App has started!");
 
@@ -34,10 +35,17 @@ GameScene::GameScene(Application* app) :
     m_deathText = SpawnDeathText();
     m_powerUpText = SpawnPowerUpText();
     m_backgroundMusic = SetupAndPlayAudio();
+
+    m_debugLayer = new DebugLayer();
+    PushLayer(m_debugLayer);
 }
 
 void GameScene::OnUpdate(float dt)
 {
+    for (Layer* layer : m_layerStack)
+        if (layer->IsEnabled())
+            layer->OnUpdate(dt);
+
     // If ESC is pressed, close the game
     if (Input::IsKeyPressed(Key::Escape))
         m_app->Close();
@@ -67,6 +75,7 @@ void GameScene::OnUpdate(float dt)
             Reset(); 
     }
     RotateAllEntities();
+    HandleDebugMenu();
 
     for (auto& e : m_entityManager.GetEntities("particle"))
     {
@@ -94,7 +103,7 @@ void GameScene::OnUpdate(float dt)
     }
 
     ConstrainPlayer();
-
+    
     m_currentFrame++;
 }
 
@@ -103,6 +112,20 @@ void GameScene::OnEnd()
     // Stop the game music
     RL_INFO("Ending scene [{}]", m_app->GetCurrentScene());
     m_backgroundMusic->GetComponent<AudioSource>().audio.Stop(); 
+}
+
+void GameScene::HandleDebugMenu()
+{
+    // Set showDebugMenu if F3 is pressedc
+    static bool showDebugMenu = false;
+    if (Input::IsKeyTyped(Key::F3))
+        showDebugMenu = !showDebugMenu;
+
+    // Enable or disable the debug layer depending on showDebugMenu
+    if (showDebugMenu)
+        m_debugLayer->Enable();
+    else
+        m_debugLayer->Disbale();
 }
 
 void GameScene::Reset()
