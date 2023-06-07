@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Application.h"
+#include "Input.h"
 #include "Log.h"
 #include "Scene.h"
 #include "Window.h"
@@ -11,9 +12,13 @@
 #include <fstream>
 #include <SFML/Graphics.hpp>
 
+#include <imgui.h>
+#include <imgui-SFML.h>
+
 namespace Relic
 {
     int Application::frameLimit = 60;
+    bool Application::showDebugMenu = false;
 
     Application::Application()
     {
@@ -29,6 +34,8 @@ namespace Relic
     {
         LoadConfigFile("data/preload/settings.cfg");
         m_window = std::make_shared<Window>(m_properties);
+
+        ImGui::SFML::Init(*m_window->GetHandle()->handle);
 
         m_assets = std::make_shared<Assets>(); 
         LoadAssetsFile("data/preload/assets.cfg");
@@ -103,6 +110,7 @@ namespace Relic
     void Application::Shutdown()
     {
         RL_CORE_INFO("Successfully shutdown application!");
+        ImGui::SFML::Shutdown(); 
         m_window->Close();
     }
 
@@ -110,16 +118,22 @@ namespace Relic
     {        
         while (!m_window->ShouldClose())
         {
-            m_scenes[m_currentScene]->UpdateEntityManager();
-
             m_window->HandleEvents();
-            m_scenes[m_currentScene]->OnUpdate(); 
+            
+            m_scenes[m_currentScene]->UpdateEntityManager();
+            m_scenes[m_currentScene]->OnUpdate(GetDeltaTime()); 
+
+            ImGui::SFML::Update(*m_window->GetHandle()->handle, m_window->GetHandle()->deltaClock.restart()); 
+            HandleDebugMenu();
 
             m_scenes[m_currentScene]->CullEntities(GetWindowWidth(), GetWindowHeight());
             m_scenes[m_currentScene]->HandleComponents();
 
             m_window->Clear(0x0A0A0AFF);
+           
             Render();
+            ImGui::SFML::Render(*m_window->GetHandle()->handle); 
+
             m_window->Display();
         }
     }
@@ -151,8 +165,23 @@ namespace Relic
         }
     }
 
+    void Application::HandleDebugMenu()
+    {
+        if (Input::IsKeyTyped(Key::F3))
+            showDebugMenu = !showDebugMenu; 
+   
+        if (showDebugMenu == true)
+            ImGui::ShowDemoWindow();
+    }
+
     void Application::Close() 
     { m_window->EnableShouldClose(); }  
+
+    float Application::GetTime() const
+    { return m_window->GetHandle()->baseClock.getElapsedTime().asSeconds(); } 
+
+    float Application::GetDeltaTime() const
+    { return m_window->GetHandle()->deltaClock.getElapsedTime().asSeconds(); }
 
     uint32_t Application::GetWindowWidth() const
     { return m_window->GetWidth(); }

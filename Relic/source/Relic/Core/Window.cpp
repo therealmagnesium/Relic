@@ -4,6 +4,7 @@
 #include "Graphics.h"
 
 #include <SFML/Window/Event.hpp>
+#include <imgui-SFML.h>
 
 namespace Relic
 {
@@ -38,7 +39,8 @@ namespace Relic
     {
         sf::Event event;
         while (m_windowHandle->handle->pollEvent(event))
-        {   
+        {  
+            ImGui::SFML::ProcessEvent(event);
             switch (event.type)
             {
                 case sf::Event::Closed:

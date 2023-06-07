@@ -11,7 +11,7 @@ namespace Relic
     public:
         Scene(Application* app);
         
-        virtual void OnUpdate() = 0; 
+        virtual void OnUpdate(float dt) = 0; 
         virtual void OnEnd();
 
         uint32_t GetCurrentFrame();

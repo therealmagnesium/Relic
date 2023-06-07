@@ -9,6 +9,7 @@ namespace Relic
     {
     public:
         static bool IsKeyPressed(int16_t key);
+        static bool IsKeyTyped(int16_t key);
         static int GetAxis(const std::string& axis);
 
         static bool IsMouseButtonPressed(uint8_t button);

@@ -12,7 +12,9 @@ project "Relic"
     files 
     { 
         "source/**.h", 
-        "source/**.cpp"
+        "source/**.cpp",
+        "vendor/imgui-sfml/*.h",
+        "vendor/imgui-sfml/*.cpp"
     }
     
     includedirs
@@ -29,15 +31,14 @@ project "Relic"
     libdirs 
     { 
         "vendor/sfml/lib",
-        "vendor/imgui/lib",
-        "vendor/imgui-sfml/bin/Release-windows/imgui-sfml"
+        "vendor/imgui/lib"
     }
 
     filter "system:windows"
         defines { "SFML_STATIC" }
         links
         {
-            "ImGui",
+            "ImGui", 
             "sfml-graphics-s",
             "sfml-window-s",
             "sfml-audio-s",

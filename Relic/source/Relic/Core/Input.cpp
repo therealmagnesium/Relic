@@ -12,7 +12,22 @@ static bool repeat = false;
 namespace Relic
 {
     bool Input::IsKeyPressed(int16_t key) 
-        { return sf::Keyboard::isKeyPressed((sf::Keyboard::Key)key); }
+    { return sf::Keyboard::isKeyPressed((sf::Keyboard::Key)key); }
+
+    bool Input::IsKeyTyped(int16_t key)     
+    { 
+        static bool pressed = false; 
+        bool result = (IsKeyPressed(key) && !pressed);
+
+        if (IsKeyPressed(key) && !pressed)
+            pressed = true;
+
+        if (!IsKeyPressed(key))
+            pressed = false;
+
+        return result;
+    }
+
 
     int Input::GetAxis(const std::string& axis)
     {
@@ -51,7 +66,7 @@ namespace Relic
 
 
     Vector2 Input::GetMousePosition()
-        { return Vector2(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y); }
+    { return Vector2(sf::Mouse::getPosition().x, sf::Mouse::getPosition().y); }
 
     Vector2 Input::GetMousePosition(const RenderWindow& window)
     { 

@@ -37,6 +37,8 @@ namespace Relic
         void ChangeScene(const std::string& name, std::shared_ptr<Scene> newScene, bool onEnd);
         void Render();
 
+        float GetTime() const;
+        float GetDeltaTime() const;
         uint32_t GetWindowWidth() const; 
         uint32_t GetWindowHeight() const; 
         const std::string& GetTitle() const; 
@@ -48,15 +50,18 @@ namespace Relic
 
     public:
         static int frameLimit;
-
-    protected:
-        void Init();
-        void Shutdown();
+        static bool showDebugMenu;
 
     protected:
         std::string m_currentScene;
         std::unordered_map<std::string, std::shared_ptr<Scene>> m_scenes;
+ 
+    private:
+        void Init();
+        void Shutdown();
 
+        void HandleDebugMenu();
+        
     private:
         WindowData m_properties;
 

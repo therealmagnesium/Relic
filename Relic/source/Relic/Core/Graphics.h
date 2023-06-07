@@ -31,6 +31,8 @@ namespace Relic
 
     struct RenderWindow
     {
+        sf::Clock baseClock;
+        sf::Clock deltaClock;
         sf::RenderWindow* handle = nullptr;
         RenderWindow() {}
     };
