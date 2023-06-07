@@ -7,6 +7,9 @@ namespace Relic
 {
     class Entity;
 
+    typedef std::vector<std::shared_ptr<Entity>> EntityVec;
+    typedef std::unordered_map<std::string, std::vector<std::shared_ptr<Entity>>> EntityMap;
+
     class EntityManager
     {
     public:
@@ -22,9 +25,9 @@ namespace Relic
         
         std::shared_ptr<Entity> AddEntity(const std::string& tag);
     private:
-        std::vector<std::shared_ptr<Entity>> m_entities;
-        std::vector<std::shared_ptr<Entity>> m_entitiesToAdd;
-        std::unordered_map<std::string, std::vector<std::shared_ptr<Entity>>> m_entityMap;
+        EntityVec m_entities;
+        EntityVec m_entitiesToAdd;
+        EntityMap m_entityMap;
         size_t m_totalEntities = 0;
     };
 }

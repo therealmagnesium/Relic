@@ -1,4 +1,5 @@
 #include "pch.h"
+#include "Layer.h"
 #include "Scene.h"
 #include "Application.h"
 
@@ -10,9 +11,26 @@ namespace Relic
     
     }
 
+    Scene::~Scene()
+    {
+
+    }
+
     void Scene::OnEnd()
     {
         RL_CORE_INFO("Ending scene [{}]", m_app->GetCurrentScene());
+    }
+
+    void Scene::PushLayer(Layer* layer)
+    {
+        m_layerStack.PushLayer(layer);
+        layer->OnAttach();
+    }
+
+    void Scene::PopLayer(Layer* layer)
+    {
+        m_layerStack.PopLayer(layer);
+        layer->OnDetach();
     }
 
     uint32_t Scene::GetCurrentFrame() 

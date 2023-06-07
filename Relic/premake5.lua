@@ -59,6 +59,7 @@ project "Relic"
     filter "system:linux"
         links
         {
+            "ImGui",
             "sfml-graphics",
             "sfml-window",
             "sfml-audio",

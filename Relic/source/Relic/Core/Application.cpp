@@ -18,7 +18,6 @@
 namespace Relic
 {
     int Application::frameLimit = 60;
-    bool Application::showDebugMenu = false;
 
     Application::Application()
     {
@@ -120,11 +119,10 @@ namespace Relic
         {
             m_window->HandleEvents();
             
-            m_scenes[m_currentScene]->UpdateEntityManager();
-            m_scenes[m_currentScene]->OnUpdate(GetDeltaTime()); 
+            ImGui::SFML::Update(*m_window->GetHandle()->handle, m_window->GetHandle()->deltaClock.getElapsedTime()); 
 
-            ImGui::SFML::Update(*m_window->GetHandle()->handle, m_window->GetHandle()->deltaClock.restart()); 
-            HandleDebugMenu();
+            m_scenes[m_currentScene]->UpdateEntityManager();
+            m_scenes[m_currentScene]->OnUpdate(m_deltaTime); 
 
             m_scenes[m_currentScene]->CullEntities(GetWindowWidth(), GetWindowHeight());
             m_scenes[m_currentScene]->HandleComponents();
@@ -135,6 +133,8 @@ namespace Relic
             ImGui::SFML::Render(*m_window->GetHandle()->handle); 
 
             m_window->Display();
+
+            m_deltaTime = m_window->GetHandle()->deltaClock.restart().asSeconds();
         }
     }
 
@@ -165,15 +165,6 @@ namespace Relic
         }
     }
 
-    void Application::HandleDebugMenu()
-    {
-        if (Input::IsKeyTyped(Key::F3))
-            showDebugMenu = !showDebugMenu; 
-   
-        if (showDebugMenu == true)
-            ImGui::ShowDemoWindow();
-    }
-
     void Application::Close() 
     { m_window->EnableShouldClose(); }  
 
@@ -181,7 +172,7 @@ namespace Relic
     { return m_window->GetHandle()->baseClock.getElapsedTime().asSeconds(); } 
 
     float Application::GetDeltaTime() const
-    { return m_window->GetHandle()->deltaClock.getElapsedTime().asSeconds(); }
+    { return m_deltaTime; }
 
     uint32_t Application::GetWindowWidth() const
     { return m_window->GetWidth(); }

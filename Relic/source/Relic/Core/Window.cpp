@@ -24,6 +24,9 @@ namespace Relic
     {
         m_windowHandle = std::make_shared<RenderWindow>(); 
         m_windowHandle->handle = new sf::RenderWindow(sf::VideoMode(m_data.width, m_data.height), m_data.title, m_data.style);
+        m_windowHandle->baseClock.restart();
+        m_windowHandle->deltaClock.restart();
+
         if (!m_windowHandle->handle)
         {
             RL_CORE_ERROR("Failed to make window!");

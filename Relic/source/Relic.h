@@ -5,6 +5,7 @@
 #include "Relic/Core/KeyCodes.h"
 #include "Relic/Core/Input.h"
 #include "Relic/Core/IO.h"
+#include "Relic/Core/Layer.h"
 #include "Relic/Core/Scene.h"
 #include "Relic/Core/Util.h"
 

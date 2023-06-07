@@ -4,9 +4,6 @@
 
 namespace Relic
 {
-    typedef std::vector<std::shared_ptr<Entity>> EntityVec;
-    typedef std::unordered_map<std::string, std::vector<std::shared_ptr<Entity>>> EntityMap;
-
     EntityManager::EntityManager()
     {
 

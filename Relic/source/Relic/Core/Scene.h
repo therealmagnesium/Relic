@@ -1,4 +1,5 @@
 #pragma once
+#include "LayerStack.h"
 #include "Relic/Entity/EntityManager.h"
 #include <cstdint>
 
@@ -10,13 +11,17 @@ namespace Relic
     {
     public:
         Scene(Application* app);
-        
+        virtual ~Scene();
+
         virtual void OnUpdate(float dt) = 0; 
         virtual void OnEnd();
 
         uint32_t GetCurrentFrame();
         EntityManager& GetEntityManager();
-   
+
+        void PushLayer(Layer* layer);
+        void PopLayer(Layer* layer);
+
         void UpdateEntityManager();
         void CullEntities(uint32_t width, uint32_t height);
         void HandleComponents();
@@ -24,7 +29,8 @@ namespace Relic
     protected:
         Application* m_app = nullptr;
         
-        uint32_t m_currentFrame = 0; 
+        uint32_t m_currentFrame = 0;
         EntityManager m_entityManager;
+        LayerStack m_layerStack;
     };
 }

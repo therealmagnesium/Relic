@@ -1,10 +1,8 @@
 #pragma once
 #include "Window.h"
 
-#include <memory>
-#include <unordered_map>
 #include <vector>
-#include <string>
+#include <unordered_map>
 
 namespace Relic
 {
@@ -33,7 +31,7 @@ namespace Relic
         
         void Run();
         void Close();
-        
+       
         void ChangeScene(const std::string& name, std::shared_ptr<Scene> newScene, bool onEnd);
         void Render();
 
@@ -50,7 +48,6 @@ namespace Relic
 
     public:
         static int frameLimit;
-        static bool showDebugMenu;
 
     protected:
         std::string m_currentScene;
@@ -60,9 +57,8 @@ namespace Relic
         void Init();
         void Shutdown();
 
-        void HandleDebugMenu();
-        
     private:
+        float m_deltaTime = 0.f;
         WindowData m_properties;
 
         std::shared_ptr<Assets> m_assets;
