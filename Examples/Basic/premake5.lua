@@ -19,13 +19,18 @@ project "Basic"
         "../../Relic/vendor/spdlog/include"
     }
 
-    libdirs { "../../Relic/vendor/sfml/lib" }
+    libdirs 
+    { 
+        "../../Relic/vendor/sfml/lib",
+        "../../Relic/vendor/imgui/lib"
+    }
 
     filter "system:windows"
         defines { "SFML_STATIC" }
         links
         {
             "Relic",
+            "ImGui",
             "sfml-graphics-s",
             "sfml-window-s",
             "sfml-audio-s",
@@ -41,6 +46,12 @@ project "Basic"
             "vorbis",
             "ogg"
         } 
+        postbuildcommands
+        {
+            "cp -rf assets ../../bin/" .. outputdir .. "/%{prj.name}",
+            "cp -rf data ../../bin/" .. outputdir .. "/%{prj.name}",
+            "cp -f %{wks.location}/vendor/windows/bin/* ../../bin/" .. outputdir .. "/%{prj.name}"
+        }
         systemversion "latest"   
     
     filter "system:linux"

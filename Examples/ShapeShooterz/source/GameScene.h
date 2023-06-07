@@ -2,6 +2,8 @@
 #include <Relic.h>
 #include <memory>
 
+#include "States.h"
+
 using namespace Relic;
 
 // Make a playable scene class that inherits from Relic::Scene
@@ -14,11 +16,18 @@ public:
      *      - [REQUIRED]
      *      - Called once per frame
      *      - Used for:
-     *              - Collisions / physics
-     *              - Movement
+     *          - Collisions / physics
+     *          - Movement
      */
-    void OnUpdate() override;
+    void OnUpdate(float dt) override;
 
+    /* OnEnd()
+     *      - [NOT REQUIRED]
+     *      - Called when the current scene is switched
+     *      - Used for:
+     *          - Cleaning up memory
+     *          - Reseting entities
+     */
     void OnEnd() override;
 
 private: 
@@ -103,11 +112,10 @@ private:
     int m_score = 0;
     int m_highScore = 0;
 
-    uint32_t m_enemySpawnTime = 45;
+    uint32_t m_enemySpawnTime = 35;
     int m_lastEnemySpawnTime = 0;
 
-    uint32_t m_powerUpActiveTime = 0; 
-    int m_lastPowerUpSpawnTime = 0;
+    PowerUpState m_powerUpState;
 
     std::shared_ptr<Assets> m_assets;
     

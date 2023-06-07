@@ -9,9 +9,6 @@
 
 static char scoreFormat[32];
 static char highScoreFormat[32];
-static bool hasPowerUp = false;
-static uint8_t powerUpType = 0;
-static std::string powerUpString; 
 
 GameScene::GameScene(Application* app) :
     Scene(app)
@@ -29,7 +26,7 @@ GameScene::GameScene(Application* app) :
     //Initialize the assets pointer
     m_assets = m_app->GetAssets();
 
-    // Initialize the entities
+    // Setup the scene 
     CreateBackground();
     m_player = SpawnPlayer();    
     m_scoreText = SpawnScoreText();
@@ -39,32 +36,33 @@ GameScene::GameScene(Application* app) :
     m_backgroundMusic = SetupAndPlayAudio();
 }
 
-void GameScene::OnUpdate()
+void GameScene::OnUpdate(float dt)
 {
     // If ESC is pressed, close the game
     if (Input::IsKeyPressed(Key::Escape))
         m_app->Close();
 
-    if (Input::IsKeyPressed(Key::Num1))
-        m_app->ChangeScene("main_menu", std::make_shared<MainMenuScene>(m_app), true);
+    // Switch back to the main menu scene if the backspace key is pressed
+    if (Input::IsKeyPressed(Key::Backspace))
+        m_app->ChangeScene("main_menu", std::make_shared<MainMenuScene>(m_app), true); 
 
     // Call the gameplay functions
     if (!m_playerDead)
     {
-        SpawnAllEnemies();
-        HandleEnemySpawnTime();
-
-        HandleEnemyCollision();
-        HandlePowerUpCollision();
-        
         HandleShooting();
         HandlePlayerMovement();
- 
+        
+        SpawnAllEnemies();
+        HandleEnemyCollision();
+        HandleEnemySpawnTime();
+  
         SpawnAllPowerUps();
+        HandlePowerUpCollision();
         HandlePowerUpActiveTime(); 
     }
     else
-    { 
+    {
+        // Reset the game if the space key was pressed
         if (Input::IsKeyPressed(Key::Space))
             Reset(); 
     }
@@ -88,7 +86,7 @@ void GameScene::OnUpdate()
     // Move the entities based on their velocity and update their lifetime
     for (auto& e : m_entityManager.GetEntities())
     {
-        e->Move(e->GetXVel(), e->GetYVel());
+        e->Move(e->GetXVel() * dt, e->GetYVel() * dt);
 
         if (e->HasComponent<Lifetime>())
             if (e->GetComponent<Lifetime>().lifetime > 0)
@@ -102,6 +100,7 @@ void GameScene::OnUpdate()
 
 void GameScene::OnEnd()
 {
+    // Stop the game music
     RL_INFO("Ending scene [{}]", m_app->GetCurrentScene());
     m_backgroundMusic->GetComponent<AudioSource>().audio.Stop(); 
 }
@@ -124,12 +123,14 @@ void GameScene::Reset()
         SaveHighScore(m_score);
 
     // Reset genearal variables
-    hasPowerUp = false;
+    m_powerUpState.has = false;
+    m_powerUpState.shown = false; 
+    m_powerUpState.type = 0; 
     m_score = 0;
-    m_lastPowerUpSpawnTime = m_currentFrame;
     m_lastEnemySpawnTime = m_currentFrame;
-    m_powerUpActiveTime = 0;
-    m_enemySpawnTime = 50;
+    m_powerUpState.activeTime = 0;
+    m_powerUpState.lastSpawnTime = m_currentFrame;
+    m_enemySpawnTime = 35;
  
     // Reset ui
     sprintf(scoreFormat, "Score: %d", m_score);
@@ -160,8 +161,8 @@ void GameScene::ConstrainPlayer()
 
 void GameScene::HandlePlayerMovement()
 {
-    static float playerAccel = 1.f;
-    static float maxPlayerSpeed = 8.f;
+    float playerAccel = 35.f;
+    float maxPlayerSpeed = 400.f;
 
     // Get a direction on both axis to be multiplied by accelereation
     Vector2 input = Vector2(Input::GetAxis("horizontal"), Input::GetAxis("vertical"));
@@ -211,8 +212,34 @@ void GameScene::HandleShooting()
     // If the user clicks, spawn a bullet
     if (Input::IsMouseButtonPressed(0) && m_shootTime >= m_maxShootTime)
     {
-        SpawnBullet(m_player, Vector2(), "player_bullet");
-        m_shootTime = 0;
+        if (m_powerUpState.has)
+        {
+            switch (m_powerUpState.type)
+            {
+                case 0:
+                {
+                    // Spawn a bullet which will have a faster maximum shoot time 
+                    SpawnBullet(m_player, Vector2(), "player_bullet");
+                    m_shootTime = 0;
+                    break;
+                }
+                case 1:
+                {
+                    // Spawn three bullets which will be shot at normal pace
+                    SpawnBullet(m_player, Vector2(), "player_bullet");
+                    SpawnBullet(m_player, Vector2(0.f, -200.f), "player_bullet");
+                    SpawnBullet(m_player, Vector2(0.f, 200.f), "player_bullet");
+                    m_shootTime = 0;
+                    break; 
+                }
+            }
+        }
+        else
+        {
+            // Spawn a single bullet at normal pace
+            SpawnBullet(m_player, Vector2(), "player_bullet");
+            m_shootTime = 0;
+        }
     }
 }
 
@@ -262,8 +289,13 @@ void GameScene::HandlePowerUpCollision()
         if (GetDistance(pu->GetPosition(), m_player->GetPosition()) <= pu->GetCollisionRadius() + m_player->GetCollisionRadius()) 
         {
             pu->Destroy();
-            m_maxShootTime = 8; 
-            hasPowerUp = true;
+            
+            if (m_powerUpState.type == 0) 
+                m_maxShootTime = 8; 
+            
+            m_powerUpState.has = true;
+            m_powerUpState.shown = false; 
+            m_powerUpState.lastSpawnTime = m_currentFrame; 
         }
     }
 }
@@ -274,19 +306,20 @@ void GameScene::HandlePowerUpActiveTime()
      * handle how long the player's power up is
      * active */
 
-    if (hasPowerUp)
+    if (m_powerUpState.has)
     {
-        m_powerUpText->GetComponent<Text>().text.SetMessage(powerUpString);
+        m_powerUpText->GetComponent<Text>().text.SetMessage(m_powerUpState.text);
         m_powerUpText->Enable();
 
-        if (m_powerUpActiveTime < MAX_ACTIVE_POWER_UP_TIME)
-            m_powerUpActiveTime++;
+        if (m_powerUpState.activeTime < MAX_ACTIVE_POWER_UP_TIME)
+            m_powerUpState.activeTime++;
 
-        if (m_powerUpActiveTime >= MAX_ACTIVE_POWER_UP_TIME)
+        if (m_powerUpState.activeTime >= MAX_ACTIVE_POWER_UP_TIME)
         {
-            m_powerUpActiveTime = 0;
+            m_powerUpState.activeTime = 0;
             m_maxShootTime = 16;
-            hasPowerUp = false;
+            m_powerUpState.has = false;
+            m_powerUpState.type = 0; 
         }
     }
     else
@@ -340,7 +373,7 @@ void GameScene::SaveHighScore(int highScore)
 
 void GameScene::SpawnAllEnemies()
 {
-    RL_TRACE("[DEBUG] {} - {} = {}", m_currentFrame, m_lastEnemySpawnTime, m_enemySpawnTime);
+    //RL_TRACE("[DEBUG] {} - {} = {}", m_currentFrame, m_lastEnemySpawnTime, m_enemySpawnTime);
 
     // Spawn an enemy over m_enemySpawnTime
     if (m_currentFrame - m_lastEnemySpawnTime == m_enemySpawnTime)
@@ -350,7 +383,7 @@ void GameScene::SpawnAllEnemies()
 void GameScene::SpawnAllPowerUps()
 {
     // Spawn a power up over POWER_UP_SPAWN_TIME
-    if (m_currentFrame - m_lastPowerUpSpawnTime == POWER_UP_SPAWN_TIME)
+    if (m_currentFrame - m_powerUpState.lastSpawnTime == POWER_UP_SPAWN_TIME)
         SpawnPowerUp();
 }
 
@@ -364,6 +397,8 @@ void GameScene::SpawnEnemy()
      * time to the current frame. */
 
     std::shared_ptr<Entity> entity = m_entityManager.AddEntity("enemy");
+
+    static float speed = 80.f;
 
     Vector2 randPos = Vector2(rand() % m_app->GetWindowWidth(), rand() % m_app->GetWindowHeight());
     int points = rand() % 4 + 4;
@@ -386,7 +421,7 @@ void GameScene::SpawnEnemy()
     Vector2 velocity = m_player->GetPosition() - randPos;
     Vector2 normalizedVel = Normalize(velocity);
 
-    entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points), 0.f);
+    entity->AddComponent<Transform>(Vector2(randPos.x, randPos.y), (normalizedVel * points * speed), 0.f);
     entity->AddComponent<Shape>(32.f, points, color, 0xFFFFFFFF, 4.f);
     entity->AddComponent<Collision>(32.f);
     entity->AddComponent<Lifetime>(100);
@@ -399,39 +434,44 @@ void GameScene::SpawnEnemy()
 void GameScene::SpawnPowerUp()
 {
     /* Genearate a random position, then create an entity
-     * with a transform and sprite renderer component. Then
-     * set the properties for the sprite and
-     * then we can set the last power up spawn time. */
+     * with a transform and an image depending on the current
+     * power up type. Then set the properties for the sprite and
+     * then set the last power up spawn time. */
 
-    powerUpType = rand() % 2;
-    
-    Vector2 position = Vector2(rand() % m_app->GetWindowWidth(), rand() % m_app->GetWindowHeight());
+    if (!m_powerUpState.has && !m_powerUpState.shown)
+    {
+        m_powerUpState.type = rand() % 2;
 
-    std::shared_ptr<Entity> powerup = m_entityManager.AddEntity("power_up");
-    powerup->AddComponent<Transform>(position);
-    
-    switch (powerUpType)
-    {
-    case 0:
-    {
-        powerUpString = "2x shooting speed";
-        powerup->AddComponent<SpriteRenderer>(m_assets->GetTexture("faster_shooting"), position);  
-        break;
-    } 
-    case 1:
-    {
-        powerUpString = "Multiple bullets";
-        powerup->AddComponent<SpriteRenderer>(m_assets->GetTexture("multi_bullet"), position);  
-        break; 
-    }}
-     
-    auto& sr = powerup->GetComponent<SpriteRenderer>();
-    
-    Vector2 origin = Vector2(sr.sprite.GetSize().x / 2, sr.sprite.GetSize().y / 2);
-    sr.sprite.SetOrigin(origin.x, origin.y);
-    sr.sprite.SetScale(4.f, 4.f);
+        Vector2 position = Vector2(rand() % m_app->GetWindowWidth(), rand() % m_app->GetWindowHeight());
 
-    m_lastPowerUpSpawnTime = m_currentFrame;
+        std::shared_ptr<Entity> powerup = m_entityManager.AddEntity("power_up");
+        powerup->AddComponent<Transform>(position);
+
+        switch (m_powerUpState.type)
+        {
+            case 0:
+                {
+                    m_powerUpState.text = "2x shooting speed";
+                    powerup->AddComponent<SpriteRenderer>(m_assets->GetTexture("faster_shooting"), position);  
+                    break;
+                } 
+            case 1:
+                {
+                    m_powerUpState.text = "Multiple bullets";
+                    powerup->AddComponent<SpriteRenderer>(m_assets->GetTexture("multi_bullets"), position);  
+                    break; 
+                }}
+
+        auto& sr = powerup->GetComponent<SpriteRenderer>();
+
+        Vector2 origin = Vector2(sr.sprite.GetSize().x / 2, sr.sprite.GetSize().y / 2);
+        sr.sprite.SetOrigin(origin.x, origin.y);
+        sr.sprite.SetScale(4.f, 4.f);
+
+        m_powerUpState.shown = true;
+    }
+
+    m_powerUpState.lastSpawnTime = m_currentFrame;
 }
 
 void GameScene::SpawnParticles(int count, std::shared_ptr<Entity> entity)
@@ -440,7 +480,7 @@ void GameScene::SpawnParticles(int count, std::shared_ptr<Entity> entity)
      * to a random location. Give the particles a transform, shape,
      * and lifetime component. */
 
-    float speed = 4.f;
+    float speed = 150.f;
 
     for (int i = 0; i < count; i++)
     {
@@ -465,7 +505,7 @@ void GameScene::SpawnBullet(std::shared_ptr<Entity> entity, const Vector2& offse
        its components
        */
 
-    float speed = 16.f;
+    float speed = 1000.f;
     Vector2 aim = (Input::GetMousePosition(m_app->GetNativeWindow()) - entity->GetPosition()) + offset;
     Vector2 normalizedAim = Normalize(aim);
 

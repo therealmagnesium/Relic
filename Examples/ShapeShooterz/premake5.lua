@@ -19,13 +19,18 @@ project "ShapeShooterz"
         "../../Relic/vendor/spdlog/include"
     }
 
-    libdirs { "../../Relic/vendor/sfml/lib" }
+    libdirs 
+    { 
+        "../../Relic/vendor/sfml/lib",
+        "../../Relic/vendor/imgui/lib",
+    }
 
     filter "system:windows"
         defines { "SFML_STATIC" }
         links
         {
             "Relic",
+            "ImGui", 
             "sfml-graphics-s",
             "sfml-window-s",
             "sfml-audio-s",
@@ -39,7 +44,7 @@ project "ShapeShooterz"
             "vorbisenc",
             "vorbisfile",
             "vorbis",
-            "ogg" 
+            "ogg", 
         }
         postbuildcommands
         {
@@ -53,11 +58,18 @@ project "ShapeShooterz"
         links
         {
             "Relic",
+            "ImGui",
             "sfml-graphics",
             "sfml-window",
             "sfml-audio",
             "sfml-system"
-        } 
+        }
+        postbuildcommands
+        {
+            "cp -rf assets ../../bin/" .. outputdir .. "/%{prj.name}",
+            "cp -rf data ../../bin/" .. outputdir .. "/%{prj.name}",
+            "cp -f %{wks.location}/vendor/windows/bin/* ../../bin/" .. outputdir .. "/%{prj.name}"
+        }
         systemversion "latest"
 
     filter "configurations:Debug"
