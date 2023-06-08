@@ -1,8 +1,10 @@
 #pragma once
+#include <Relic.h>
 #include "States.h"
-#include "DebugLayer.h"
 
 using namespace Relic;
+
+class DebugLayer;
 
 // Make a playable scene class that inherits from Relic::Scene
 class GameScene : public Scene 
@@ -27,6 +29,12 @@ public:
      *          - Reseting entities
      */
     void OnEnd() override;
+
+    inline std::shared_ptr<Entity> GetPlayer() const { return m_player; }
+    inline Application* GetApp() const { return m_app; }
+    
+    inline void PlayMusic() { m_backgroundMusic->GetComponent<AudioSource>().audio.Play(); }
+    inline void StopMusic() { m_backgroundMusic->GetComponent<AudioSource>().audio.Stop(); }
 
 private: 
     // A function to handle the debug menu

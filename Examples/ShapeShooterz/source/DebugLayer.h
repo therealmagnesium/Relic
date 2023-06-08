@@ -3,13 +3,20 @@
 
 using namespace Relic;
 
+class GameScene;
+
 class DebugLayer : public Relic::Layer 
 {
 public:
-    DebugLayer();
+    DebugLayer(GameScene* scene);
     ~DebugLayer(); 
 
-    void OnAttach() override;
-    void OnDetach() override;
     void OnUpdate(float dt) override;
+
+    void AddEntityInfo(std::shared_ptr<Entity> entity);
+    void ClearAllInfo();
+
+private:
+    EntityVec m_entities;
+    GameScene* m_gameScene;
 };

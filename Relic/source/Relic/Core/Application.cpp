@@ -152,16 +152,20 @@ namespace Relic
         for (auto& e : m_scenes[m_currentScene]->GetEntityManager().GetEntities())
         { 
             if (e->IsInRenderView(GetWindowWidth(), GetWindowHeight()) && e->IsEnabled())
-            {
+            { 
+                if (e->IsEnabled())
+                {
+                    if (e->HasComponent<Shape>())
+                        m_window->Draw(e->GetComponent<Shape>().shape);
+
+                    if (e->HasComponent<SpriteRenderer>())
+                        m_window->Draw(e->GetComponent<SpriteRenderer>().sprite); 
+                }
+            }
+           
+            if (e->IsEnabled())
                 if (e->HasComponent<Text>())
                     m_window->Draw(e->GetComponent<Text>().text);
-                
-                if (e->HasComponent<Shape>())
-                    m_window->Draw(e->GetComponent<Shape>().shape);
-
-                if (e->HasComponent<SpriteRenderer>())
-                    m_window->Draw(e->GetComponent<SpriteRenderer>().sprite);
-            }
         }
     }
 

@@ -36,15 +36,17 @@ GameScene::GameScene(Application* app) :
     m_powerUpText = SpawnPowerUpText();
     m_backgroundMusic = SetupAndPlayAudio();
 
-    m_debugLayer = new DebugLayer();
+    // Debug menu stuff
+    m_debugLayer = new DebugLayer(this);
+    m_debugLayer->AddEntityInfo(m_player); 
     PushLayer(m_debugLayer);
 }
 
 void GameScene::OnUpdate(float dt)
 {
-    for (Layer* layer : m_layerStack)
-        if (layer->IsEnabled())
-            layer->OnUpdate(dt);
+    // If the debug layer is enabled, render it
+    if (m_debugLayer->IsEnabled())
+        m_debugLayer->OnUpdate(dt);
 
     // If ESC is pressed, close the game
     if (Input::IsKeyPressed(Key::Escape))
@@ -101,7 +103,7 @@ void GameScene::OnUpdate(float dt)
             if (e->GetComponent<Lifetime>().lifetime > 0)
                 e->GetComponent<Lifetime>().lifetime--;
     }
-
+    RL_TRACE("[DEBUG] {}", m_player->IsEnabled());
     ConstrainPlayer();
     
     m_currentFrame++;
@@ -129,7 +131,7 @@ void GameScene::HandleDebugMenu()
 }
 
 void GameScene::Reset()
-{
+{ 
     // Destroy all the current enemies
     for (auto& entity : m_entityManager.GetEntities("enemy"))
     {
@@ -162,7 +164,9 @@ void GameScene::Reset()
     m_powerUpText->Disable();
 
     // Reset player related variables 
-    m_player = SpawnPlayer(); 
+    m_player->SetPosition(Vector2(m_app->GetWindowWidth() /2.f, m_app->GetWindowHeight() / 2.f)); 
+    m_player->SetVelocity(0.f, 0.f);  
+    m_player->Enable();
     m_playerDead = false;
     m_shootTime = 0;
     m_maxShootTime = 16;
@@ -184,8 +188,8 @@ void GameScene::ConstrainPlayer()
 
 void GameScene::HandlePlayerMovement()
 {
-    float playerAccel = 35.f;
-    float maxPlayerSpeed = 400.f;
+    float playerAccel = 25.f;
+    float maxPlayerSpeed = 350.f;
 
     // Get a direction on both axis to be multiplied by accelereation
     Vector2 input = Vector2(Input::GetAxis("horizontal"), Input::GetAxis("vertical"));
@@ -293,7 +297,7 @@ void GameScene::HandleEnemyCollision()
         if (!m_playerDead && GetDistance(e->GetPosition(), m_player->GetPosition()) <= e->GetCollisionRadius() + m_player->GetCollisionRadius())
         {
             e->Destroy();
-            m_player->Destroy();
+            m_player->Disable();
             m_playerDead = true;
             m_deathText->Enable();
         }
@@ -503,7 +507,7 @@ void GameScene::SpawnParticles(int count, std::shared_ptr<Entity> entity)
      * to a random location. Give the particles a transform, shape,
      * and lifetime component. */
 
-    float speed = 150.f;
+    float speed = 100.f;
 
     for (int i = 0; i < count; i++)
     {
@@ -514,7 +518,7 @@ void GameScene::SpawnParticles(int count, std::shared_ptr<Entity> entity)
         std::shared_ptr<Entity> particle = m_entityManager.AddEntity("particle");
         particle->AddComponent<Transform>(entity->GetPosition(), normalizedVel * speed);
         particle->AddComponent<Shape>(28.f, entity->GetPointCount(), entity->GetFillColor(), entity->GetBorderColor(), 4.f);
-        particle->AddComponent<Lifetime>(150);
+        particle->AddComponent<Lifetime>(100);
         
         particle->GetComponent<Shape>().shape.SetOrigin(particle->GetRadius(), particle->GetRadius());
     }
@@ -577,6 +581,7 @@ std::shared_ptr<Entity> GameScene::SpawnPlayer()
     entity->AddComponent<Collision>(32.f);
 
     entity->GetComponent<Shape>().shape.SetOrigin(entity->GetRadius(), entity->GetRadius());
+    entity->DisableCulling();
 
     return entity;   
 }
@@ -604,7 +609,8 @@ std::shared_ptr<Entity> GameScene::SpawnScoreText()
     std::shared_ptr<Entity> entity = m_entityManager.AddEntity("ui");
     entity->AddComponent<Transform>(Vector2(20.f, 20.f));
     entity->AddComponent<Text>(m_assets->GetFont("main"), scoreFormat, 36);
-    
+    entity->DisableCulling(); 
+
     return entity;
 }
 
@@ -622,6 +628,7 @@ std::shared_ptr<Entity> GameScene::SpawnHighScoreText()
     entity->AddComponent<Text>(m_assets->GetFont("main"), highScoreFormat, 36);  
     auto& text = entity->GetComponent<Text>().text;
     entity->AddComponent<Transform>(Vector2(m_app->GetWindowWidth() - text.GetWidth() * 1.5, text.GetHeight()));
+    entity->DisableCulling();
 
     return entity;
 }
@@ -636,6 +643,7 @@ std::shared_ptr<Entity> GameScene::SpawnDeathText()
     entity->AddComponent<Transform>(Vector2(m_app->GetWindowWidth() / 2.f - 300.f, m_app->GetWindowHeight() / 2.f));
     entity->AddComponent<Text>(m_assets->GetFont("main"), "You died\nPress space to restart", 50);
     entity->Disable();
+    entity->DisableCulling();
 
     return entity;
 }
@@ -650,6 +658,7 @@ std::shared_ptr<Entity> GameScene::SpawnPowerUpText()
     entity->AddComponent<Transform>(Vector2(20.f, m_app->GetWindowHeight() - 50.f));
     entity->AddComponent<Text>(m_assets->GetFont("main"), "None", 36);
     entity->Disable();
+    entity->DisableCulling();
 
     return entity;
 }

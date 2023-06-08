@@ -2,6 +2,8 @@
 
 namespace Relic
 {
+    class Scene;
+
     class Layer
     {
     public:
@@ -16,7 +18,7 @@ namespace Relic
 
         void Enable() { m_enabled = true; }
         void Disbale() { m_enabled = false; }
-    
+     
     private: 
         bool m_enabled = false; 
     };

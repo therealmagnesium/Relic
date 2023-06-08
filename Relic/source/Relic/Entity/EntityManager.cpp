@@ -16,10 +16,13 @@ namespace Relic
             if (entity->GetTag() == "ui")
                 break;
 
-            if (entity->IsInRenderView(renderWidth, renderHeight))
-                entity->Enable();
-            else
-                entity->Disable();
+            if (entity->HasCullEnabled())
+            {
+                if (entity->IsInRenderView(renderWidth, renderHeight))
+                    entity->Enable();
+                else
+                    entity->Disable();
+            }
         } 
     }
 

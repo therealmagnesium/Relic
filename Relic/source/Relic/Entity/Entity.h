@@ -50,12 +50,26 @@ namespace Relic
 
         bool IsActive() const { return m_active; };
         bool IsEnabled() const { return m_enabled; }
+        bool HasCullEnabled() const { return m_cullEnabled; } 
         size_t GetId() const { return m_id; };
         const std::string& GetTag() const { return m_tag; };
 
         inline void SetActive(bool active) { m_active = active; }
         inline void Enable() { m_enabled = true; }
         inline void Disable() { m_enabled = false; }
+        inline void EnableCulling() { m_cullEnabled = true; }
+        inline void DisableCulling() { m_cullEnabled = false; }
+
+        inline void SetX(float x) { GetComponent<Transform>().position.x = x; } 
+        inline void SetY(float y) { GetComponent<Transform>().position.y = y; } 
+        inline void SetPosition(float x, float y) { GetComponent<Transform>().position.x = x; GetComponent<Transform>().position.y = y; } 
+        inline void SetPosition(const Vector2& pos) { GetComponent<Transform>().position = pos; } 
+        inline void SetXVel(float x) { GetComponent<Transform>().velocity.x = x; } 
+        inline void SetYVel(float y) { GetComponent<Transform>().velocity.y = y; } 
+        inline void SetVelocity(float x, float y) { GetComponent<Transform>().velocity.x = x; GetComponent<Transform>().velocity.y = y; } 
+        inline void SetRotation(float angle) { GetComponent<Transform>().angle = angle; }
+
+        void SetFillColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a); 
 
     private:
         Entity(const size_t id, const std::string& tag);
@@ -65,6 +79,7 @@ namespace Relic
 
         bool m_active = true;
         bool m_enabled = true;
+        bool m_cullEnabled = true;
         size_t m_id = 0;
         std::string m_tag = "default";
 
