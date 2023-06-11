@@ -25,7 +25,7 @@ BasicScene::BasicScene(Application* app) :
     m_redHex = SpawnEntity(Vector2(), 0xFF0000FF, 0xFFFFFFFF);
 }
 
-void BasicScene::OnUpdate(float dt) 
+void BasicScene::OnUpdate() 
 {
     float amplitude = 200.f;
     float frequency = 3.f;

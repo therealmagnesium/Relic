@@ -8,11 +8,12 @@ MainMenuScene::MainMenuScene(Application* app) :
     CreateBackground();
     SpawnLogo();
     SpawnStartText();
+    SpawnCreditText();
     SpawnAllEntities();
     SetupAndPlayAudio();
 }
 
-void MainMenuScene::OnUpdate(float dt)
+void MainMenuScene::OnUpdate()
 {
     // Close the game if the escape key was pressed
     if (Input::IsKeyPressed(Key::Escape))
@@ -38,6 +39,7 @@ void MainMenuScene::CreateBackground()
     std::shared_ptr<Entity> bg = m_entityManager.AddEntity("bg");
     bg->AddComponent<Transform>();
     bg->AddComponent<SpriteRenderer>(m_app->GetAssets()->GetTexture("main_menu_bg"));
+    bg->GetComponent<SpriteRenderer>().sprite.SetScale(0.4f, 0.4f);
 }
 
 void MainMenuScene::SetupAndPlayAudio()
@@ -72,21 +74,29 @@ void MainMenuScene::SpawnStartText()
     text.SetOrigin(text.GetWidth()/2.f, text.GetHeight()/2.f);
 }
 
+void MainMenuScene::SpawnCreditText()
+{
+    // Give the start text a transform and a message, then set the origin
+    std::shared_ptr<Entity> creditText = m_entityManager.AddEntity("menu_token");
+    creditText->AddComponent<Transform>(Vector2(20.f, m_app->GetWindowHeight()-50.f));
+    creditText->AddComponent<Text>(m_app->GetAssets()->GetFont("main"), "Created by Magnus Ahlstromer V", 20);
+}
+
 void MainMenuScene::SpawnAllEntities()
 {
     // Spawn some entities on the screen
-    SpawnEntity(Vector2(400.f, 400.f));
-    SpawnEntity(Vector2(m_app->GetWindowWidth() - 400.f, 400.f)); 
+    SpawnEntity(Vector2(300.f, m_app->GetWindowHeight()/2.f));
+    SpawnEntity(Vector2(m_app->GetWindowWidth() - 300.f, m_app->GetWindowHeight()/2.f)); 
 }
 void MainMenuScene::SpawnEntity(const Vector2& pos)
 {
     // Spawn a shape, center the origin and set the position
     std::shared_ptr<Entity> entity = m_entityManager.AddEntity("entity");
-    entity->AddComponent<Shape>(64.f);
+    entity->AddComponent<Transform>(pos);
+    entity->AddComponent<Shape>(48.f);
     auto& shape = entity->GetComponent<Shape>().shape;
     shape.SetOutlineColor(0x0FA3B1FF);
     shape.SetOrigin(shape.GetRadius(), shape.GetRadius()); 
-    entity->AddComponent<Transform>(pos);
 }
 
 void MainMenuScene::RotateAllEntities()

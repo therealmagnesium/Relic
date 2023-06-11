@@ -1,6 +1,10 @@
 #pragma once
-#include <Relic.h>
 #include "States.h"
+#include "DebugLayer.h"
+#include "Player.h"
+
+#include <Relic/Core/Scene.h>
+#include <Relic/Core/Application.h>
 
 using namespace Relic;
 
@@ -10,6 +14,9 @@ class DebugLayer;
 class GameScene : public Scene 
 {
 public:
+    friend class DebugLayer;
+    friend class Player;
+
     GameScene(Application* app);
 
     /* OnUpdate()
@@ -19,7 +26,7 @@ public:
      *          - Collisions / physics
      *          - Movement
      */
-    void OnUpdate(float dt) override;
+    void OnUpdate() override;
 
     /* OnEnd()
      *      - [NOT REQUIRED]
@@ -30,7 +37,6 @@ public:
      */
     void OnEnd() override;
 
-    inline std::shared_ptr<Entity> GetPlayer() const { return m_player; }
     inline Application* GetApp() const { return m_app; }
     
     inline void PlayMusic() { m_backgroundMusic->GetComponent<AudioSource>().audio.Play(); }
@@ -42,15 +48,6 @@ private:
 
     // A function to reset everything when the player dies
     void Reset();
-
-    // A function to make sure the player won't go out of bounds
-    void ConstrainPlayer();
-
-    // A function to organize player movement code
-    void HandlePlayerMovement();
-
-    // A function to organize player shooting code
-    void HandleShooting();
 
     // A function to organize enemy collision code
     void HandleEnemyCollision();
@@ -113,15 +110,11 @@ private:
     // A function to spawn the power up text
     std::shared_ptr<Entity> SpawnPowerUpText();
 
-private:
-    bool m_playerDead = false;
-    uint32_t m_maxShootTime = 16;
-    uint32_t m_shootTime = 0;
-    
-    int m_score = 0;
-    int m_highScore = 0;
+private: 
+    uint32_t m_score = 0;
+    uint32_t m_highScore = 0;
 
-    uint32_t m_enemySpawnTime = 35;
+    uint32_t m_enemySpawnTime = 50;
     int m_lastEnemySpawnTime = 0;
 
     PowerUpState m_powerUpState;
@@ -129,7 +122,7 @@ private:
 
     std::shared_ptr<Assets> m_assets;
     
-    std::shared_ptr<Entity> m_player;
+    std::shared_ptr<Player> m_player;
     std::shared_ptr<Entity> m_scoreText;
     std::shared_ptr<Entity> m_highScoreText; 
     std::shared_ptr<Entity> m_deathText;

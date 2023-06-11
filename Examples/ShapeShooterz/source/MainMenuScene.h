@@ -15,7 +15,7 @@ public:
      *          - Collisions / physics
      *          - Movement
      */
-    void OnUpdate(float dt) override;
+    void OnUpdate() override;
 
     /* OnEnd()
      *      - [NOT REQUIRED]
@@ -35,9 +35,12 @@ public:
     // [TEMP] A function to spawn the Relic logo
     void SpawnLogo();
 
-    // A function to spawn the text to being
+    // A function to spawn the text to begin 
     void SpawnStartText();
 
+    // A function to spawn the credit text 
+    void SpawnCreditText();
+    
     // A function to spawn every entity
     void SpawnAllEntities();
 
