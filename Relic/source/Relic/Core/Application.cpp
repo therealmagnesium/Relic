@@ -18,6 +18,7 @@
 namespace Relic
 {
     int Application::frameLimit = 60;
+    float Application::deltaTime = 0.f;
 
     Application::Application()
     {
@@ -122,7 +123,7 @@ namespace Relic
             ImGui::SFML::Update(*m_window->GetHandle()->handle, m_window->GetHandle()->deltaClock.getElapsedTime()); 
 
             m_scenes[m_currentScene]->UpdateEntityManager();
-            m_scenes[m_currentScene]->OnUpdate(m_deltaTime); 
+            m_scenes[m_currentScene]->OnUpdate(); 
 
             m_scenes[m_currentScene]->CullEntities(GetWindowWidth(), GetWindowHeight());
             m_scenes[m_currentScene]->HandleComponents();
@@ -134,7 +135,7 @@ namespace Relic
 
             m_window->Display();
 
-            m_deltaTime = m_window->GetHandle()->deltaClock.restart().asSeconds();
+            deltaTime = m_window->GetHandle()->deltaClock.restart().asSeconds();
         }
     }
 
@@ -174,9 +175,6 @@ namespace Relic
 
     float Application::GetTime() const
     { return m_window->GetHandle()->baseClock.getElapsedTime().asSeconds(); } 
-
-    float Application::GetDeltaTime() const
-    { return m_deltaTime; }
 
     uint32_t Application::GetWindowWidth() const
     { return m_window->GetWidth(); }

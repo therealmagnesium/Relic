@@ -6,14 +6,17 @@
 namespace Relic
 {
     class Application;
+    class Entity;
 
     class Scene
     {
     public:
+        friend class Entity;
+
         Scene(Application* app);
         virtual ~Scene();
 
-        virtual void OnUpdate(float dt) = 0; 
+        virtual void OnUpdate() = 0; 
         virtual void OnEnd();
 
         uint32_t GetCurrentFrame();

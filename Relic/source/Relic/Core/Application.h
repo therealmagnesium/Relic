@@ -36,7 +36,6 @@ namespace Relic
         void Render();
 
         float GetTime() const;
-        float GetDeltaTime() const;
         uint32_t GetWindowWidth() const; 
         uint32_t GetWindowHeight() const; 
         const std::string& GetTitle() const; 
@@ -48,6 +47,7 @@ namespace Relic
 
     public:
         static int frameLimit;
+        static float deltaTime;
 
     protected:
         std::string m_currentScene;
@@ -58,7 +58,6 @@ namespace Relic
         void Shutdown();
 
     private:
-        float m_deltaTime = 0.f;
         WindowData m_properties;
 
         std::shared_ptr<Assets> m_assets;

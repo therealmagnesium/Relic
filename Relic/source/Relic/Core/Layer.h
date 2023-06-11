@@ -12,7 +12,7 @@ namespace Relic
 
         virtual void OnAttach() {};
         virtual void OnDetach() {};
-        virtual void OnUpdate(float dt) {};
+        virtual void OnUpdate() {};
   
         bool IsEnabled() const { return m_enabled; };
 

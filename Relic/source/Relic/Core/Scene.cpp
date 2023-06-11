@@ -2,6 +2,7 @@
 #include "Layer.h"
 #include "Scene.h"
 #include "Application.h"
+#include "Relic/Entity/Entity.h"
 
 namespace Relic
 {
